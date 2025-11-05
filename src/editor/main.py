@@ -26,10 +26,14 @@ def justReadMetadata(books):
         if books[-1] != book:
             print('\n', end='')
 
-def repack(book):
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        subprocess.run(f'cd "{temp_path}" && unzip "{book}" && zip "{book}" ./*', shell = True)
+def repack(books, with_what = 'zip'):
+    for book in books:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            if with_what == 'zip':
+                subprocess.run(f'cd "{temp_path}" && unzip "{book}" && zip "{book}" ./*', shell = True)
+            elif with_what == '7z':
+                subprocess.run(f'cd "{temp_path}" && 7z x "{book}" ; 7z a "{book}" ./*', shell = True)
 
 def editOpf(book):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -49,6 +53,7 @@ def editOpf(book):
 
 def chooseOption(action, args):
     books = args[0]
+    
     if books:
         match action:
             case "open":
@@ -86,11 +91,7 @@ def chooseOption(action, args):
             case "just":
                 justReadMetadata(books)
             case "repack":
-                if len(books) > 1:
-                    for book in books:
-                        repack(book)
-                else:
-                    repack(books[0])
+                repack(books)
             case _:
                 print("There's no such option, try again.")
     else:

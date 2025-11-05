@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 
 from src.editor.main import main as editor
-from src.editor.main import chooseOption
+from src.editor.main import chooseOption, repack
 from src.editor import cover
 from src.open_book.main import zip_errors
 from src.open_book.main import openBook
@@ -16,8 +16,8 @@ parser.add_argument('-r', '--rename', action = 'store_true', help = "Rename file
 parser.add_argument('-s', '--sort', action = 'store_true', help = "Sort files in fold structure, author/series/book")
 parser.add_argument('-p', '--pretty', action = 'store_true', help = "Fix files, make them readable (Works through xmllint)")
 parser.add_argument('-j', '--just', action = 'store_true', help = "Just print metadata")
-parser.add_argument('-R', '--repack', action = 'store_true', help = "Repack epub file, can help with problem 'bad zip'")
 
+parser.add_argument('-R', '--repack', choices = ['zip', '7z'], default = '', type = str, help = "Repack epub file, can help with problem 'bad zip'")
 parser.add_argument('-c', '--cover', type = str, help = "Change cover")
 
 parser.add_argument('--script', type = str)
@@ -67,7 +67,7 @@ def inputHandler(Inputs):
 
 def argHandler(books):
     if args.repack:
-        chooseOption('repack', [books])
+        repack(books, args.repack)
     
     if args.just:
         chooseOption('just', [books])

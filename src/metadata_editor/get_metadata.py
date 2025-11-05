@@ -1,3 +1,5 @@
+from rich import print
+
 namespaces = {
     'opf': 'http://www.idpf.org/2007/opf',
     'dc': 'http://purl.org/dc/elements/1.1/'
@@ -38,7 +40,7 @@ def getMetadata(root, Print = False):
     if title:
         titleR = title[0].text
         if Print:
-            print(f"Title: {titleR}")
+            print(f"[cyan]Title:[/cyan] {titleR}")
         metadataRead['title'] = titleR
     
     if creators:
@@ -47,13 +49,13 @@ def getMetadata(root, Print = False):
             authors.append(creator.text)
         if len(authors) > 1:
             if Print:
-                print("Authors:")
+                print("[cyan]Authors:[/cyan]")
                 for author in authors:
                     print(f"\t{author}")
             metadataRead['authors'] = authors
         else:
             if Print:
-                print(f"Author: {authors[0]}")
+                print(f"[cyan]Author:[/cyan] {authors[0]}")
             metadataRead['author'] = authors[0]
     
     if language:
@@ -62,13 +64,13 @@ def getMetadata(root, Print = False):
             for lan in language:
                 languageR.append(lan.text)
             if Print:
-                print("Language:")
+                print("[cyan]Language:[/cyan]")
                 for lan in languageR:
                     print(f'\t{lan}')
         else:
             languageR = language[0].text
             if Print:
-                print(f"Language: {languageR}")
+                print(f"[cyan]Language:[/cyan] {languageR}")
         metadataRead['language'] = languageR
     
     if series:
@@ -92,19 +94,19 @@ def getMetadata(root, Print = False):
                 series_indexR = '0' + series_indexR
             
             if Print:
-                print(f"Series: {seriesR} {series_indexR}")
+                print(f"[cyan]Series:[/cyan] {seriesR} {series_indexR}")
             
             metadataRead['series'] = seriesR + ' ' + series_indexR
         else:
             if Print:
-                print(f"Series: {seriesR}")
+                print(f"[cyan]Series:[/cyan] {seriesR}")
     
     if metadata['version'] == '2.0':
         title_sort = metadata['title_sort']
         if title_sort:
             metadataRead['title_sort'] = title_sort[0].get('content')
             if Print:
-                print(f'Title, sort: {metadataRead['title_sort']}')
+                print(f'[blue]Title, sort[/blue]: {metadataRead['title_sort']}')
         
         if len(creators) > 1:
             authors_sort = []
@@ -114,7 +116,7 @@ def getMetadata(root, Print = False):
                     authors_sort.append(author_sort)
             metadataRead['authors_sort'] = authors_sort
             if Print:
-                print('Authors, sort:')
+                print('[blue]Authors, sort:[/blue]')
                 for author in authors_sort:
                     print(f'\t{author}')
         elif len(creators) == 1:
@@ -122,7 +124,7 @@ def getMetadata(root, Print = False):
             if author_sort:
                 metadataRead['author_sort'] = author_sort
                 if Print:
-                    print(f'Author, sort: {metadataRead['author_sort']}')
+                    print(f'[blue]Author, sort:[/blue] {metadataRead['author_sort']}')
     elif metadata['version'] == '3.0':
         if title:
             titleId = title[0].get('id')
@@ -136,7 +138,7 @@ def getMetadata(root, Print = False):
                     if title_as is not None:
                         metadataRead['title_sort'] = title_as.text
                         if Print:
-                            print(f'Title, sort: {metadataRead['title_sort']}')
+                            print(f'[blue]Title, sort:[/blue] {metadataRead['title_sort']}')
         
                 if len(creators) > 1:
                     authors_sort = []
@@ -144,13 +146,13 @@ def getMetadata(root, Print = False):
                         authors_sort.append(author_as.text)
                     metadataRead['authors_sort'] = authors_sort
                     if Print:
-                        print('Authors, sort:')
+                        print('[blue]Authors, sort:[/blue]')
                         for author in authors_sort:
                             print(f'\t{author}')
                 elif len(creators) == 1:
                     metadataRead['author_sort'] = file_as[0].text
                     if Print:
-                        print(f'Author, sort: {metadataRead['author_sort']}')
+                        print(f'[blue]Author, sort:[/blue] {metadataRead['author_sort']}')
     
     return metadataRead
 

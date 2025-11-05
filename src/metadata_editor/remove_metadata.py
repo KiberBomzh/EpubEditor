@@ -1,3 +1,5 @@
+from rich.prompt import Prompt
+
 from src.metadata_editor.get_metadata import getMetadataRaw
 
 from src.console_prompt import main as prompt
@@ -34,7 +36,7 @@ def optionHandl(action, args):
                         print(f'\t-{count}. {t.text}')
                         count += 1
                     print("\t-Remove all, just type 'all'")
-                    act = input('Choose: ')
+                    act = Prompt.ask('[green]Choose')
                     if act == 'all':
                         for t in title:
                             if metadata['version'] == '3.0':
@@ -84,7 +86,7 @@ def optionHandl(action, args):
                         print(f'\t-{count}. {author.text}')
                         count += 1
                     print("\t-Remove all, just type 'all'")
-                    act = input("Choose: ")
+                    act = Prompt.ask("[green]Choose")
                     if act == 'all':
                         for a in authors:
                             if metadata['version'] == '3.0':
@@ -120,7 +122,7 @@ def optionHandl(action, args):
                             print(f'\t-{count}. {s.get('content')}')
                             count += 1
                         print("\t-Remove all, just type 'all'")
-                        act = input('Choose: ')
+                        act = Prompt.ask('[green]Choose')
                         if act == 'all':
                             for s in series:
                                 metadata['metadata'].remove(s)
@@ -159,7 +161,7 @@ def optionHandl(action, args):
                             print(f'\t-{count}. {c.text}')
                             count += 1
                         print("\t-Remove all, just type 'all'")
-                        act = input('Choose: ')
+                        act = Prompt.ask('[green]Choose')
                         if act == 'all':
                             for c in collection:
                                 metadata['metadata'].remove(c)
@@ -205,7 +207,7 @@ def optionHandl(action, args):
                         print(f'\t-{count}. {lan.text}')
                         count += 1
                     print("\t-Remove all, just type 'all'")
-                    act = input('Choose: ')
+                    act = Prompt.ask('[green]Choose')
                     if act == 'all':
                         for lan in language:
                             metadata['metadata'].remove(lan)

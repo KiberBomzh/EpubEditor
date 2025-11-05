@@ -1,4 +1,5 @@
 from lxml import etree
+from rich.prompt import Prompt
 
 from src.metadata_editor.get_metadata import getMetadataRaw
 
@@ -21,7 +22,7 @@ def optionHandl(action, args):
             else:
                 metadata = getMetadataRaw(root)
                 title = etree.Element('{' + namespaces['dc'] + '}title')
-                title.text = input("Title: ")
+                title.text = Prompt.ask("[green]Title")
                 if metadata['version'] == '3.0':
                     Id = f'titleId-{len(metadata['title']) + 1}'
                     title.set('id', Id)
@@ -45,7 +46,7 @@ def optionHandl(action, args):
                     Id += f'-{count + 1}'
                     thisId = root.xpath(f'//dc:creator[@id="{Id}"]', namespaces = namespaces)
                 creator.set('id', Id)
-            creator.text = input("Author: ")
+            creator.text = Prompt.ask("[green]Author")
             
             if metadata['creators']:
                 last_creator = metadata.get('creators')[-1]
@@ -69,7 +70,7 @@ def optionHandl(action, args):
             if metadata['series']:
                 print('Series already exists. Try set/series')
             else:
-                new_series = input("Series: ")
+                new_series = Prompt.ask("[green]Series")
                 series = etree.Element('{' + namespaces['opf'] + '}meta')
                 if metadata['version'] == '2.0':
                     series.set('name', 'calibre:series')
@@ -88,7 +89,7 @@ def optionHandl(action, args):
                 metadata['metadata'].append(series)
                 
             if not metadata['series_index']:
-                new_series_index = input('Series index: ')
+                new_series_index = Prompt.ask('[green]Series index')
                 series_index = etree.Element('{' + namespaces['opf'] + '}meta')
                 if metadata['version'] == '2.0':
                     series_index.set('name', 'calibre:series_index')
@@ -102,7 +103,7 @@ def optionHandl(action, args):
             metadata = getMetadataRaw(root)
             firstMeta = root.xpath('//opf:meta', namespaces=namespaces)[0]
             language = etree.Element('{' + namespaces['dc'] + '}language')
-            language.text = input('Language: ')
+            language.text = Prompt.ask('[green]Language')
             firstMeta.addprevious(language)
         case _:
             print("Unknown option, try again.")

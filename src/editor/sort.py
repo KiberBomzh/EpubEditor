@@ -1,22 +1,25 @@
 from pathlib import Path
 from rich.progress import track
+from rich.prompt import Prompt
 
 from src.metadata_editor.get_metadata import getMetadata
 from src.editor.book_renamer import getRoot
 
 def main(books):
-    main_path = input('Input main folder for sort: ')
+    # Получение пути к главной папке для сортировки
+    main_path = Prompt.ask('[green]Input main folder for sort')
     if main_path[:2] == '~/':
         main_path = Path.home() / main_path[2:]
     else:
         main_path = Path(main_path).resolve()
     while not main_path.is_dir():
-        main_path = input('Not valid folder, try again: ')
+        main_path = Prompt.ask('[green]Not valid folder, try again')
         if main_path[:2] == '~/':
             main_path = Path.home() / main_path[2:]
         else:
             main_path = Path(main_path)
     
+    # Сама сортировка
     new_books = []
     for book in track(books, description = "Sort"):
         root = getRoot(book)
@@ -55,9 +58,28 @@ def main(books):
         if not new_fold.exists():
             new_fold.mkdir(parents = True)
         
-        book.replace(new_book_path)
+        if book != new_book_path:
+            book.replace(new_book_path)
         
         new_books.append(new_book_path)
+    
+    # Удаление пустых папок
+    removed_any = True
+    while removed_any:
+        removed_any = False
+        empty_folders = []
+        for folder in main_path.rglob('*'):
+            if folder.is_dir() and not any(folder.iterdir()):
+                empty_folders.append(folder)
+        
+        for empty_folder in sorted(empty_folders, key = lambda x: len(x.parts), reverse = True):
+            try:
+                empty_folder.rmdir()
+                removed_any = True
+                print(f"Empty folder removed: {empty_folder}")
+            except OSError as e:
+                print(f"Failed to remove {empty_folder}: {e}")
+    
     return new_books
 
 if __name__ == "__main__":

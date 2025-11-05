@@ -8,8 +8,8 @@ session = PromptSession()
 
 # Стилизация
 style = Style.from_dict({
-    'prompt': '#00aa00 bold',
-    'output': '#884444 italic',
+    'prompt': 'green bold',
+    'completion-menu': 'bg:#202020 fg:white'
 })
 
 
@@ -22,7 +22,7 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
     try:
         while True:
             command = session.prompt(
-                f'[{path}] ' + '>>> ',
+                f'[{path}]\n' + '>>> ',
                 completer=completer,
                 style=style
             )
