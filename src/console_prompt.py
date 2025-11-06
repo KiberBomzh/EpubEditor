@@ -40,15 +40,23 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
                         args[-1] =  os.path.expanduser(args[-1])
                 command = command[:index]
             
+            exit_or_back = 'exit'
+            if path != 'epubeditor':
+                exit_or_back = '..'
+            
             command = command.lower()
             if command == 'help':
                 print(help_message)
-            elif command == 'exit':
+            elif path != 'epubeditor' and command == 'exit':
+                return command
+            elif command == exit_or_back:
                 break
             elif args:
-                commandHandler(command, args)
+                if commandHandler(command, args) == 'exit':
+                    return 'exit'
             else:
-                commandHandler(command)    
+                if commandHandler(command) == 'exit':
+                    return 'exit'
             
                 
     except (KeyboardInterrupt, EOFError):

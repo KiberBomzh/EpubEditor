@@ -70,10 +70,11 @@ def main(root, metadataRead, path):
     help_msg = "Available options:"
     for opt in optList:
         help_msg += f"\n\t-{opt.title()}"
-    help_msg += "\n\t-Create author's sort name, print 'sort'" + "\n\t-Exit"
+    help_msg += "\n\t-Create author's sort name, print 'sort'" + "\n\tGo back, '..'" + "\n\t-Exit"
     optList.append('sort')
+    optList.append('..')
     
-    prompt(optionHandl, optList, help_msg, path = path + '/set', args = [root])
+    return prompt(optionHandl, optList, help_msg, path = path + '/set', args = [root])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

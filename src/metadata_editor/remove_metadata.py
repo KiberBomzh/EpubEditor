@@ -238,9 +238,11 @@ def main(root, metadataRead, path):
     help_msg = "Available options:"
     for opt in optList:
         help_msg += f"\n\t-{opt.title()}"
+    help_msg += "\n\tGo back, '..'"
     help_msg += "\n\t-Exit"
+    optList.append('..')
     
-    prompt(optionHandl, optList, help_msg, path = path + '/remove', args = [root, metaReadList])
+    return prompt(optionHandl, optList, help_msg, path = path + '/remove', args = [root, metaReadList])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

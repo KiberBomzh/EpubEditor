@@ -1,11 +1,12 @@
 import subprocess
 import argparse
 from pathlib import Path
+from rich.progress import track
 
 from src.editor.main import main as editor
 from src.editor.main import chooseOption, repack
 from src.editor import cover
-from src.open_book.main import zip_errors
+from src.open_book.main import zip_errors, subprocess_errors
 from src.open_book.main import openBook
 
 parser = argparse.ArgumentParser(description="Epub editor")
@@ -67,7 +68,12 @@ def inputHandler(Inputs):
 
 def argHandler(books):
     if args.repack:
+        subprocess_errors.clear()
         repack(books, args.repack)
+        if subprocess_errors:
+            print('Subprocess Error:')
+            for error in subprocess_errors:
+                print(error)
     
     if args.just:
         chooseOption('just', [books])
@@ -88,8 +94,19 @@ def argHandler(books):
         books = chooseOption('sort', [books])
     
     if args.script:
-        for book in books:
-            openBook(book, scriptRun)
+        subprocess_errors.clear()
+        zip_errors.clear()
+        
+        if len(books) == 1:
+            openBook(books[0], scriptRun)
+        elif len(books) > 1:
+            for book in track(books, description = 'Script'):
+                openBook(book, scriptRun)
+        
+        if subprocess_errors:
+            print('Subprocess Error:')
+            for error in subprocess_errors:
+                print(error)
         
         if zip_errors:
             print('Bad zip file!')

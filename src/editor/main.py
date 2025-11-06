@@ -1,4 +1,5 @@
 import zipfile
+import sys
 from pathlib import Path
 import subprocess
 from lxml import etree
@@ -8,7 +9,7 @@ from rich.progress import track
 from src.metadata_editor import main as metadata_editor
 from src.metadata_editor.get_metadata import getMetadata
 from src.open_book import main as open_book
-from src.open_book.main import zip_errors
+from src.open_book.main import zip_errors, subprocess_errors
 from src.editor import cover, book_renamer, sort
 
 from src.console_prompt import main as prompt
@@ -27,13 +28,31 @@ def justReadMetadata(books):
             print('\n', end='')
 
 def repack(books, with_what = 'zip'):
-    for book in books:
+    if len(books) > 1:
+        for book in track(books, description = 'Repack'):
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_path = Path(temp_dir)
+                if with_what == 'zip':
+                    result = subprocess.run(f'cd "{temp_path}" && unzip -q "{book}" ; zip -q "{book}" ./*', shell = True, capture_output = True, text = True)
+                elif with_what == '7z':
+                    result = subprocess.run(f'cd "{temp_path}" && 7z x "{book}" -y -bso0 -bsp0 ; 7z a "{book}" ./* -y -bso0 -bsp0', shell = True, capture_output = True, text = True)
+            
+            if result.stderr:
+                subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
+            else:
+                print(f'Reapcked: {book}')
+    elif len(books) == 1:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             if with_what == 'zip':
-                subprocess.run(f'cd "{temp_path}" && unzip "{book}" && zip "{book}" ./*', shell = True)
+                result = subprocess.run(f'cd "{temp_path}" && unzip -q "{books[0]}" ; zip -q "{books[0]}" ./*', shell = True, capture_output = True, text = True)
             elif with_what == '7z':
-                subprocess.run(f'cd "{temp_path}" && 7z x "{book}" ; 7z a "{book}" ./*', shell = True)
+                result = subprocess.run(f'cd "{temp_path}" && 7z x "{books[0]}" -y -bso0 -bsp0 ; 7z a "{books[0]}" ./* -y -bso0 -bsp0', shell = True, capture_output = True, text = True)
+        
+        if result.stderr:
+            subprocess_errors.append(f"--------------------\n{books[0]}\n{result.stderr}")
+        else:
+            print(f'Reapcked: {books[0]}')
 
 def editOpf(book):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -47,9 +66,9 @@ def editOpf(book):
         opf = list(temp_path.rglob('*.opf'))[0]
         opf_relative = opf.relative_to(temp_path)
         
-        metadata_editor.main(opf)
-        
+        act = metadata_editor.main(opf)
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {opf_relative}', shell = True)
+        return act
 
 def chooseOption(action, args):
     books = args[0]
@@ -60,15 +79,18 @@ def chooseOption(action, args):
                 if len(books) > 1:
                     print("There's more than one book!")
                 else:
-                    open_book.main(books[0])
+                    if open_book.main(books[0]) == 'exit':
+                        sys.exit()
             case "meta":
                 if len(books) == 1:
-                    editOpf(books[0])
+                    if editOpf(books[0]) == 'exit':
+                        sys.exit()
                 else:
                     print('In developing...')
             case "cover":
                 if len(books) == 1:
-                    cover.main(books[0])
+                    if cover.main(books[0]) == 'exit':
+                        sys.exit()
                 else:
                     print("There's more than one book!")
             case "rename":
@@ -78,11 +100,20 @@ def chooseOption(action, args):
                 books = sort.main(books)
                 return books
             case "pretty":
+                zip_errors.clear()
+                subprocess_errors.clear()
                 if len(books) > 1:
                     for book in track(books, description = "Pretty"):
-                        open_book.openBook(book, open_book.toPretty)
+                        print('--------------------')
+                        print(book)
+                        open_book.openBook(book, open_book.toPretty, [book])
                 else:
                     open_book.openBook(books[0], open_book.toPretty)
+                
+                if subprocess_errors:
+                    print('Subprocess Error:')
+                    for error in subprocess_errors:
+                        print(error)
                 
                 if zip_errors:
                     print('Bad zip file!')
@@ -90,8 +121,16 @@ def chooseOption(action, args):
                         print(er)
             case "just":
                 justReadMetadata(books)
+            case "list":
+                for book in books:
+                    print(book)
             case "repack":
+                subprocess_errors.clear()
                 repack(books)
+                if subprocess_errors:
+                    print('Subprocess Error:')
+                    for error in subprocess_errors:
+                        print(error)
             case _:
                 print("There's no such option, try again.")
     else:
@@ -107,9 +146,10 @@ def main(books: list):
         "\t-Sort, author/series/book     'sort'\n" +
         "\t-Pretty                       'pretty'\n" +
         "\t-Just print metadata          'just'\n" +
+        "\t-Print current book(s)        'list'\n" +
         "\t-Repack bad zip               'repack'\n" +
         "\t-Exit")
-    optList = ['open', 'meta', 'cover', 'rename', 'sort', 'pretty', 'just', 'repack']
+    optList = ['open', 'meta', 'cover', 'rename', 'sort', 'pretty', 'just', 'list', 'repack']
     prompt(chooseOption, optList, helpmsg, args = [books])
 
 if __name__ == "__main__":

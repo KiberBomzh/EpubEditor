@@ -2,36 +2,25 @@ import tempfile
 import zipfile
 import subprocess
 from pathlib import Path
-from lxml import etree, html
+from rich.console import Console
 
 from src.open_book import search
 from src.metadata_editor import main as metadata_editor
 
 from src.console_prompt import main as prompt
 
-def toPretty(temp_path):
-    file_formats = ['.xhtml', '.html', '.htm', '.opf', '.ncx']
-    xml_form = file_formats[3:]
-    html_form = file_formats[:3]
+subprocess_errors = []
+
+def toPretty(temp_path, args):
+    book = args[0]
+    file_formats = ['.xhtml', '.html', '.htm', '.xml', '.opf', '.ncx']
     for file in temp_path.rglob('*'):
         if file.is_file() and file.suffix.lower() in file_formats:
-            #subprocess.run(["xmllint", file, "--format", "-o", file])
-            if file.suffix.lower() in xml_form:
-                tree = etree.parse(file)
-                root = tree.getroot()
-                pretty_content = (
-                    '<?xml version="1.0" encoding="UTF-8"?>\n' + 
-                    etree.tostring(root, pretty_print = True, encoding = 'unicode')
-                )
-                file.write_text(pretty_content, encoding = 'utf-8')
-            elif file.suffix.lower() in html_form:
-                tree = html.parse(file)
-                root = tree.getroot()
-                pretty_content = (
-                    '<?xml version="1.0" encoding="UTF-8"?>\n' + 
-                    html.tostring(root, pretty_print = True, encoding = 'unicode')
-                )
-                file.write_text(pretty_content, encoding = 'utf-8')
+            result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
+            
+            if result.stderr:
+                subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
+            
             print(file.relative_to(temp_path))
 
 # Переменная с ошибками открытия zip
@@ -91,16 +80,63 @@ def save(temp_path, book):
         if temp_book.exists():
             temp_book.unlink()
 
+def ls(temp_path):
+    book_content = []
+    css = []
+    images = []
+    fonts = []
+    other = []
+    opf = ''
+    ncx = ''
+    for file in temp_path.rglob('*'):
+        if file.is_file():
+            f = file.relative_to(temp_path)
+            match file.suffix.lower():
+                case '.xhtml' | '.html' | '.htm':
+                    book_content.append(f)
+                case '.jpg' | '.jpeg' | '.png':
+                    images.append(f)
+                case '.ttf' | '.otf':
+                    fonts.append(f)
+                case '.css':
+                    css.append(f)
+                case '.opf':
+                    opf = f
+                case '.ncx':
+                    ncx = f
+                case _:
+                    other.append(f)
+    
+    if opf:
+        console.print(f'[yellow]{opf}')
+    if ncx:
+        console.print(f'[cyan]{ncx}')
+    
+    for f in sorted(book_content):
+        console.print(f'[green]{f}')
+    
+    for f in css:
+        console.print(f'[blue]{f}')
+    
+    for f in fonts:
+        console.print(f'[dark_orange]{f}')
+    
+    for f in images:
+        console.print(f'[magenta]{f}')
+    
+    if other:
+        for f in other:
+            console.print(f'[dim]{f}')
+
 def optionHandl(action, args):
     book = args[0]
     temp_path = args[1]
-    fList = args[2]
     
-    if len(args) > 3:
-        arg = args[3]
+    if len(args) > 2:
+        arg = args[2]
         file = temp_path / arg
     else:
-        arg = False
+        arg = ''
     
     match action:
         case 'save':
@@ -108,7 +144,7 @@ def optionHandl(action, args):
         
         case 'meta':
             opf = list(temp_path.rglob('*.opf'))[0]
-            metadata_editor.main(opf, path = 'epubeditor/open/meta')
+            return metadata_editor.main(opf, path = 'epubeditor/open/meta')
         
         case 'search':
             if arg:
@@ -130,13 +166,17 @@ def optionHandl(action, args):
         case 'tree':
             subprocess.run(['tree', temp_path])
         case 'ls':
-            for f in fList:
-                print(f)
+            ls(temp_path)
+        case 'just_ls':
+            for f in temp_path.rglob('*'):
+                print(f.relative_to(temp_path))
         #case 'cp'
         #case 'mv'
         #case 'rm'
         case _:
             print("Unknown option, try again.")
+
+console = Console()
 
 def main(book):
     helpmsg = ("Options:\n" +
@@ -146,11 +186,13 @@ def main(book):
         "\t-Open in text editor, 'micro, nano, vim, bat' <file_name>\n" +
         "\t-tree\n" +
         "\t-ls\n" +
+        "\t-jsut_ls\n" +
         #"\t-cp\n" +
         #"\t-mv\n" +
         #"\t-rm\n" +
+        "\tGo back, '..'\n" +
         "\t-Exit")
-    optList = ['save', 'meta', 'search', 'micro', 'nano', 'vim', 'bat', 'tree', 'ls'] #, 'cp', 'mv', 'rm']
+    optList = ['save', 'meta', 'search', 'micro', 'nano', 'vim', 'bat', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -163,10 +205,7 @@ def main(book):
                 print("Bad zip file! Possible zipbomb!")
                 return None
         
-        fList = []
-        for f in temp_path.rglob('*'):
-            fList.append(f.relative_to(temp_path))
-        prompt(optionHandl, optList, helpmsg, path = 'epubeditor/open', args = [book, temp_path, fList])
+        return prompt(optionHandl, optList, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

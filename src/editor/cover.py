@@ -168,9 +168,10 @@ def main(book):
         "\t-Set <path_to_cover>\n" +
         "\t-Add <path_to_cover>\n" +
         "\t-Extract <output_path>\n" +
+        "\tGo back, '..'\n" +
         "\t-Exit")
-    optList = ['set', 'add', 'extract']
-    prompt(optionHandl, optList, help_msg, path = 'epubeditor/cover', args = [book])
+    optList = ['set', 'add', 'extract', '..']
+    return prompt(optionHandl, optList, help_msg, path = 'epubeditor/cover', args = [book])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

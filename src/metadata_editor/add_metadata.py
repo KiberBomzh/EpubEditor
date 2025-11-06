@@ -114,9 +114,10 @@ def main(root, path):
         "\t-Author\n" +
         "\t-Series\n" +
         "\t-Language\n" +
+        "\tGo back, '..'\n" +
         "\t-Exit")
-    optList = ['title', 'author', 'series', 'language']
-    prompt(optionHandl, optList, help_msg, path = path + '/add', args = [root])
+    optList = ['title', 'author', 'series', 'language', '..']
+    return prompt(optionHandl, optList, help_msg, path = path + '/add', args = [root])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

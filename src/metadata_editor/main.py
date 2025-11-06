@@ -13,11 +13,11 @@ def changeMetadata(action, args):
         case "print":
             get_metadata.getMetadata(root, Print = True)
         case "set":
-            set_metadata.main(root, metadataRead, path)
+            return set_metadata.main(root, metadataRead, path)
         case "add":
-            add_metadata.main(root, path)
+            return add_metadata.main(root, path)
         case "remove":
-            remove_metadata.main(root, metadataRead, path)
+            return remove_metadata.main(root, metadataRead, path)
         case _:
             print("Unknown option, try again.")
 
@@ -29,10 +29,12 @@ def main(opf, path = 'epubeditor/meta'):
             "\t-Add\n" +
             "\t-Remove\n" +
             "\t-Print\n" +
+            "\tGo back, '..'\n" +
             "\t-Exit")
-    optList = ['set', 'add', 'remove', 'print']
-    prompt(changeMetadata, optList, help_msg, path = path, args = [root, path])
+    optList = ['set', 'add', 'remove', 'print', '..']
+    act = prompt(changeMetadata, optList, help_msg, path = path, args = [root, path])
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    return act
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")
