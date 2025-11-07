@@ -4,7 +4,10 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
 
+from src.cli import inputHandler
+
 session = PromptSession()
+books = inputHandler()
 
 # Стилизация
 style = Style.from_dict({
@@ -18,26 +21,47 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
     compl.append('exit')
     completer = WordCompleter(compl)
     
+    columns, lines = os.get_terminal_size()
+    path_len = len(path) + 2
+    max_name_len = columns - 10 - path_len
+    
+    if len(books) > 1:
+        book_name = f'Books: {len(books)}'
+    elif len(books) == 1:
+        book_name = books[0].stem
+    else:
+        book_name = ''
+    
+    if len(book_name) > max_name_len:
+        name_beginning = book_name[:5]
+        name_end = book_name[-(max_name_len - 8):]
+        book_name = name_beginning + '...' + name_end
+        print(len(book_name), max_name_len)
+    
+    indent = columns - path_len - len(book_name)
+    prompt_text = '[' + path + ']' + ' ' * indent + book_name + '\n>>> '
+    
     first_append_in_args = True
     try:
         while True:
             command = session.prompt(
-                f'[{path}]\n' + '>>> ',
+                prompt_text,
                 completer=completer,
                 style=style
             )
             
+            if not first_append_in_args:
+                args.pop()
+                first_append_in_args = True
+            
             if ' ' in command:
                 index = command.find(' ')
-                if first_append_in_args:
-                    args.append(command[index + 1:])
-                    if args[-1][:2] == '~/':
-                        args[-1] =  os.path.expanduser(args[-1])
-                    first_append_in_args = False
-                else:
-                    args[-1] = command[index + 1:]
-                    if args[-1][:2] == '~/':
-                        args[-1] =  os.path.expanduser(args[-1])
+                
+                args.append(command[index + 1:])
+                if args[-1][:2] == '~/':
+                    args[-1] =  os.path.expanduser(args[-1])
+                first_append_in_args = False
+                
                 command = command[:index]
             
             exit_or_back = 'exit'

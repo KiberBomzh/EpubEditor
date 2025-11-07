@@ -25,8 +25,7 @@ packages = [
 	"src.open_book"
 ]
 py-modules = [
-	"src.cli",
-	"src.console_prompt"
+	"src.cli"
 ]
 
 [dependency-groups]

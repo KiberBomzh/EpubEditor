@@ -23,6 +23,8 @@ for file in temp_path.rglob('*'):
         root = tree.getroot()
         
         paragraphs = root.xpath(f'//p[contains(text(), "{old_value}")]')
+        if not paragraphs:
+            paragraphs = root.xpath(f'//div[contains(text(), "{old_value}")]')
         
         if paragraphs:
             for p in paragraphs:

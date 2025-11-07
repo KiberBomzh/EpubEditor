@@ -12,7 +12,7 @@ def replaceElements(elements, new_value, query, where):
                 for key, value in el.attrib.items():
                     if query == value:
                         el.attrib[key] = new_value
-        case 'p':
+        case 'paragraph':
             for el in elements:
                 el.text = el.text.replace(query, new_value)
 
@@ -25,13 +25,13 @@ def printElements(elements, file, where):
         match where:
             case 'attr':
                 print(f"\t{el.attrib.items()}")
-            case 'p':
+            case 'paragraph':
                 print(f"\n{el.text}\n")
     
     print(f"Total in file {file}: {local_counter}\n\n")
     return local_counter
 
-def main(temp_path, query, action: str, new_value = '', where = 'p'):
+def main(temp_path, query, action: str, new_value = '', where = 'paragraph'):
     file_formats = ['.xhtml', '.html', '.htm']
     total_counter = 0
     for file in temp_path.rglob('*'):
@@ -44,8 +44,10 @@ def main(temp_path, query, action: str, new_value = '', where = 'p'):
                 case 'attr':
                     s_res = root.xpath(f'//*[@*[contains(., "{query}")]]')
                 # Поиск в параграфах
-                case 'p':
+                case 'paragraph':
                     s_res = root.xpath(f'//p[contains(text(), "{query}")]')
+                    if not s_res:
+                        s_res = root.xpath(f'//div[contains(text(), "{query}")]')
             
             if s_res:
                 match action:

@@ -110,13 +110,12 @@ def extractCover(book, outpath):
         out_cover = outpath / Path(cover_in_book).name
         new_cover_name = book.stem + out_cover.suffix
         new_cover = outpath / new_cover_name
-        subprocess.run(["unzip", "-j", "-d", outpath, book, cover_in_book])
-        subprocess.run(["mv", out_cover, new_cover])
+        subprocess.run(f'unzip -p "{book}" "{cover_in_book}" > "{new_cover}"', shell = True)
     else:
         print("There's no cover in the book!")
     
 
-def optionHandl(action, args, cover = False):
+def optionHandl(action, args, cover = ''):
     book = args[0]
     if cover:
         cover = Path(cover)
@@ -127,26 +126,22 @@ def optionHandl(action, args, cover = False):
             print("Not valid cover, try another.")
     else:
         if len(args) > 1:
-            cover = args[1]
-        
-        if cover:
-            cover = Path(cover)
-            cover = cover.resolve()
+            cover_path = Path(args[1]).resolve()
             
             match action:
                 case 'set':
-                    if validateCover(cover):
-                        changeCover(book, cover)
+                    if validateCover(cover_path):
+                        changeCover(book, cover_path)
                     else:
                         print("Not valid cover, try another.")
                 case 'add':
-                    if validateCover(cover):
-                        addCover(book, cover)
+                    if validateCover(cover_path):
+                        addCover(book, cover_path)
                     else:
                         print("Not valid cover, try another.")
                 case 'extract':
-                    if cover.is_dir():
-                        extractCover(book, cover)
+                    if cover_path.is_dir():
+                        extractCover(book, cover_path)
                     else:
                         print("Extract path isn't existing!")
                 case _:

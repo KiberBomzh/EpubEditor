@@ -1,13 +1,5 @@
-import subprocess
 import argparse
 from pathlib import Path
-from rich.progress import track
-
-from src.editor.main import main as editor
-from src.editor.main import chooseOption, repack
-from src.editor import cover
-from src.open_book.main import zip_errors, subprocess_errors
-from src.open_book.main import openBook
 
 parser = argparse.ArgumentParser(description="Epub editor")
 parser.add_argument('input', nargs = '+', type = str, help = "Input file (book) or directory with books")
@@ -25,10 +17,7 @@ parser.add_argument('--script', type = str)
 
 args = parser.parse_args()
 
-def scriptRun(temp_path):
-    subprocess.call([args.script, temp_path])
-
-def are_all_flags_false(parser, args, exclude=None):
+def are_all_flags_false(parser = parser, args = args, exclude=None):
     if exclude is None:
         exclude = []
     
@@ -40,7 +29,7 @@ def are_all_flags_false(parser, args, exclude=None):
                 return False
     return True
 
-def inputHandler(Inputs):
+def inputHandler(Inputs = args.input):
     books = []
     for Input in Inputs:
         input_path = Path(Input).resolve()
@@ -65,61 +54,9 @@ def inputHandler(Inputs):
             raise ValueError("There's no such path!")
     return books
 
-
-def argHandler(books):
-    if args.repack:
-        subprocess_errors.clear()
-        repack(books, args.repack)
-        if subprocess_errors:
-            print('Subprocess Error:')
-            for error in subprocess_errors:
-                print(error)
-    
-    if args.just:
-        chooseOption('just', [books])
-    
-    if args.pretty:
-        chooseOption('pretty', [books])
-    
-    if args.cover:
-        cover.optionHandl('', [books], cover = args.cover)
-    
-    if args.proceed:
-        editor(books)
-
-    if args.rename:
-        books = chooseOption('rename', [books])
-    
-    if args.sort:
-        books = chooseOption('sort', [books])
-    
-    if args.script:
-        subprocess_errors.clear()
-        zip_errors.clear()
-        
-        if len(books) == 1:
-            openBook(books[0], scriptRun)
-        elif len(books) > 1:
-            for book in track(books, description = 'Script'):
-                openBook(book, scriptRun)
-        
-        if subprocess_errors:
-            print('Subprocess Error:')
-            for error in subprocess_errors:
-                print(error)
-        
-        if zip_errors:
-            print('Bad zip file!')
-            for er in zip_errors:
-                print(er)
-
 def main():
-    books = inputHandler(args.input)
-    if are_all_flags_false(parser, args):
-        editor(books)
-    else:
-        argHandler(books)
-
+    from src.main import main as start
+    start()
 
 if __name__ == "__main__":
     main()
