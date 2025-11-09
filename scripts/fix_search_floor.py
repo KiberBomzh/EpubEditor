@@ -1,11 +1,5 @@
-#!/usr/bin/env -S uv run --script
+#!/usr/bin/env python
 
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "lxml",
-# ]
-# ///
 from sys import argv
 from pathlib import Path
 from lxml import html

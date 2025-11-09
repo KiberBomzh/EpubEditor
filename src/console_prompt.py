@@ -36,7 +36,6 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
         name_beginning = book_name[:5]
         name_end = book_name[-(max_name_len - 8):]
         book_name = name_beginning + '...' + name_end
-        print(len(book_name), max_name_len)
     
     indent = columns - path_len - len(book_name)
     prompt_text = '[' + path + ']' + ' ' * indent + book_name + '\n>>> '

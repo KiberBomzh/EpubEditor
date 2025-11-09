@@ -67,7 +67,7 @@ def openBook(book_path, func, args = []):
                 temp_book.unlink()
 
 def save(temp_path, book):
-    #Запись книги из временной папки (сохранение изменений)
+    # Запись книги из временной папки (сохранение изменений)
     temp_book = book.with_suffix('.temp.zip')
     try:
         with zipfile.ZipFile(temp_book, 'w') as book_write:
@@ -79,6 +79,14 @@ def save(temp_path, book):
     finally:
         if temp_book.exists():
             temp_book.unlink()
+
+def save_as(temp_path, book):
+    # Запись книги из временной папки (сохранение изменений)
+    with zipfile.ZipFile(book, 'w') as book_write:
+        for file in temp_path.rglob('*'):
+            if file.is_file():
+                arcname = file.relative_to(temp_path).as_posix()
+                book_write.write(file, arcname)
 
 def ls(temp_path):
     book_content = []
@@ -141,6 +149,16 @@ def optionHandl(action, args):
     match action:
         case 'save':
             save(temp_path, book)
+        case 'save_as':
+            if arg:
+                book_as = Path(arg)
+                if book_as.parent.exists():
+                    save_as(temp_path, book_as)
+                else:
+                    print(f'Invalid path: {book_as}, try again:')
+            
+            else:
+                print("Option needs second argument.")
         
         case 'meta':
             opf = list(temp_path.rglob('*.opf'))[0]
@@ -162,7 +180,15 @@ def optionHandl(action, args):
                 subprocess.run([action, file])
             else:
                 print("Option needs second argument.")
-
+        
+        case 'pretty':
+            file_formats = ['.xhtml', '.html', '.htm', '.xml', '.opf', '.ncx']
+            for file in temp_path.rglob('*'):
+                if file.is_file() and file.suffix.lower() in file_formats:
+                    subprocess.run(["xmllint", file, "--format", "-o", file])
+            
+                    print(file.relative_to(temp_path))
+        
         case 'tree':
             subprocess.run(['tree', temp_path])
         case 'ls':
@@ -181,9 +207,11 @@ console = Console()
 def main(book):
     helpmsg = ("Options:\n" +
         "\t-Save\n" +
+        "\t-Save as, 'save_as' <book_as path>\n" +
         "\tMetadata editor\n" +
         "\t-Search in files, 'search' <query>\n" +
         "\t-Open in text editor, 'micro, nano, vim, bat' <file_name>\n" +
+        "\t-Pretty\n" +
         "\t-tree\n" +
         "\t-ls\n" +
         "\t-jsut_ls\n" +
@@ -192,7 +220,7 @@ def main(book):
         #"\t-rm\n" +
         "\tGo back, '..'\n" +
         "\t-Exit")
-    optList = ['save', 'meta', 'search', 'micro', 'nano', 'vim', 'bat', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
+    optList = ['save', 'save_as', 'meta', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:

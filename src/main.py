@@ -65,3 +65,5 @@ def main():
     else:
         argHandler(books)
 
+if __name__ == "__main__":
+    print("This is just module, try to run cli.py")

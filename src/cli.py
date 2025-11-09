@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-parser = argparse.ArgumentParser(description="Epub editor")
+parser = argparse.ArgumentParser(description="Epub editor - cli tool for editing epub books.")
 parser.add_argument('input', nargs = '+', type = str, help = "Input file (book) or directory with books")
 parser.add_argument('-P', '--proceed', action = 'store_true', help = "Continue editing after start with argument")
 
@@ -14,6 +14,7 @@ parser.add_argument('-R', '--repack', choices = ['zip', '7z'], default = '', typ
 parser.add_argument('-c', '--cover', type = str, help = "Change cover")
 
 parser.add_argument('--script', type = str)
+parser.add_argument('--no-subdirs', action = 'store_true', help = "Don't read books from subdirs")
 
 args = parser.parse_args()
 
@@ -22,6 +23,7 @@ def are_all_flags_false(parser = parser, args = args, exclude=None):
         exclude = []
     
     exclude.append('input')
+    exclude.append('no_subdirs')
     
     for action in parser._actions:
         if action.dest not in exclude:
@@ -42,8 +44,12 @@ def inputHandler(Inputs = args.input):
                 raise ValueError("The file isn't epub!")
         
         elif input_path.is_dir():
-            input_books = list(input_path.rglob('*.epub'))
-            if input_books is None:
+            if args.no_subdirs:
+                input_books = list(input_path.glob('*.epub'))
+            else:
+                input_books = list(input_path.rglob('*.epub'))
+            
+            if not input_books:
                 raise ValueError("There's no epub files in directory!")
             else:
                 for book in input_books:
