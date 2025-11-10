@@ -69,6 +69,6 @@ To go back write `..`
 	- [ ] Fast creating TOC from h1, h2, h3
 
 - [x] Books renaming {author - series 01.0, title}
-- [ ] Multiple metadata editor
+- [x] Multiple metadata editor
 - [x] Sorting books in folders: author/series/book
 - [x] Changing cover

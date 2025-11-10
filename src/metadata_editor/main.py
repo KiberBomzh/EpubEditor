@@ -1,10 +1,9 @@
 from lxml import etree
 
 from src.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata
-
 from src.console_prompt import main as prompt
 
-def changeMetadata(action, args):
+def optionHandl(action, args):
     root = args[0]
     path = args[1]
     metadataRead = get_metadata.getMetadata(root)
@@ -32,7 +31,7 @@ def main(opf, path = 'epubeditor/meta'):
             "\tGo back, '..'\n" +
             "\t-Exit")
     optList = ['set', 'add', 'remove', 'print', '..']
-    act = prompt(changeMetadata, optList, help_msg, path = path, args = [root, path])
+    act = prompt(optionHandl, optList, help_msg, path = path, args = [root, path])
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
     return act
 

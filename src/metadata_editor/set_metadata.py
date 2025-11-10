@@ -57,6 +57,7 @@ def optionHandl(action, args):
                 print("There's no series, try add.")
         case "sort":
             create_sort.createSort(root)
+            print('Added.')
         case _:
             print("Unknown option, try again.")
 

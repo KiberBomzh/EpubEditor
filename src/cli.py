@@ -13,6 +13,14 @@ parser.add_argument('-j', '--just', action = 'store_true', help = "Just print me
 parser.add_argument('-R', '--repack', choices = ['zip', '7z'], default = '', type = str, help = "Repack epub file, can help with problem 'bad zip'")
 parser.add_argument('-c', '--cover', type = str, help = "Change cover")
 
+metadata_group = parser.add_argument_group('Arguments for editing metadata')
+metadata_group.add_argument('--title', type = str, help = 'Set title for book(s)')
+metadata_group.add_argument('--author', nargs = '+', type = str, help = 'Set author(s) for book(s)')
+metadata_group.add_argument('--series', type = str, help = 'Set series for book(s)')
+metadata_group.add_argument('--series-index', type = str, help = 'Set series index for book(s)')
+metadata_group.add_argument('--language', nargs = '+', type = str, help ='Set language(s) for book(s)')
+metadata_group.add_argument('--generate-sort', action = 'store_true', help = 'Generate sort name (author, title) for book(s)')
+
 parser.add_argument('--script', type = str)
 parser.add_argument('--no-subdirs', action = 'store_true', help = "Don't read books from subdirs")
 

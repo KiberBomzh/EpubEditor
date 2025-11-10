@@ -6,6 +6,7 @@ from src.editor.main import chooseOption, repack
 from src.editor import cover
 from src.open_book.main import zip_errors, subprocess_errors
 from src.open_book.main import openBook
+from src.metadata_editor.multiple_editor import main as multipleEditor
 from src.cli import args, are_all_flags_false, inputHandler
 
 def scriptRun(temp_path):
@@ -19,6 +20,15 @@ def argHandler(books):
             print('Subprocess Error:')
             for error in subprocess_errors:
                 print(error)
+    
+    if any(getattr(args, arg, False) for arg in ['title', 'author', 'series', 'series_index', 'language', 'generate_sort']):
+        new_meta = {}
+        new_meta['title'] = args.title
+        new_meta['author'] = args.author
+        new_meta['series'] = args.series
+        new_meta['series_index'] = args.series_index
+        new_meta['language'] = args.language
+        multipleEditor(books, new_meta, args.generate_sort)
     
     if args.just:
         chooseOption('just', [books])

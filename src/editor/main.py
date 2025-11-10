@@ -8,6 +8,7 @@ from rich.progress import track
 
 from src.metadata_editor import main as metadata_editor
 from src.metadata_editor.get_metadata import getMetadata
+from src.metadata_editor.multiple_editor import main as multipleEditor
 from src.open_book import main as open_book
 from src.open_book.main import zip_errors, subprocess_errors
 from src.editor import cover, book_renamer, sort
@@ -86,7 +87,7 @@ def chooseOption(action, args):
                     if editOpf(books[0]) == 'exit':
                         sys.exit()
                 else:
-                    print('In developing...')
+                    multipleEditor(books)
             case "cover":
                 if len(books) == 1:
                     if cover.main(books[0]) == 'exit':

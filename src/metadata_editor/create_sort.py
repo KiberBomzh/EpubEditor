@@ -140,7 +140,6 @@ def createSort(root):
                 author_as.set('property', 'file-as')
                 author_as.text = author_sort
                 metadata['metadata'].append(author_as)
-    print('Added.')
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")
