@@ -66,7 +66,7 @@ def inputHandler(Inputs = args.input):
         
         else:
             raise ValueError("There's no such path!")
-    return books
+    return sorted(books)
 
 def main():
     from src.main import main as start

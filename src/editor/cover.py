@@ -37,8 +37,6 @@ def getCover(book):
             return False
 
 def changeCover(book, cover):
-    # Написать функцию для поиска с заменой
-    # Чтоб не переименовывать файл в новый формат
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         
@@ -55,7 +53,6 @@ def changeCover(book, cover):
             else:
                 print(f"Formats {cover_in_book.name} and {cover.name} isn't the same!")
         else:
-            # Добавить добавление обложки в книгу без неё
             print("There's no cover in the book, try add.")
 
 def addCover(book, cover):

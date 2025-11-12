@@ -208,13 +208,13 @@ def main(book):
     helpmsg = ("Options:\n" +
         "\t-Save\n" +
         "\t-Save as, 'save_as' <book_as path>\n" +
-        "\tMetadata editor\n" +
+        "\t-Metadata editor\n" +
         "\t-Search in files, 'search' <query>\n" +
         "\t-Open in text editor, 'micro, nano, vim, bat' <file_name>\n" +
         "\t-Pretty\n" +
         "\t-tree\n" +
         "\t-ls\n" +
-        "\t-jsut_ls\n" +
+        "\t-just_ls\n" +
         #"\t-cp\n" +
         #"\t-mv\n" +
         #"\t-rm\n" +
