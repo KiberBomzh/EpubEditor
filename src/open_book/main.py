@@ -6,6 +6,7 @@ from rich.console import Console
 
 from src.open_book import search
 from src.metadata_editor import main as metadata_editor
+from src.toc.main import main as tocEditor
 
 from src.console_prompt import main as prompt
 
@@ -163,6 +164,16 @@ def optionHandl(action, args):
         case 'meta':
             opf = list(temp_path.rglob('*.opf'))[0]
             return metadata_editor.main(opf, path = 'epubeditor/open/meta')
+
+        case 'toc':
+            ncx = list(temp_path.rglob('*.ncx'))
+            opf_l = list(temp_path.rglob('*.opf'))
+            if len(ncx) == 1 and len(opf_l) == 1:
+                toc = ncx[0]
+                opf = opf_l[0]
+                return tocEditor(toc, opf, path = 'epubeditor/open/toc')
+            else:
+                print('Error during getting file!')
         
         case 'search':
             if arg:
@@ -209,6 +220,7 @@ def main(book):
         "\t-Save\n" +
         "\t-Save as, 'save_as' <book_as path>\n" +
         "\t-Metadata editor\n" +
+        "\t-Table of contents editor\n" +
         "\t-Search in files, 'search' <query>\n" +
         "\t-Open in text editor, 'micro, nano, vim, bat' <file_name>\n" +
         "\t-Pretty\n" +
@@ -218,9 +230,9 @@ def main(book):
         #"\t-cp\n" +
         #"\t-mv\n" +
         #"\t-rm\n" +
-        "\tGo back, '..'\n" +
+        "\t-Go back, '..'\n" +
         "\t-Exit")
-    optList = ['save', 'save_as', 'meta', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
+    optList = ['save', 'save_as', 'meta', 'toc', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:

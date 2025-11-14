@@ -28,7 +28,7 @@ def main(opf, path = 'epubeditor/meta'):
             "\t-Add\n" +
             "\t-Remove\n" +
             "\t-Print\n" +
-            "\tGo back, '..'\n" +
+            "\t-Go back, '..'\n" +
             "\t-Exit")
     optList = ['set', 'add', 'remove', 'print', '..']
     act = prompt(optionHandl, optList, help_msg, path = path, args = [root, path])

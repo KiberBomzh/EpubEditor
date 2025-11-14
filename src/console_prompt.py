@@ -3,8 +3,11 @@ import os
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
+from rich.console import Console
 
 from src.cli import inputHandler
+
+console = Console()
 
 session = PromptSession()
 books = inputHandler()
@@ -38,16 +41,23 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
         book_name = name_beginning + '...' + name_end
     
     indent = columns - path_len - len(book_name)
-    prompt_text = '[' + path + ']' + ' ' * indent + book_name + '\n>>> '
+    gap = ' ' * indent
+    cursor = '>>> '
     
     first_append_in_args = True
     try:
         while True:
+            console.print(f'[dim][[/][bold cyan]{path}[/][dim]][/]', gap, f'[bold blue]{book_name}[/]', sep = '')
             command = session.prompt(
-                prompt_text,
+                cursor,
                 completer=completer,
                 style=style
             )
+            
+            # Очистка двух строк
+            print('\033[F\033[K', end='')
+            print('\033[F\033[K', end='')
+            console.print(f'[bold #008701]{cursor}[/]{command}')
             
             if not first_append_in_args:
                 args.pop()

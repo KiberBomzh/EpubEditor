@@ -12,6 +12,7 @@ from src.metadata_editor.multiple_editor import main as multipleEditor
 from src.open_book import main as open_book
 from src.open_book.main import zip_errors, subprocess_errors
 from src.editor import cover, book_renamer, sort
+from src.toc.main import main as tocEditor
 
 from src.console_prompt import main as prompt
 
@@ -71,6 +72,38 @@ def editOpf(book):
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {opf_relative}', shell = True)
         return act
 
+def editToc(book):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        with zipfile.ZipFile(book, 'r') as book_r:
+            for file in book_r.namelist():
+                if file.endswith('.opf'):
+                    opf_file = file
+                elif file.endswith('.ncx'):
+                    ncx_file = file
+            book_r.extract(opf_file, temp_path)
+            book_r.extract(ncx_file, temp_path)
+        
+        ncx = list(temp_path.rglob('*.ncx'))
+        if len(ncx) == 1:
+            toc = ncx[0]
+        else:
+            print("Error during geting .ncx file!")
+            return
+        
+        opf_f = list(temp_path.rglob('*.opf'))
+        if len(opf_f) == 1:
+            opf = opf_f[0]
+        else:
+            print("Error during geting .opf file!")
+            return
+        toc_relative = toc.relative_to(temp_path)
+        opf_relative = opf.relative_to(temp_path)
+        
+        act = tocEditor(toc, opf)
+        subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {opf_relative}', shell = True)
+        return act
+
 def chooseOption(action, args):
     books = args[0]
     
@@ -88,6 +121,12 @@ def chooseOption(action, args):
                         sys.exit()
                 else:
                     multipleEditor(books)
+            case "toc":
+                if len(books) == 1:
+                    if editToc(books[0]) == 'exit':
+                        sys.exit()
+                else:
+                    print("There's more than one book!")
             case "cover":
                 if len(books) == 1:
                     if cover.main(books[0]) == 'exit':
@@ -142,6 +181,7 @@ def main(books: list):
     helpmsg = ("Options:\n" +
         "\t-Open book                    'open'\n" +
         "\t-Edit metadata                'meta'\n" +
+        "\t-Edit table of contents       'toc'\n" +
         "\t-Change cover                 'cover'\n" +
         "\t-Rename                       'rename'\n" +
         "\t-Sort, author/series/book     'sort'\n" +
@@ -150,7 +190,7 @@ def main(books: list):
         "\t-Print current book(s)        'list'\n" +
         "\t-Repack bad zip               'repack'\n" +
         "\t-Exit")
-    optList = ['open', 'meta', 'cover', 'rename', 'sort', 'pretty', 'just', 'list', 'repack']
+    optList = ['open', 'meta', 'toc', 'cover', 'rename', 'sort', 'pretty', 'just', 'list', 'repack']
     prompt(chooseOption, optList, helpmsg, args = [books])
 
 if __name__ == "__main__":
