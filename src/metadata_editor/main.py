@@ -24,11 +24,11 @@ def main(opf, path = 'epubeditor/meta'):
     tree = etree.parse(opf)
     root = tree.getroot()
     help_msg = ("Available options:\n" +
-            "\t-Set\n" + 
-            "\t-Add\n" +
-            "\t-Remove\n" +
-            "\t-Print\n" +
-            "\t-Go back, '..'\n" +
+            "\t-Set             [green]'set'[/]\n" + 
+            "\t-Add             [green]'add'[/]\n" +
+            "\t-Remove          [green]'remove'[/]\n" +
+            "\t-Print           [green]'print'[/]\n" +
+            "\t-Go back         [green]'..'[/]\n" +
             "\t-Exit")
     optList = ['set', 'add', 'remove', 'print', '..']
     act = prompt(optionHandl, optList, help_msg, path = path, args = [root, path])

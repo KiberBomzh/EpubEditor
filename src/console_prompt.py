@@ -79,7 +79,7 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
             
             command = command.lower()
             if command == 'help':
-                print(help_message)
+                console.print(help_message)
             elif path != 'epubeditor' and command == 'exit':
                 return command
             elif command == exit_or_back:

@@ -5,6 +5,8 @@ import subprocess
 from lxml import etree
 import tempfile
 from rich.progress import track
+from rich.prompt import Confirm, Prompt
+from rich.console import Console
 
 from src.metadata_editor import main as metadata_editor
 from src.metadata_editor.get_metadata import getMetadata
@@ -104,6 +106,19 @@ def editToc(book):
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {opf_relative}', shell = True)
         return act
 
+def open_books(books):
+    for index, book in enumerate(books):
+        parent = book.parent.relative_to(book.parent.parent)
+        console.print(f'[magenta]{index + 1}[/] [dim]{parent}/[/]{book.name}')
+    
+    choice = int(Prompt.ask('[green]Choose what book you want to open'))
+    while choice > len(books):
+        choice = int(Prompt.ask('[green]Number is too big, try again'))
+    
+    return open_book.main(books[choice - 1])
+
+console = Console()
+
 def chooseOption(action, args):
     books = args[0]
     
@@ -111,7 +126,15 @@ def chooseOption(action, args):
         match action:
             case "open":
                 if len(books) > 1:
-                    print("There's more than one book!")
+                    if len(books) > 100:
+                        if Confirm.ask(f'[green]Show all({len(books)}) books?[/]'):
+                            
+                            if open_books(books) == 'exit':
+                                sys.exit()
+                    else:
+                        
+                        if open_books(books) == 'exit':
+                            sys.exit()
                 else:
                     if open_book.main(books[0]) == 'exit':
                         sys.exit()
@@ -179,16 +202,16 @@ def chooseOption(action, args):
 
 def main(books: list):
     helpmsg = ("Options:\n" +
-        "\t-Open book                    'open'\n" +
-        "\t-Edit metadata                'meta'\n" +
-        "\t-Edit table of contents       'toc'\n" +
-        "\t-Change cover                 'cover'\n" +
-        "\t-Rename                       'rename'\n" +
-        "\t-Sort, author/series/book     'sort'\n" +
-        "\t-Pretty                       'pretty'\n" +
-        "\t-Just print metadata          'just'\n" +
-        "\t-Print current book(s)        'list'\n" +
-        "\t-Repack bad zip               'repack'\n" +
+        "\t-Open book                    [green]'open'[/]\n" +
+        "\t-Edit metadata                [green]'meta'[/]\n" +
+        "\t-Edit table of contents       [green]'toc'[/]\n" +
+        "\t-Change cover                 [green]'cover'[/]\n" +
+        "\t-Rename                       [green]'rename'[/]\n" +
+        "\t-Sort, author/series/book     [green]'sort'[/]\n" +
+        "\t-Pretty                       [green]'pretty'[/]\n" +
+        "\t-Just print metadata          [green]'just'[/]\n" +
+        "\t-Print current books          [green]'list'[/]\n" +
+        "\t-Repack bad zip               [green]'repack'[/]\n" +
         "\t-Exit")
     optList = ['open', 'meta', 'toc', 'cover', 'rename', 'sort', 'pretty', 'just', 'list', 'repack']
     prompt(chooseOption, optList, helpmsg, args = [books])

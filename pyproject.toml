@@ -22,10 +22,8 @@ packages = [
 	"src",
 	"src.editor",
 	"src.metadata_editor",
+	"src.toc",
 	"src.open_book"
-]
-py-modules = [
-	"src.cli"
 ]
 
 [dependency-groups]

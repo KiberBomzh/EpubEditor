@@ -237,8 +237,8 @@ def main(root, metadataRead, path):
     
     help_msg = "Available options:"
     for opt in optList:
-        help_msg += f"\n\t-{opt.title()}"
-    help_msg += "\n\tGo back, '..'"
+        help_msg += f"\n\t-{opt.title()}, [green]'{opt}'[/]"
+    help_msg += "\n\t-Go back, [green]'..'[/]"
     help_msg += "\n\t-Exit"
     optList.append('..')
     

@@ -103,7 +103,7 @@ def ls(temp_path):
             match file.suffix.lower():
                 case '.xhtml' | '.html' | '.htm':
                     book_content.append(f)
-                case '.jpg' | '.jpeg' | '.png':
+                case '.jpg' | '.jpeg' | '.png' | '.gif':
                     images.append(f)
                 case '.ttf' | '.otf':
                     fonts.append(f)
@@ -217,20 +217,21 @@ console = Console()
 
 def main(book):
     helpmsg = ("Options:\n" +
-        "\t-Save\n" +
-        "\t-Save as, 'save_as' <book_as path>\n" +
-        "\t-Metadata editor\n" +
-        "\t-Table of contents editor\n" +
-        "\t-Search in files, 'search' <query>\n" +
-        "\t-Open in text editor, 'micro, nano, vim, bat' <file_name>\n" +
-        "\t-Pretty\n" +
-        "\t-tree\n" +
-        "\t-ls\n" +
-        "\t-just_ls\n" +
-        #"\t-cp\n" +
-        #"\t-mv\n" +
-        #"\t-rm\n" +
-        "\t-Go back, '..'\n" +
+        "\t-Save                        [green]'save'[/]\n" +
+        "\t-Save as                     [green]'save_as'[/] [cyan]'path/to/book_as.epub'[/]\n" +
+        "\t-Metadata editor             [green]'meta'[/]\n" +
+        "\t-Table of contents editor    [green]'toc'[/]\n" +
+        "\t-Search in files             [green]'search'[/] [magenta]'query'[/]\n" +
+        "\t-Search and replace          [green]'search'[/] [magenta]'query'[/] [dark_orange]&replace_to[/] [magenta]'new value'[/]\n" +
+        "\t-Open in text editor         [green]'{micro/nano/vim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
+        "\t-Format .xml files           [green]'pretty'[/]\n" +
+        "\t-Write book's tree           [green]'tree'[/]\n" +
+        "\t-Write all files             [green]'ls'[/]\n" +
+        "\t-ls without formatting       [green]'just_ls'[/]\n" +
+        # "\t-Copy files                  [green]'cp'[/]\n" +
+        # "\t-Move files                  [green]'mv'[/]\n" +
+        # "\t-Delete files                [green]'rm'[/]\n" +
+        "\t-Go back                     [green]'..'[/]\n" +
         "\t-Exit")
     optList = ['save', 'save_as', 'meta', 'toc', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
     

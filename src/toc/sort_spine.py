@@ -1,5 +1,10 @@
 from rich import print
 
+namespaces = {
+    'opf': 'http://www.idpf.org/2007/opf',
+    'dc': 'http://purl.org/dc/elements/1.1/'
+}
+
 def raw_to_src(src_in_toc_raw):
     src_in_toc = []
     for src in src_in_toc_raw:
@@ -28,6 +33,24 @@ def get_item_ids(src_in_toc, items, itemrefs_all):
         if i.get('idref') in item_id:
             item_id_old.append(i.get('idref'))
     return item_id, item_id_old
+
+def get_ref_between_xpath(spine, item_id_old):
+    ref_between = {}
+    for i, v in enumerate(item_id_old):
+        if v != item_id_old[-1]:
+            items = spine.xpath(
+                f'//opf:itemref[@idref="{v}"]/following-sibling::opf:itemref[following-sibling::opf:itemref[@idref="{item_id_old[i + 1]}"]]', 
+                namespaces = namespaces
+            )
+        else:
+            items = spine.xpath(
+                f'//opf:itemref[@idref="{v}"]/following-sibling::opf:itemref', 
+                namespaces = namespaces
+            )
+        
+        if items:
+            ref_between[v] = items
+    return ref_between
 
 def get_ref_between(item_id_old, itemrefs_all):
     ref_between = {}
@@ -68,10 +91,6 @@ def get_ref_between(item_id_old, itemrefs_all):
     return ref_between
 
 def main(opf_root, src_in_toc_raw, debug = False):
-    namespaces = {
-        'opf': 'http://www.idpf.org/2007/opf',
-        'dc': 'http://purl.org/dc/elements/1.1/'
-    }
     manifest = opf_root.xpath('//opf:manifest', namespaces = namespaces)
     spine = opf_root.xpath('//opf:spine', namespaces = namespaces)
     if manifest and spine:
@@ -94,7 +113,9 @@ def main(opf_root, src_in_toc_raw, debug = False):
             if i == item.attrib['idref']:
                 itemrefs.append(item)
     
-    ref_between = get_ref_between(item_id_old, itemrefs_all)
+    ref_between = get_ref_between_xpath(spine, item_id_old)
+    if not ref_between:
+        ref_between = get_ref_between(item_id_old, itemrefs_all)
     
     if debug:
         print('-------')

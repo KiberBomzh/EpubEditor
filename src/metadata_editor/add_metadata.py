@@ -128,11 +128,11 @@ def optionHandl(action, args):
 
 def main(root, path):
     help_msg = ("Available options:\n" +
-        "\t-Title\n" +
-        "\t-Author\n" +
-        "\t-Series\n" +
-        "\t-Language\n" +
-        "\tGo back, '..'\n" +
+        "\t-Title           [green]'title'[/]\n" +
+        "\t-Author          [green]'author'[/]\n" +
+        "\t-Series          [green]'series'[/]\n" +
+        "\t-Language        [green]'language'[/]\n" +
+        "\t-Go back         [green]'..'[/]\n" +
         "\t-Exit")
     optList = ['title', 'author', 'series', 'language', '..']
     return prompt(optionHandl, optList, help_msg, path = path + '/add', args = [root])
