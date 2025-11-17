@@ -3,12 +3,7 @@ from rich.prompt import Prompt
 from src.metadata_editor.get_metadata import getMetadataRaw
 
 from src.console_prompt import main as prompt
-
-namespaces = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/'
-}
-
+from src.namespaces import namespaces
 
 # Функция для удаления хвостов
 def removeRefines(el, metadata, root):

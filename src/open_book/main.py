@@ -162,19 +162,21 @@ def optionHandl(action, args):
                 print("Option needs second argument.")
         
         case 'meta':
-            opf = list(temp_path.rglob('*.opf'))[0]
+            from src.editor.main import getOpf
+            
+            container = temp_path / 'META-INF/container.xml'
+            opf = temp_path / getOpf(container)
             return metadata_editor.main(opf, path = 'epubeditor/open/meta')
 
         case 'toc':
-            ncx = list(temp_path.rglob('*.ncx'))
-            opf_l = list(temp_path.rglob('*.opf'))
-            if len(ncx) == 1 and len(opf_l) == 1:
-                toc = ncx[0]
-                opf = opf_l[0]
-                return tocEditor(toc, opf, path = 'epubeditor/open/toc')
-            else:
-                print('Error during getting file!')
-        
+            from src.editor.main import getOpf, getToc
+            
+            container = temp_path / 'META-INF/container.xml'
+            opf = temp_path / getOpf(container)
+            toc = opf.parent / getToc(opf)
+            
+            return tocEditor(toc, opf, path = 'epubeditor/open/toc')
+
         case 'search':
             if arg:
                 replace_spliter = ' &replace_to '

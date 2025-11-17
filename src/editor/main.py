@@ -15,6 +15,7 @@ from src.open_book import main as open_book
 from src.open_book.main import zip_errors, subprocess_errors
 from src.editor import cover, book_renamer, sort
 from src.toc.main import main as tocEditor
+from src.namespaces import namespaces as ns
 
 from src.console_prompt import main as prompt
 
@@ -58,13 +59,43 @@ def repack(books, with_what = 'zip'):
         else:
             print(f'Reapcked: {books[0]}')
 
+def if_element(elements, error_msg):
+    if elements:
+        return elements[0]
+    else:
+        raise TypeError(error_msg)
+
+def getOpf(container):
+    root = etree.parse(container).getroot()
+    full_path = root.xpath(
+        '//n:rootfiles/n:rootfile/@full-path',
+        namespaces = {'n': 'urn:oasis:names:tc:opendocument:xmlns:container'}
+    )
+    opf_file = if_element(full_path, 'Cannot get .opf file!')
+    
+    return opf_file
+
+def getToc(opf):
+    root = etree.parse(opf).getroot()
+    toc_id = if_element(
+        root.xpath('//opf:spine/@toc', namespaces = ns),
+        'Toc id not found!'
+    )
+    
+    toc = if_element(
+        root.xpath(f'//opf:manifest/opf:item[@id="{toc_id}"]/@href', namespaces = ns),
+        'Toc path not found!'
+    )
+    
+    return str(toc)
+
 def editOpf(book):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         with zipfile.ZipFile(book, 'r') as book_r:
-            for file in book_r.namelist():
-                if file.endswith('.opf'):
-                    opf_file = file
+            with book_r.open('META-INF/container.xml') as container:
+                opf_file = getOpf(container)
+            
             book_r.extract(opf_file, temp_path)
         
         opf = list(temp_path.rglob('*.opf'))[0]
@@ -78,11 +109,17 @@ def editToc(book):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         with zipfile.ZipFile(book, 'r') as book_r:
-            for file in book_r.namelist():
-                if file.endswith('.opf'):
-                    opf_file = file
-                elif file.endswith('.ncx'):
-                    ncx_file = file
+            with book_r.open('META-INF/container.xml') as container:
+                opf_file = getOpf(container)
+            
+            with book_r.open(opf_file) as opf_r:
+                ncx_file = getToc(opf_r)
+                
+            if '..' in ncx_file:
+                for f in book_r.namelist():
+                    if f.endswith('.ncx'):
+                        ncx_file = f
+            
             book_r.extract(opf_file, temp_path)
             book_r.extract(ncx_file, temp_path)
         
@@ -108,8 +145,8 @@ def editToc(book):
 
 def open_books(books):
     for index, book in enumerate(books):
-        parent = book.parent.relative_to(book.parent.parent)
-        console.print(f'[magenta]{index + 1}[/] [dim]{parent}/[/]{book.name}')
+        parent = book.parent.relative_to(Path.cwd())
+        console.print(f'[magenta]{index + 1}[/] [dim]{parent}/[/][blue]{book.name}[/]')
     
     choice = int(Prompt.ask('[green]Choose what book you want to open'))
     while choice > len(books):
@@ -186,7 +223,7 @@ def chooseOption(action, args):
                 justReadMetadata(books)
             case "list":
                 for book in books:
-                    print(book)
+                    console.print(f"[dim]{book.parent.relative_to(Path.cwd())}/[/][blue]{book.name}[/]")
             case "repack":
                 subprocess_errors.clear()
                 repack(books)

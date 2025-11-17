@@ -5,11 +5,7 @@ import subprocess
 from pathlib import Path
 
 from src.console_prompt import main as prompt
-
-namespaces = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/'
-}
+from src.namespaces import namespaces
 
 # Возвращает название обложки в книге
 def getCover(book):

@@ -3,8 +3,7 @@ from rich.prompt import Prompt
 from rich import print
 from lxml import etree
 import random
-
-ns = {'ncx': 'http://www.daisy.org/z3986/2005/ncx/'}
+from src.namespaces import namespaces as ns
 
 # Функция для простых рекурсивных обходов
 def go_recursive(root, func):

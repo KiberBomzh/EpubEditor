@@ -1,9 +1,5 @@
 from rich import print
-
-namespaces = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/'
-}
+from src.namespaces import namespaces
 
 def raw_to_src(src_in_toc_raw):
     src_in_toc = []

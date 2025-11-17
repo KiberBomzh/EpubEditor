@@ -5,8 +5,7 @@ from rich import print
 from src.console_prompt import main as prompt
 from src.toc.functions import ls, add, show, to_any_case, put, second_arg_split, create_el, change_order
 from src.toc.sort_spine import main as sort_spine
-
-ns = {'ncx': 'http://www.daisy.org/z3986/2005/ncx/'}
+from src.namespaces import namespaces as ns
 
 def optionHandl(action, args):
     root = args[0]

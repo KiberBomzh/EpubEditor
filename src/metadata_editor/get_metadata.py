@@ -1,10 +1,5 @@
 from rich import print
-
-namespaces = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/'
-}
-
+from src.namespaces import namespaces
 
 def getMetadataRaw(root):
     # Получение метаданных
