@@ -38,12 +38,22 @@ def optionHandl(action, args):
                 
                 if elements:
                     el = elements[0]
+                    
                     labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
-                    label = labelL[0] if labelL else print(labelL)
-                    print('[blue]Old label:[/blue]', label.text)
-                    new_label = Prompt.ask('[green]New label')
-                    if new_label:
-                        label.text = new_label
+                    if labelL:
+                        label = labelL[0]
+                        print('[blue]Old label:[/blue]', label.text)
+                        new_label = Prompt.ask('[green]New label')
+                        if new_label:
+                            label.text = new_label
+                    
+                    contentL = el.xpath('./ncx:content', namespaces = ns)
+                    if contentL:
+                        content = contentL[0]
+                        print('[blue]Old content:[/blue]', content.get('src'))
+                        new_content = Prompt.ask('[green]New content')
+                        if new_content:
+                            content.set('src', new_content)
             else:
                 print('Option needs second argument, try again.')
         case 'put':

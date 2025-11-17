@@ -6,12 +6,22 @@ import random
 from src.namespaces import namespaces as ns
 
 # Функция для простых рекурсивных обходов
-def go_recursive(root, func):
+def go_recursive(root, func, args = []):
     points = root.xpath('./ncx:navPoint', namespaces = ns)
     if points:
         for point in points:
-            func(point)
-            go_recursive(point, func)
+            n_args = func(point, args)
+            go_recursive(point, func, n_args)
+
+def rec_ls(point, args):
+    tree = args[0]
+    label = point.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
+    if label:
+        if 'playOrder' in point.attrib.keys():
+            branch = tree.add(f"{label[0].text} [magenta]{point.attrib['playOrder']}[/magenta]")
+        else:
+            branch = tree.add(f"{label[0].text} [magenta]{point.attrib['id']}[/magenta]")
+        return [branch]
 
 # Рекурсивно обходит элемент оглавления
 def rec_nav(root, tree):
@@ -70,7 +80,7 @@ def ls(root):
                 else:
                     tree = Tree(f"{label[0].text} [magenta]{point.attrib['id']}[/magenta]")
                 
-                rec_nav(point, tree)
+                go_recursive(point, rec_ls, [tree])
             print(tree)
 
 def show(el):
