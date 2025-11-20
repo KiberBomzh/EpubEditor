@@ -101,7 +101,7 @@ def getMetadata(root, Print = False):
         if title_sort:
             metadataRead['title_sort'] = title_sort[0].get('content')
             if Print:
-                print(f'[blue]Title, sort[/blue]: {metadataRead['title_sort']}')
+                print(f'[blue]Title, sort:[/blue] {metadataRead['title_sort']}')
         
         if len(creators) > 1:
             authors_sort = []
@@ -126,28 +126,39 @@ def getMetadata(root, Print = False):
             file_as = metadata['file-as']
             if file_as:
                 if titleId:
-                    title_as = None
-                    for i, f in enumerate(file_as):
+                    for f in file_as:
                         if f.get('refines') == '#' + titleId:
-                            title_as = file_as.pop(i)
-                    if title_as is not None:
-                        metadataRead['title_sort'] = title_as.text
-                        if Print:
-                            print(f'[blue]Title, sort:[/blue] {metadataRead['title_sort']}')
+                            metadataRead['title_sort'] = f.text
+                            if Print:
+                                print(f'[blue]Title, sort:[/blue] {metadataRead['title_sort']}')
+                            break
         
-                if len(creators) > 1:
-                    authors_sort = []
-                    for author_as in file_as:
-                        authors_sort.append(author_as.text)
-                    metadataRead['authors_sort'] = authors_sort
-                    if Print:
-                        print('[blue]Authors, sort:[/blue]')
-                        for author in authors_sort:
-                            print(f'\t{author}')
-                elif len(creators) == 1:
-                    metadataRead['author_sort'] = file_as[0].text
+        if len(creators) > 1:
+            file_as = metadata['file-as']
+            authors_id = []
+            for creator in creators:
+                authors_id.append(creator.attrib['id'])
+            
+            authors_sort = []
+            for a_id in authors_id:
+                for f in file_as:
+                    if f.get('refines') == '#' + a_id:
+                        authors_sort.append(f.text)
+                        break
+            metadataRead['authors_sort'] = authors_sort
+            if Print:
+                print('[blue]Authors, sort:[/blue]')
+                for author in authors_sort:
+                    print(f'\t{author}')
+        elif len(creators) == 1:
+            file_as = metadata['file-as']
+            author_id = creators[0].get('id')
+            for f in file_as:
+                if f.get('refines') == '#' + author_id:
+                    metadataRead['author_sort'] = f.text
                     if Print:
                         print(f'[blue]Author, sort:[/blue] {metadataRead['author_sort']}')
+                    break
     
     return metadataRead
 

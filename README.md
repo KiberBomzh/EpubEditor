@@ -117,8 +117,8 @@ TODO
 	- [x] Editing files (with micro, nano, vim and bat)
 	- [ ] Renaming files
 	- [ ] Multiple renaming
-	- [ ] Move files in a book
-	- [ ] Add new files
+	- [x] Add new files
+	- [x] Delete files
 	- [ ] Merge and split
 	- [ ] Spliting files according to TOC
 

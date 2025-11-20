@@ -5,6 +5,7 @@ from pathlib import Path
 from rich.console import Console
 
 from src.open_book import search
+from src.open_book.files_operations import main as do_with_file
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
 
@@ -20,7 +21,7 @@ def toPretty(temp_path, args):
             result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
             
             if result.stderr:
-                subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
+                subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
             
             print(file.relative_to(temp_path))
 
@@ -209,9 +210,11 @@ def optionHandl(action, args):
         case 'just_ls':
             for f in temp_path.rglob('*'):
                 print(f.relative_to(temp_path))
-        #case 'cp'
-        #case 'mv'
-        #case 'rm'
+        case 'rm' | 'add' | 'rename':
+            if arg:
+                do_with_file(temp_path, action, arg)
+            else:
+                print("Option needs second argument.")
         case _:
             print("Unknown option, try again.")
 
@@ -227,15 +230,15 @@ def main(book):
         "\t-Search and replace          [green]'search'[/] [magenta]'query'[/] [dark_orange]&replace_to[/] [magenta]'new value'[/]\n" +
         "\t-Open in text editor         [green]'{micro/nano/vim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
         "\t-Format .xml files           [green]'pretty'[/]\n" +
-        "\t-Write book's tree           [green]'tree'[/]\n" +
-        "\t-Write all files             [green]'ls'[/]\n" +
+        "\t-Print book's tree           [green]'tree'[/]\n" +
+        "\t-Print all files             [green]'ls'[/]\n" +
         "\t-ls without formatting       [green]'just_ls'[/]\n" +
-        # "\t-Copy files                  [green]'cp'[/]\n" +
-        # "\t-Move files                  [green]'mv'[/]\n" +
-        # "\t-Delete files                [green]'rm'[/]\n" +
+        "\t-Delete files                [green]'rm'[/]\n" +
+        "\t-Add file                    [green]'add'[/]\n" +
+        "\t-Rename                      [green]'rename'[/]\n" +
         "\t-Go back                     [green]'..'[/]\n" +
         "\t-Exit")
-    optList = ['save', 'save_as', 'meta', 'toc', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', '..'] #, 'cp', 'mv', 'rm']
+    optList = ['save', 'save_as', 'meta', 'toc', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', 'rm', 'add', 'rename', '..']
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:

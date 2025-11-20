@@ -1,8 +1,10 @@
 from rich.tree import Tree
-from rich.prompt import Prompt
 from rich import print
+from prompt_toolkit import prompt as input
 from lxml import etree
 import random
+
+from src.console_prompt import style
 from src.namespaces import namespaces as ns
 
 # Функция для простых рекурсивных обходов
@@ -11,7 +13,9 @@ def go_recursive(root, func, args = []):
     if points:
         for point in points:
             n_args = func(point, args)
-            go_recursive(point, func, n_args)
+            n_args = go_recursive(point, func, n_args)
+        return n_args
+    return args
 
 def rec_ls(point, args):
     tree = args[0]
@@ -23,31 +27,16 @@ def rec_ls(point, args):
             branch = tree.add(f"{label[0].text} [magenta]{point.attrib['id']}[/magenta]")
         return [branch]
 
-# Рекурсивно обходит элемент оглавления
-def rec_nav(root, tree):
-    points = root.xpath('./ncx:navPoint', namespaces = ns)
-    if points:
-        for point in points:
-            label = point.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
-            if label:
-                if 'playOrder' in point.attrib.keys():
-                    branch = tree.add(f"{label[0].text} [magenta]{point.attrib['playOrder']}[/magenta]")
-                else:
-                    branch = tree.add(f"{label[0].text} [magenta]{point.attrib['id']}[/magenta]")
-                rec_nav(point, branch)
-
-# Рекурсивно обходит все элементы и меняет playOrder
-def rec_order(root, order, src_in_toc):
-    points = root.xpath('./ncx:navPoint', namespaces = ns)
-    if points:
-        for point in points:
-            order += 1
-            point.attrib['playOrder'] = str(order)
-            contentL = point.xpath('./ncx:content/@src', namespaces = ns)
-            src_in_toc.append(contentL[0] if contentL else None)
-            order = rec_order(point, order, src_in_toc)
+def rec_change_order(point, args):
+    # args[0] = order
+    # args[1] = src_in_toc
     
-    return order
+    args[0] += 1
+    point.attrib['playOrder'] = str(args[0])
+    contentL = point.xpath('./ncx:content/@src', namespaces = ns)
+    if contentL:
+        args[1].append(contentL[0])
+    return args
 
 def change_order(root):
     src_in_toc = []
@@ -59,7 +48,9 @@ def change_order(root):
             point.attrib['playOrder'] = str(order)
             contentL = point.xpath('./ncx:content/@src', namespaces = ns)
             src_in_toc.append(contentL[0] if contentL else None)
-            order = rec_order(point, order, src_in_toc)
+            args = go_recursive(point, rec_change_order, [order, src_in_toc])
+            order = args[0]
+            src_in_toc = args[1]
         return order, src_in_toc
     return 0, None
 
@@ -107,7 +98,17 @@ def to_any_case(el, action):
         case 'lower':
             label.text = label.text.lower()
         case 'capitalize':
-            label.text = label.text.capitalize()
+            text = label.text
+            if '. ' in text:
+                new_text = ''
+                sentences = text.split('. ')
+                for index, sent in enumerate(sentences):
+                    new_text += sent.capitalize()
+                    if sentences[-1] != sent:
+                        new_text += '. '
+                label.text = new_text
+            else:
+                label.text = label.text.capitalize()
         case 'title':
             label.text = label.text.title()
 
@@ -186,8 +187,10 @@ def create_el(root):
     text = etree.SubElement(label, '{' + ns['ncx'] + '}text')
     content = etree.SubElement(point, '{' + ns['ncx'] + '}content')
     
-    text.text = Prompt.ask('[green]Label[/]')
-    content.attrib['src'] = Prompt.ask('[green]Content[/]')
+    print('[blue]Label')
+    text.text = input('> ', style = style)
+    print('[blue]Content')
+    content.attrib['src'] = input('> ', style = style)
     point.attrib['id'] = get_free_id_or_order(
         root, 
         'id' + str(random.randint(1, 1000000)), 

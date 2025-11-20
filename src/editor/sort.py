@@ -1,6 +1,6 @@
 from pathlib import Path
 from rich.progress import track
-from rich.prompt import Prompt
+from prompt_toolkit import prompt as input
 
 from src.metadata_editor.get_metadata import getMetadata
 from src.editor.book_renamer import getRoot
@@ -46,13 +46,13 @@ def sort(book, main_path):
 
 def main(books):
     # Получение пути к главной папке для сортировки
-    main_path = Prompt.ask('[green]Input main folder for sort')
+    main_path = input('Input main folder for sort: ')
     if main_path[:2] == '~/':
         main_path = Path.home() / main_path[2:]
     else:
         main_path = Path(main_path).resolve()
     while not main_path.is_dir():
-        main_path = Prompt.ask('[green]Not valid folder, try again')
+        main_path = input('Not valid folder, try again: ')
         if main_path[:2] == '~/':
             main_path = Path.home() / main_path[2:]
         else:

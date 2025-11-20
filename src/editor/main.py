@@ -115,10 +115,9 @@ def editToc(book):
             with book_r.open(opf_file) as opf_r:
                 ncx_file = getToc(opf_r)
                 
-            if '..' in ncx_file:
-                for f in book_r.namelist():
-                    if f.endswith('.ncx'):
-                        ncx_file = f
+            for f in book_r.namelist():
+                if ncx_file in f:
+                    ncx_file = f
             
             book_r.extract(opf_file, temp_path)
             book_r.extract(ncx_file, temp_path)
@@ -194,18 +193,18 @@ def chooseOption(action, args):
                 else:
                     print("There's more than one book!")
             case "rename":
-                books = book_renamer.main(books)
-                return books
+                args[0] = book_renamer.main(books)
+                return args[0]
             case "sort":
-                books = sort.main(books)
-                return books
+                args[0] = sort.main(books)
+                return args[0]
             case "pretty":
                 zip_errors.clear()
                 subprocess_errors.clear()
                 if len(books) > 1:
                     for book in track(books, description = "Pretty"):
                         print('--------------------')
-                        print(book)
+                        print(book.relative_to(Path.cwd()))
                         open_book.openBook(book, open_book.toPretty, [book])
                 else:
                     open_book.openBook(books[0], open_book.toPretty)
