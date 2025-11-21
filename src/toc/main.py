@@ -1,9 +1,7 @@
 from lxml import etree
-from rich import print
-from prompt_toolkit import prompt as input
 
 from src.console_prompt import main as prompt
-from src.console_prompt import style
+from src.prompt_input import input
 from src.toc.functions import ls, add, show, to_any_case, put, second_arg_split, create_el, change_order
 from src.toc.sort_spine import main as sort_spine
 from src.namespaces import namespaces as ns
@@ -43,14 +41,12 @@ def optionHandl(action, args):
                     labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
                     if labelL:
                         label = labelL[0]
-                        print('[blue]Label')
-                        label.text = input('> ', default = label.text, style = style)
+                        label.text = input('Label', default = label.text)
                     
                     contentL = el.xpath('./ncx:content', namespaces = ns)
                     if contentL:
                         content = contentL[0]
-                        print('[blue]Content')
-                        content.attrib['src'] = input('> ', default = content.get('src'), style = style)
+                        content.attrib['src'] = input('Content ', default = content.get('src'))
             else:
                 print('Option needs second argument, try again.')
         case 'put':

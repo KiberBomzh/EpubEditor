@@ -115,7 +115,7 @@ TODO
 - [ ] Open book
 	- [x] Search in book with replace
 	- [x] Editing files (with micro, nano, vim and bat)
-	- [ ] Renaming files
+	- [x] Renaming files
 	- [ ] Multiple renaming
 	- [x] Add new files
 	- [x] Delete files

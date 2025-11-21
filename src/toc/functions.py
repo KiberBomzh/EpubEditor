@@ -1,10 +1,9 @@
 from rich.tree import Tree
 from rich import print
-from prompt_toolkit import prompt as input
 from lxml import etree
 import random
 
-from src.console_prompt import style
+from src.prompt_input import input
 from src.namespaces import namespaces as ns
 
 # Функция для простых рекурсивных обходов
@@ -187,10 +186,8 @@ def create_el(root):
     text = etree.SubElement(label, '{' + ns['ncx'] + '}text')
     content = etree.SubElement(point, '{' + ns['ncx'] + '}content')
     
-    print('[blue]Label')
-    text.text = input('> ', style = style)
-    print('[blue]Content')
-    content.attrib['src'] = input('> ', style = style)
+    text.text = input('Label')
+    content.attrib['src'] = input('Content')
     point.attrib['id'] = get_free_id_or_order(
         root, 
         'id' + str(random.randint(1, 1000000)), 

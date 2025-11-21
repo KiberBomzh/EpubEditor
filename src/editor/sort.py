@@ -1,9 +1,9 @@
 from pathlib import Path
 from rich.progress import track
-from prompt_toolkit import prompt as input
 
 from src.metadata_editor.get_metadata import getMetadata
 from src.editor.book_renamer import getRoot
+from src.prompt_input import input
 
 def sort(book, main_path):
     root = getRoot(book)
@@ -46,7 +46,7 @@ def sort(book, main_path):
 
 def main(books):
     # Получение пути к главной папке для сортировки
-    main_path = input('Input main folder for sort: ')
+    main_path = input('Main folder for sort')
     if main_path[:2] == '~/':
         main_path = Path.home() / main_path[2:]
     else:
@@ -64,7 +64,7 @@ def main(books):
         for book in track(books, description = "Sort"):
             new_books.append(sort(book, main_path))
     else:
-        new_books.append(sort(books[0]))
+        new_books.append(sort(books[0], main_path))
     
     # Удаление пустых папок
     removed_any = True

@@ -1,10 +1,9 @@
 from lxml import etree, html
 from pathlib import Path
 import shutil
-from prompt_toolkit import prompt as input
-from rich import print
+
 from src.namespaces import namespaces as ns
-from src.console_prompt import style
+from src.prompt_input import input
 
 def add(inputs, dest, manifest):
     new_files = []
@@ -112,7 +111,6 @@ def rm_from_toc(file, opf):
         point.remove(content)
         
         for child in reversed(point.getchildren()):
-            print(child.attrib['playOrder'])
             point.addnext(child)
         
         point.getparent().remove(point)
@@ -141,8 +139,7 @@ def rm_refs(element):
     parent.remove(element)
 
 def rename(file, temp_path, opf, opf_root):
-    print('[blue]Name')
-    new_name = input('> ', default = file.stem, style = style) + file.suffix
+    new_name = input('Name', default = file.stem) + file.suffix
     formats = ['.xhtml', '.html', '.htm']
     
     # Работа в .opf

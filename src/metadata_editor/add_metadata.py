@@ -1,11 +1,9 @@
 from lxml import etree
-from prompt_toolkit import prompt as input
-from rich import print
 
 from src.metadata_editor.get_metadata import getMetadataRaw
 
 from src.console_prompt import main as prompt
-from src.console_prompt import style
+from src.prompt_input import input
 
 namespaces = {
     'opf': 'http://www.idpf.org/2007/opf',
@@ -104,31 +102,26 @@ def optionHandl(action, args):
                 print("Title already exists. Try set/title")
             else:
                 metadata = getMetadataRaw(root)
-                print('[blue]Title')
-                title = input("> ", style = style)
+                title = input("Title")
                 addTitle(metadata, title)
         case "author": 
             metadata = getMetadataRaw(root)
-            print('[blue]Author')
-            author = input("> ", style = style)
+            author = input("Author")
             addAuthor(root, metadata, author)
         case "series":
             metadata = getMetadataRaw(root)
             if metadata['series']:
                 print('Series already exists. Try set/series')
             else:
-                print('[blue]Series')
-                new_series = input("> ", style = style)
+                new_series = input("Series")
                 addSeries(metadata, new_series)
                 
             if not metadata['series_index']:
-                print('[blue]Series index')
-                new_series_index = input('> ', style = style)
+                new_series_index = input('Series index')
                 addSeriesIndex(metadata, new_series_index)
         case "language":
             metadata = getMetadataRaw(root)
-            print('[blue]Language')
-            new_language = input('> ', style = style)
+            new_language = input('Language')
             addLanguage(root, metadata, new_language)
         case _:
             print("Unknown option, try again.")
