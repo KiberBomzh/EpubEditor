@@ -1,14 +1,19 @@
 from lxml import etree
+from rich import print
 
+from src.namespaces import namespaces
 from src.metadata_editor.get_metadata import getMetadataRaw
-
-from src.console_prompt import main as prompt
 from src.prompt_input import input
 
-namespaces = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/'
-}
+def print_help():
+    print(
+        "Available options:",
+        "\t-Title, [green]'title'[/]",
+        "\t-Author, [green]'author'[/]",
+        "\t-Series, [green]'series'[/]",
+        "\t-Language, [green]'language'[/]",
+        sep = '\n'
+    )
 
 def addTitle(metadata, new_title):
     title = etree.Element('{' + namespaces['dc'] + '}title')
@@ -92,8 +97,7 @@ def addLanguage(root, metadata, new_language):
     language.text = new_language
     firstMeta.addprevious(language)
 
-def optionHandl(action, args):
-    root = args[0]
+def main(action, root):
     metadata = getMetadataRaw(root)
     
     match action:
@@ -123,19 +127,10 @@ def optionHandl(action, args):
             metadata = getMetadataRaw(root)
             new_language = input('Language')
             addLanguage(root, metadata, new_language)
+        case "help":
+            print_help()
         case _:
-            print("Unknown option, try again.")
-
-def main(root, path):
-    help_msg = ("Available options:\n" +
-        "\t-Title           [green]'title'[/]\n" +
-        "\t-Author          [green]'author'[/]\n" +
-        "\t-Series          [green]'series'[/]\n" +
-        "\t-Language        [green]'language'[/]\n" +
-        "\t-Go back         [green]'..'[/]\n" +
-        "\t-Exit")
-    optList = ['title', 'author', 'series', 'language', '..']
-    return prompt(optionHandl, optList, help_msg, path = path + '/add', args = [root])
+            print("Unknown option for add, try 'add help'")
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

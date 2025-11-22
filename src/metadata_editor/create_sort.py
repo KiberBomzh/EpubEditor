@@ -41,8 +41,7 @@ def createSort(root):
                 else:
                     author_sort = author
                 creator.set('{' + namespaces["opf"] + '}file-as', author_sort)
-            print("Authors' sort names created.")
-        else:
+        elif len(metadata['creators']) == 1:
             author = metadata.get('creators')[0].text
             wordList = author.split()
             if len(wordList) > 1:
@@ -52,7 +51,6 @@ def createSort(root):
             else:
                 author_sort = author
             metadata.get('creators')[0].set('{' + namespaces["opf"] + '}file-as', author_sort)
-            print("Author's sort name created.")
     elif metadata['version'] == '3.0':
         if metadata['title']:
             title = metadata['title'][0].text
@@ -108,7 +106,7 @@ def createSort(root):
                     author_as.set('property', 'file-as')
                     author_as.text = author_sort
                     metadata['metadata'].append(author_as)
-        else:
+        elif len(metadata['creators']) == 1:
             authorId = '#' + metadata['creators'][0].get('id')
             author_as = root.xpath(f'//opf:meta[@refines="{authorId}" and @property="file-as"]', namespaces = namespaces)
             if author_as:

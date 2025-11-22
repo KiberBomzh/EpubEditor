@@ -1,9 +1,15 @@
 from rich.prompt import Prompt
+from rich import print
 
-from src.metadata_editor.get_metadata import getMetadataRaw
-
-from src.console_prompt import main as prompt
+from src.metadata_editor.get_metadata import getMetadataRaw, getMetadata
 from src.namespaces import namespaces
+
+def print_help(metaReadList):
+    print("Available options:")
+    for key in metaReadList:
+        if '_' not in key:
+            print(f"\t-{key.title()}, [green]'{key}'[/]")
+
 
 # Функция для удаления хвостов
 def removeRefines(el, metadata, root):
@@ -15,9 +21,9 @@ def removeRefines(el, metadata, root):
     elif len(refines) == 1:
         metadata.remove(refines[0])
 
-def optionHandl(action, args):
-    root = args[0]
-    metaReadList = args[1]
+def main(action, root):
+    metadataRead = getMetadata(root)
+    metaReadList = list(metadataRead.keys())
     match action:
         case "title":
             metadata = getMetadataRaw(root)
@@ -37,7 +43,6 @@ def optionHandl(action, args):
                             if metadata['version'] == '3.0':
                                 removeRefines(t, metadata['metadata'], root)
                             metadata['metadata'].remove(t)
-                        print('Removed.')
                     elif act.isdigit():
                         if len(title) < int(act):
                             print("Too large number.")
@@ -46,7 +51,6 @@ def optionHandl(action, args):
                             if metadata['version'] == '3.0':
                                 removeRefines(t, metadata['metadata'], root)
                             metadata['metadata'].remove(t)
-                            print('Removed.')
                     else:
                         print('Unknown option.')
                 else:
@@ -54,7 +58,6 @@ def optionHandl(action, args):
                     if metadata['version'] == '3.0':
                         removeRefines(t, metadata['metadata'], root)
                     metadata['metadata'].remove(t)
-                    print('Removed.')
             else:
                 print("There's nothing to remove.")
         case "author":
@@ -67,7 +70,6 @@ def optionHandl(action, args):
                     if metadata['version'] == '3.0':
                         removeRefines(a, metadata['metadata'], root)
                     metadata['metadata'].remove(a)
-                    print('Removed.')
             else:
                 print("There's nothing to remove.")
         case "authors":
@@ -87,7 +89,6 @@ def optionHandl(action, args):
                             if metadata['version'] == '3.0':
                                 removeRefines(a, metadata['metadata'], root)
                             metadata['metadata'].remove(a)
-                        print('Removed.')
                     elif act.isdigit():
                         if len(authors) < int(act):
                             print("Too large number.")
@@ -96,7 +97,6 @@ def optionHandl(action, args):
                             if metadata['version'] == '3.0':
                                 removeRefines(a, metadata['metadata'], root)
                             metadata['metadata'].remove(a)
-                            print('Removed.')
                     else:
                         print('Unknown option.')
                 else:
@@ -124,7 +124,6 @@ def optionHandl(action, args):
                             if series_index:
                                 for s in series_index:
                                     metadata['metadata'].remove(s)
-                            print('Removed.')
                         elif act.isdigit():
                             if len(series) < int(act):
                                 print("Too large number.")
@@ -133,14 +132,12 @@ def optionHandl(action, args):
                                 if series_index:
                                     if series_index[int(act) - 1]:
                                         metadata['metadata'].remove(series_index[int(act) - 1])
-                            print('Removed.')
                         else:
                             print('Unknown option.')
                     else:
                         metadata['metadata'].remove(series[0])
                         if series_index:
                             metadata['metadata'].remove(series_index[0])
-                        print('Removed.')
                 else:
                     print("There's nothing to remove.")
             elif metadata['version'] == '3.0':
@@ -166,7 +163,6 @@ def optionHandl(action, args):
                             if collection_type:
                                 for c in collection_type:
                                     metadata['metadata'].remove(c)
-                            print('Removed.')
                         elif act.isdigit():
                             if len(collection) < int(act):
                                 print("Too large number.")
@@ -178,7 +174,6 @@ def optionHandl(action, args):
                                 if collection_type:
                                     if collection_type[int(act) - 1]:
                                         metadata['metadata'].remove(collection_type[int(act) - 1])
-                                print('Removed.')
                         else:
                             print('Unknown option.')
                     else:
@@ -187,7 +182,6 @@ def optionHandl(action, args):
                             metadata['metadata'].remove(position[0])
                         if collection_type:
                             metadata['metadata'].remove(collection_type[0])
-                        print('Removed.')
                 else:
                     print("There's nothing to remove.")
         case "language":
@@ -206,38 +200,21 @@ def optionHandl(action, args):
                     if act == 'all':
                         for lan in language:
                             metadata['metadata'].remove(lan)
-                        print('Removed.')
                     elif act.isdigit():
                         if len(language) < int(act):
                             print("Too large number.")
                         else:
                             metadata['metadata'].remove(language[int(act) - 1])
-                            print('Removed.')
                     else:
                         print('Unknown option.')
                 else:
                     metadata['metadata'].remove(language[0])
-                    print('Removed.')
             else:
                 print("There's nothing to remove.")
+        case "help":
+            print_help(metaReadList)
         case _:
-            print("Unknown option, try again.")
-
-def main(root, metadataRead, path):
-    metaReadList = list(metadataRead.keys())
-    optList = []
-    for key in metaReadList:
-        if '_' not in key:
-            optList.append(key)
-    
-    help_msg = "Available options:"
-    for opt in optList:
-        help_msg += f"\n\t-{opt.title()}, [green]'{opt}'[/]"
-    help_msg += "\n\t-Go back, [green]'..'[/]"
-    help_msg += "\n\t-Exit"
-    optList.append('..')
-    
-    return prompt(optionHandl, optList, help_msg, path = path + '/remove', args = [root, metaReadList])
+            print("Unknown option for rm, try 'rm help'")
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

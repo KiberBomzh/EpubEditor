@@ -24,6 +24,7 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
     compl.append('exit')
     completer = WordCompleter(compl)
     
+    # Обработка длины названия книги, чтоб оно было справа
     columns, lines = os.get_terminal_size()
     path_len = len(path) + 2
     max_name_len = columns - 10 - path_len
@@ -63,6 +64,7 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
                 args.pop()
                 first_append_in_args = True
             
+            # Обработка дополнительных значений в коммандае
             if ' ' in command:
                 index = command.find(' ')
                 

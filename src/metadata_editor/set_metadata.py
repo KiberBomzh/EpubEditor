@@ -1,11 +1,17 @@
-from src.metadata_editor.get_metadata import getMetadataRaw
-from src.metadata_editor import create_sort
+from rich import print
 
-from src.console_prompt import main as prompt
+from src.metadata_editor.get_metadata import getMetadataRaw, getMetadata
 from src.prompt_input import input
 
-def optionHandl(action, args):
-    root = args[0]
+def print_help(metadataRead):
+    metaReadList = list(metadataRead.keys())
+    print("Available options:")
+    for key in metaReadList:
+        if '_' not in key:
+            print(f"\t-{key.title()}, [green]'{key}'[/]")
+
+
+def main(action, root):
     match action:
         case "title":
             metadata = getMetadataRaw(root)
@@ -43,27 +49,10 @@ def optionHandl(action, args):
                         series_index.text = input("Series index", default = series_index.text)
             else:
                 print("There's no series, try add.")
-        case "sort":
-            create_sort.createSort(root)
-            print('Added.')
+        case "help":
+            print_help(getMetadata(root))
         case _:
-            print("Unknown option, try again.")
-
-def main(root, metadataRead, path):
-    metaReadList = list(metadataRead.keys())
-    optList = []
-    for key in metaReadList:
-        if '_' not in key:
-            optList.append(key)
-    
-    help_msg = "Available options:"
-    for opt in optList:
-        help_msg += f"\n\t-{opt.title()}, [green]'{opt}'[/]"
-    help_msg += "\n\t-Create author's sort name, print [green]'sort'[/]" + "\n\t-Go back, [green]'..'[/]" + "\n\t-Exit"
-    optList.append('sort')
-    optList.append('..')
-    
-    return prompt(optionHandl, optList, help_msg, path = path + '/set', args = [root])
+            print("Unknown option for set, try 'set help'")
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

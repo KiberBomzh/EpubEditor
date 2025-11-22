@@ -1,22 +1,23 @@
 from lxml import etree
 
-from src.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata
+from src.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata, create_sort
 from src.console_prompt import main as prompt
 
 def optionHandl(action, args):
     root = args[0]
-    path = args[1]
-    metadataRead = get_metadata.getMetadata(root)
+    second_arg = args[1] if len(args) > 1 else None
     
     match action:
         case "print":
             get_metadata.getMetadata(root, Print = True)
         case "set":
-            return set_metadata.main(root, metadataRead, path)
+            set_metadata.main(second_arg, root)
         case "add":
-            return add_metadata.main(root, path)
-        case "remove":
-            return remove_metadata.main(root, metadataRead, path)
+            add_metadata.main(second_arg, root)
+        case "rm":
+            remove_metadata.main(second_arg, root)
+        case "sort":
+            create_sort.createSort(root)
         case _:
             print("Unknown option, try again.")
 
@@ -24,14 +25,15 @@ def main(opf, path = 'epubeditor/meta'):
     tree = etree.parse(opf)
     root = tree.getroot()
     help_msg = ("Available options:\n" +
-            "\t-Set             [green]'set'[/]\n" + 
-            "\t-Add             [green]'add'[/]\n" +
-            "\t-Remove          [green]'remove'[/]\n" +
-            "\t-Print           [green]'print'[/]\n" +
-            "\t-Go back         [green]'..'[/]\n" +
+            "\t-Set                 [green]'set command'[/]\n" + 
+            "\t-Add                 [green]'add command'[/]\n" +
+            "\t-Remove              [green]'rm command'[/]\n" +
+            "\t-Print               [green]'print'[/]\n" +
+            "\t-Create sort names   [green]'sort'[/]\n" +
+            "\t-Go back             [green]'..'[/]\n" +
             "\t-Exit")
-    optList = ['set', 'add', 'remove', 'print', '..']
-    act = prompt(optionHandl, optList, help_msg, path = path, args = [root, path])
+    optList = ['set', 'add', 'rm', 'sort', 'print', '..']
+    act = prompt(optionHandl, optList, help_msg, path = path, args = [root])
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
     return act
 

@@ -10,12 +10,14 @@ from src.metadata_editor.create_sort import createSort
 from src.metadata_editor.add_metadata import addTitle, addAuthor, addSeries, addSeriesIndex, addLanguage
 
 def changeOpf(book, func, args = []):
+    from src.editor.main import getOpf
+    
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         with zipfile.ZipFile(book, 'r') as book_r:
-            for file in book_r.namelist():
-                if file.endswith('.opf'):
-                    opf_file = file
+            with book_r.open('META-INF/container.xml') as container:
+                opf_file = getOpf(container)
+            
             book_r.extract(opf_file, temp_path)
         
         opf = list(temp_path.rglob('*.opf'))[0]
