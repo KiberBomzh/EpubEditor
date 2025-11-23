@@ -6,6 +6,7 @@ from rich.console import Console
 
 from src.open_book import search
 from src.open_book.files_operations import main as do_with_file
+from src.open_book.multiple_renamer import main as multiple_renamer
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
 
@@ -214,7 +215,10 @@ def optionHandl(action, args):
             if arg:
                 do_with_file(temp_path, action, arg)
             else:
-                print("Option needs second argument.")
+                if action == 'rename':
+                    multiple_renamer(temp_path)
+                else:
+                    print("Option needs second argument.")
         case _:
             print("Unknown option, try again.")
 

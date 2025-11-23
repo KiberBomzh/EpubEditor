@@ -40,7 +40,7 @@ You, as well, can choose several books, or book and directory
 ```
 epubeditor <book1> <dir> <book2>
 ```
-When programm is running you can input commands. 
+When the programm is running you can input commands. 
 
 Write `help` to see help message
 
@@ -51,7 +51,7 @@ To go back write `..`
 ### Simple commands
 - `rename` - rename input (author1 & author2 - series 01.0, title)
 - `sort` - sort input in directory, needs main directory. Example main/author/series/01.0 - title
-- `pretty` - make xml and html files in a book looks prett, needs xmllint
+- `pretty` - make xml and html files in a book looks pretty, needs xmllint
 - `just` - just print metadata for book(s)
 - `list` - show all current books
 - `repack` - repack all books with zip console utility, if you want to repack them with 7z use during start flag -R 7z
@@ -60,18 +60,18 @@ To go back write `..`
 #### `meta`
 Open metadata editor, in which you can:
 - `print` - print metadata
+- `sort` - generate sort names for author(s), title
 - `set` - set metadata
 	- `title` - set title
 	- `author` - set author(s)
 	- `series` - set series and series index
 	- `language` - set language
-	- `sort` - generate sort names for author(s), title
 - `add` - add metadata
 	- `title` - add title
 	- `author` - add author(s)
 	- `series` - add series and series index
 	- `language` - add language(s)
-- `remove` - remove metadata
+- `rm` - remove metadata
 	- `title` - remove title
 	- `author` - remove author(s)
 	- `series` - remove series and series index
@@ -95,11 +95,15 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 - `save` - don't forget to do it, `exit` and `..` don't save your book!
 - `save_as path/to/book.epub` - save book as
 - `meta` - open metadata editor, for detail look up
+- `toc` - open toc editor
+- `rm path/to/file` - remove file(s)
+- `add path/to/file to path/in/book` - add a file
+- `rename path/in/book` - rename a file
 - `search query` or `search query &replace_to new_value` for search with replacing
 
     *Search works with lxml and it is searching only in p tags or if there's not p in div*
 
-- open file in text editor such as `micro`, `nano`, `vim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
+- open a file in text editor such as `micro`, `nano`, `vim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
 - `pretty` - the same as the pretty in simple commands
 - `tree` - print book tree, needs console tool 'tree'
 - `ls` - print all files in book, very usefull for editing with text editor
@@ -116,7 +120,7 @@ TODO
 	- [x] Search in book with replace
 	- [x] Editing files (with micro, nano, vim and bat)
 	- [x] Renaming files
-	- [ ] Multiple renaming
+	- [x] Multiple renaming
 	- [x] Add new files
 	- [x] Delete files
 	- [ ] Merge and split

@@ -1,16 +1,22 @@
 from rich import print
 from src.namespaces import namespaces
 
+debug = False
+
 def raw_to_src(src_in_toc_raw):
+    if debug:
+        print(src_in_toc_raw)
+    
     src_in_toc = []
     for src in src_in_toc_raw:
         if '#' in src:
             index = src.find('#')
             src = src[:index]
-            
-        if '/' in src:
-            index = src.rfind('/') + 1
-            src = src[index:]
+        
+        # Пусть пока так побудет
+        # if '/' in src:
+            # index = src.rfind('/') + 1
+            # src = src[index:]
         
         if src not in src_in_toc:
             src_in_toc.append(src)
@@ -86,7 +92,7 @@ def get_ref_between(item_id_old, itemrefs_all):
             ref_between[v] = items
     return ref_between
 
-def main(opf_root, src_in_toc_raw, debug = False):
+def main(opf_root, src_in_toc_raw):
     manifest = opf_root.xpath('//opf:manifest', namespaces = namespaces)
     spine = opf_root.xpath('//opf:spine', namespaces = namespaces)
     if manifest and spine:

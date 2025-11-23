@@ -5,21 +5,53 @@ import shutil
 from src.namespaces import namespaces as ns
 from src.prompt_input import input
 
+def get_relative_path(path, parent):
+    path_l = str(path).split('/')
+    parent_l = str(parent).split('/')
+    
+    equals = []
+    for i, v in enumerate(path_l):
+        if v == parent_l[i]:
+            equals.append(i)
+        else:
+            break
+    
+    for i in reversed(equals):
+        del path_l[i]
+        del parent_l[i]
+    
+    path_str = ''
+    for i in path_l:
+        if i != path_l[-1]:
+            path_str += i + '/'
+        else:
+            path_str += i
+    
+    for i in parent_l:
+        path_str = '../' + path_str
+    
+    return path_str
+
 def add(inputs, dest, manifest):
     new_files = []
     for inp in inputs:
-        path = validate_path_add(inp)
-        if not path:
+        if Path(inp).resolve().is_file():
+            path = Path(inp).resolve()
+        else:
             print('Not valid path:', inp)
             return
+        
         shutil.copy(path, dest)
         new_files.append(dest / path.name)
     return new_files
 
-def add_in_manifest(new_files, manifest, parent):
+def add_in_manifest(new_files, manifest, root, parent):
     for file in new_files:
         item = etree.SubElement(manifest, '{' + ns['opf'] + '}item')
-        item.attrib['href'] = str(file.relative_to(parent))
+        try:
+            item.attrib['href'] = str(file.relative_to(parent))
+        except ValueError:
+            item.attrib['href'] = get_relative_path(file, parent)
         item_id = file.name
         
         same_id = manifest.xpath(f'./opf:item[@id="{item_id}"]', namespaces = ns)
@@ -34,6 +66,15 @@ def add_in_manifest(new_files, manifest, parent):
         m_type = get_mimetype(file.suffix.lower())
         if m_type:
             item.attrib['mime-type'] = m_type
+        
+        if m_type == 'application/xhtml+xml':
+            add_in_spine(item_id, root)
+
+def add_in_spine(item_id, root):
+    spine = root.find('opf:spine', namespaces = ns)
+    
+    itemref = etree.SubElement(spine, '{' + ns['opf'] + '}itemref')
+    itemref.attrib['idref'] = item_id
 
 def get_mimetype(suffix):
     match suffix:
@@ -64,17 +105,10 @@ def get_mimetype(suffix):
         case _:
             return
 
-def validate_path_add(path):
-    if path[:2] == '~/':
-        if Path.home() / path[2:].is_file():
-            return Path.home() / path[2:]
-    
-    elif Path(path).resolve().is_file():
-        return Path(path).resolve()
-
 def rm(file, temp_path, opf, opf_root):
     # Удаление файла с манифеста
-    this_file = opf_root.xpath(f'//opf:item[contains(@href, "{file.name}")]', namespaces = ns)
+    relative_to_opf = get_rel(file, opf.parent)
+    this_file = opf_root.xpath(f'//opf:item[@href="{relative_to_opf}"]', namespaces = ns)
     if this_file:
         if file.suffix.lower() in ['.xhtml', '.html', '.htm']:
             f_id = this_file[0].get('id')
@@ -103,7 +137,8 @@ def rm_from_toc(file, opf):
     toc_tree = etree.parse(toc)
     toc_root = toc_tree.getroot()
     
-    contents = toc_root.xpath(f'//ncx:content[contains(@src, "{file.name}")]', namespaces = ns)
+    relative_to_toc = get_rel(file, toc.parent)
+    contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
     for content in contents:
         point = content.getparent()
         label = point.find('ncx:navLabel', namespaces = ns)
@@ -138,12 +173,25 @@ def rm_refs(element):
     parent = element.getparent()
     parent.remove(element)
 
-def rename(file, temp_path, opf, opf_root):
-    new_name = input('Name', default = file.stem) + file.suffix
+def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
+    was_new_name = True
+    if not new_name:
+        new_name = input('Name', default = file.stem) + file.suffix
+        was_new_name = False
+    
+    new_file = file.parent / new_name
+    if not new_file.exists():
+        file.rename(new_file)
+    else:
+        if not was_new_name:
+            print(f"{new_name} is already exists!")
+        return False
+    
     formats = ['.xhtml', '.html', '.htm']
     
     # Работа в .opf
-    this_file = opf_root.xpath(f'//opf:item[contains(@href, "{file.name}")]', namespaces = ns)
+    relative_to_opf = get_rel(file, opf.parent)
+    this_file = opf_root.xpath(f'//opf:item[@href="{relative_to_opf}"]', namespaces = ns)
     if this_file:
         item = this_file[0]
         href = item.get('href')
@@ -151,26 +199,28 @@ def rename(file, temp_path, opf, opf_root):
     
     # В toc.ncx
     if file.suffix.lower() in formats:
-        rename_in_toc(file.name, new_name, opf)
+        from src.editor.main import getToc
+        toc = opf.parent / getToc(opf)
+        relative_to_toc = get_rel(file, toc.parent)
+        
+        if toc_root is None:
+            toc_tree = etree.parse(toc)
+            toc_root = toc_tree.getroot()
             
+            contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
+            for content in contents:
+                src = content.get('src')
+                content.attrib['src'] = src.replace(file.name, new_name)
+            
+            toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+        else:
+            contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
+            for content in contents:
+                src = content.get('src')
+                content.attrib['src'] = src.replace(file.name, new_name)
+        
     search_in_files(temp_path, replace_name, file, args = [file.name, new_name])
-    
-    new_file = file.parent / new_name
-    file.rename(new_file)
-
-def rename_in_toc(old_name, new_name, opf):
-    from src.editor.main import getToc
-    
-    toc = opf.parent / getToc(opf)
-    toc_tree = etree.parse(toc)
-    toc_root = toc_tree.getroot()
-    
-    contents = toc_root.xpath(f'//ncx:content[contains(@src, "{old_name}")]', namespaces = ns)
-    for content in contents:
-        src = content.get('src')
-        content.attrib['src'] = src.replace(old_name, new_name)
-    
-    toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    return True
 
 def replace_name(element, args):
     old_name = args[0]
@@ -178,6 +228,13 @@ def replace_name(element, args):
     for key, value in element.attrib.items():
         if old_name in value:
             element.attrib[key] = value.replace(old_name, new_name)
+
+def get_rel(file, parent):
+    try:
+        rel = str(file.relative_to(parent))
+    except ValueError:
+        rel = get_relative_path(file, parent)
+    return rel
 
 def main(temp_path, action, arg):
     if action == 'add':
@@ -208,7 +265,7 @@ def main(temp_path, action, arg):
         case 'add':
                 new_files = add(inputs, dest, manifest)
                 if new_files:
-                    add_in_manifest(new_files, manifest, opf.parent)
+                    add_in_manifest(new_files, manifest, root, opf.parent)
         case 'rm':
             for i in inputs:
                 file = temp_path / i
@@ -216,9 +273,10 @@ def main(temp_path, action, arg):
                     rm(file, temp_path, opf, root)
                     file.unlink()
         case 'rename':
-            file = temp_path / inputs[0]
-            if file.is_file():
-                rename(file, temp_path, opf, root)
+            for i in inputs:
+                file = temp_path / i
+                if file.is_file():
+                    rename(file, temp_path, opf, root)
     
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
 
