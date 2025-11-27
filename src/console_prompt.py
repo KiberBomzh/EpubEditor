@@ -15,14 +15,18 @@ books = inputHandler()
 # Стилизация
 style = Style.from_dict({
     'prompt': 'green bold',
-    'completion-menu': 'bg:#202020 fg:white'
+    'completion-menu': 'bg:#202020 fg:white',
+    'scrollbar.background': 'bg:#101010'
 })
 
 
-def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor', args = []):
-    compl.append('help')
-    compl.append('exit')
-    completer = WordCompleter(compl)
+def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', args = []):
+    if isinstance(compl, list):
+        compl.append('help')
+        compl.append('exit')
+        completer = WordCompleter(compl)
+    else:
+        completer = compl
     
     # Обработка длины названия книги, чтоб оно было справа
     columns, lines = os.get_terminal_size()
@@ -69,8 +73,21 @@ def main(commandHandler, compl: list, help_message: str, path: str = 'epubeditor
                 index = command.find(' ')
                 
                 args.append(command[index + 1:])
-                if args[-1][:2] == '~/':
-                    args[-1] =  os.path.expanduser(args[-1])
+                last_arg = args[-1]
+                l_words = last_arg.split()
+                new_last_arg = ''
+                for word in l_words:
+                    if word[:2] == '~/':
+                        word = os.path.expanduser(word)
+                    
+                    if word != l_words[-1]:
+                        new_last_arg += word + ' '
+                    else:
+                        new_last_arg += word
+                
+                if new_last_arg:
+                    args[-1] = new_last_arg
+                
                 first_append_in_args = False
                 
                 command = command[:index]

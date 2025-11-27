@@ -16,6 +16,15 @@ def go_recursive(root, func, args = []):
         return n_args
     return args
 
+def rec_get_orders(point, args):
+    order_list = args[0]
+    if 'playOrder' in point.attrib.keys():
+        order = point.attrib['playOrder']
+    else:
+        order = point.attrib['id']
+    order_list[order] = None
+    return args
+
 def rec_ls(point, args):
     tree = args[0]
     label = point.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
@@ -36,6 +45,20 @@ def rec_change_order(point, args):
     if contentL:
         args[1].append(contentL[0])
     return args
+
+def get_orders(root):
+    order_list = {}
+    nav_points = root.xpath('//ncx:navMap/ncx:navPoint', namespaces = ns)
+    if nav_points:
+        for point in nav_points:
+            if 'playOrder' in point.attrib.keys():
+                order = point.attrib['playOrder']
+            else:
+                order = point.attrib['id']
+            order_list[order] = None
+            args = go_recursive(point, rec_get_orders, [order_list])
+        order_list = args[0]
+    return order_list
 
 def change_order(root):
     src_in_toc = []

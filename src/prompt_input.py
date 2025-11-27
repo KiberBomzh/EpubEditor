@@ -3,7 +3,7 @@ from prompt_toolkit import prompt
 
 from src.console_prompt import style
 
-def input(question, default = ''):
+def input(question, default = '', completer = None):
     print(f'[blue]{question}[/]')
-    answer = prompt('> ', default = default, style = style)
+    answer = prompt('> ', default = default, style = style, completer = completer)
     return answer

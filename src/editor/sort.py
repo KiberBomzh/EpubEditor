@@ -1,5 +1,6 @@
 from pathlib import Path
 from rich.progress import track
+from prompt_toolkit.completion import PathCompleter
 
 from src.metadata_editor.get_metadata import getMetadata
 from src.editor.book_renamer import getRoot
@@ -45,14 +46,22 @@ def sort(book, main_path):
     return new_book_path
 
 def main(books):
+    path_completer = PathCompleter(
+        expanduser=True,  # Раскрывать ~ в домашнюю директорию
+        file_filter=lambda name: '.' != Path(name).stem[0],
+        min_input_len=0,  # Показывать сразу
+        get_paths=lambda: ['.'],
+    )
+    
     # Получение пути к главной папке для сортировки
-    main_path = input('Main folder for sort')
+    main_path = input('Main folder for sort', completer = path_completer)
     if main_path[:2] == '~/':
         main_path = Path.home() / main_path[2:]
     else:
         main_path = Path(main_path).resolve()
+    
     while not main_path.is_dir():
-        main_path = input('Not valid folder, try again: ')
+        main_path = input('Not valid folder, try again: ', completer = path_completer)
         if main_path[:2] == '~/':
             main_path = Path.home() / main_path[2:]
         else:

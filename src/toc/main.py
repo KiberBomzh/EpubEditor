@@ -2,14 +2,15 @@ from lxml import etree
 
 from src.console_prompt import main as prompt
 from src.prompt_input import input
-from src.toc.functions import ls, add, show, to_any_case, put, second_arg_split, create_el, change_order
+from src.toc.functions import ls, add, show, to_any_case, put, second_arg_split, create_el, change_order, get_orders
 from src.toc.sort_spine import main as sort_spine
+from src.toc.completer import TocCompleter
 from src.namespaces import namespaces as ns
 
 def optionHandl(action, args):
     root = args[0]
     if len(args) > 1:
-        sec_arg = args[1]
+        sec_arg = args[1].strip()
     else:
         sec_arg = None
     
@@ -114,8 +115,33 @@ def main(toc, opf, path = 'epubeditor/toc'):
             "\t-Change case for [magenta]num[/] or for all      [green]'{upper/lower/capitalize/title}'[/] [magenta]num1 num2 .. numN[/]\n" +
             "\t-Go back                             [green]'..'[/]\n" +
             "\t-Exit")
-    optList = ['ls', 'show', 'edit', 'put', 'rm', 'add', 'upper', 'lower', 'capitalize', 'title', '..']
-    act = prompt(optionHandl, optList, help_msg, path = path, args = [toc_root])
+    
+    order_list = get_orders(toc_root)
+    
+    iba = {
+        'in': order_list,
+        'before': order_list,
+        'after': order_list,
+    }
+    
+    completer = TocCompleter({
+        'ls': None,
+        'show': order_list,
+        'edit': order_list,
+        'add': iba,
+        'put': iba,
+        'rm': order_list,
+        'upper': order_list,
+        'lower': order_list,
+        'capitalize': order_list,
+        'title': order_list,
+        '..': None,
+        'exit': None,
+        'help': None,
+    }, order_list, iba, ['show', 'edit'], ['put', 'add'])
+    
+    #optList = ['ls', 'show', 'edit', 'put', 'rm', 'add', 'upper', 'lower', 'capitalize', 'title', '..']
+    act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root])
     
     order, src_in_toc = change_order(toc_root)
     if order > 0:

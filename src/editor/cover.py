@@ -3,6 +3,7 @@ import zipfile
 import tempfile
 import subprocess
 from pathlib import Path
+from prompt_toolkit.completion import NestedCompleter, PathCompleter
 
 from src.console_prompt import main as prompt
 from src.namespaces import namespaces
@@ -153,13 +154,27 @@ def validateCover(cover_path):
 
 def main(book):
     help_msg = ("Available options:\n" +
-        "\t-Set <path_to_cover>\n" +
-        "\t-Add <path_to_cover>\n" +
-        "\t-Extract <output_path>\n" +
-        "\tGo back, '..'\n" +
+        "\t-Set         'set path/to/cover'\n" +
+        "\t-Add         'add path/to/cover'\n" +
+        "\t-Extract     'extract output/path'\n" +
+        "\t-Go back      '..'\n" +
         "\t-Exit")
-    optList = ['set', 'add', 'extract', '..']
-    return prompt(optionHandl, optList, help_msg, path = 'epubeditor/cover', args = [book])
+    
+    path_completer = PathCompleter(
+        expanduser=True,  # Раскрывать ~ в домашнюю директорию
+        file_filter=lambda name: '.' != Path(name).stem[0],
+        min_input_len=0,  # Показывать сразу
+        get_paths=lambda: ['.'],
+    )
+    completer = NestedCompleter.from_nested_dict({
+        'set': path_completer,
+        'add': path_completer,
+        'extract': path_completer,
+        'help': None,
+        '..': None,
+        'exit': None
+    })
+    return prompt(optionHandl, completer, help_msg, path = 'epubeditor/cover', args = [book])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

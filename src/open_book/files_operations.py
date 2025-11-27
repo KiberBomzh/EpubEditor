@@ -159,7 +159,8 @@ def search_in_files(temp_path, func, q_path, args = []):
             tree = html.parse(file)
             root = tree.getroot()
             
-            elements = root.xpath(f'//*[@*[contains(., "{q_path.name}")]]')
+            relative_to_file = get_rel(q_path, file.parent)
+            elements = root.xpath(f'//*[@*[contains(., "{relative_to_file}")]]')
             if elements:
                 for element in elements:
                     if args:

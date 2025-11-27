@@ -144,7 +144,7 @@ def optionHandl(action, args):
     temp_path = args[1]
     
     if len(args) > 2:
-        arg = args[2]
+        arg = args[2].strip()
         file = temp_path / arg
     else:
         arg = ''

@@ -1,11 +1,12 @@
 from lxml import etree
+from prompt_toolkit.completion import NestedCompleter
 
 from src.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata, create_sort
 from src.console_prompt import main as prompt
 
 def optionHandl(action, args):
     root = args[0]
-    second_arg = args[1] if len(args) > 1 else None
+    second_arg = args[1].strip() if len(args) > 1 else None
     
     match action:
         case "print":
@@ -21,6 +22,8 @@ def optionHandl(action, args):
         case _:
             print("Unknown option, try again.")
 
+
+
 def main(opf, path = 'epubeditor/meta'):
     tree = etree.parse(opf)
     root = tree.getroot()
@@ -32,8 +35,32 @@ def main(opf, path = 'epubeditor/meta'):
             "\t-Create sort names   [green]'sort'[/]\n" +
             "\t-Go back             [green]'..'[/]\n" +
             "\t-Exit")
-    optList = ['set', 'add', 'rm', 'sort', 'print', '..']
-    act = prompt(optionHandl, optList, help_msg, path = path, args = [root])
+    
+    keys = {}
+    metadataRead = get_metadata.getMetadata(root)
+    for key in metadataRead.keys():
+        if '_' not in key:
+            keys[key] = None
+    keys['help'] = None
+    
+    completer = NestedCompleter.from_nested_dict({
+        'set': keys,
+        'add': {
+            'title': None,
+            'author': None,
+            'series': None,
+            'language': None,
+            'help': None,
+        },
+        'rm': keys,
+        'sort': None,
+        'print': None,
+        '..': None,
+        'exit': None,
+        'help': None,
+    })
+    
+    act = prompt(optionHandl, completer, help_msg, path = path, args = [root])
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
     return act
 
