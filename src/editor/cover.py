@@ -76,7 +76,8 @@ def addCover(book, cover):
                 manifest = manifest[0]
                 subprocess.run(["cp", cover, opf.parent])
                 cover_in_temp = opf.parent / cover.name
-                cover_in_temp = cover_in_temp.relative_to(temp_path)
+                cover_rel_to_temp = cover_in_temp.relative_to(temp_path)
+                cover_rel_to_opf = cover_in_temp.relative_to(opf.parent)
                 if cover_in_temp.suffix.lower() == '.png':
                     m_type = 'image/png'
                 elif cover_in_temp.suffix.lower() == '.jpg' or cover_in_temp.suffix.lower() == '.jpeg':
@@ -89,12 +90,12 @@ def addCover(book, cover):
                 
                 manifestCover = etree.SubElement(manifest, 'item')
                 manifestCover.attrib['id'] = coverId
-                manifestCover.attrib['href'] = str(cover_in_temp)
+                manifestCover.attrib['href'] = str(cover_rel_to_opf)
                 manifestCover.attrib['media-type'] = m_type
                 
                 tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
                 
-                subprocess.run(f"cd {temp_path} && zip -u '{book}' '{cover_in_temp}' '{opf.relative_to(temp_path)}'", shell = True)
+                subprocess.run(f"cd {temp_path} && zip -u '{book}' '{cover_rel_to_temp}' '{opf.relative_to(temp_path)}'", shell = True)
             else:
                 print("Error, there's no metadata or manifest!")
 
@@ -112,7 +113,7 @@ def extractCover(book, outpath):
 def optionHandl(action, args, cover = ''):
     book = args[0]
     if cover:
-        cover = Path(cover)
+        cover = Path(cover.strip())
         cover = cover.resolve()
         if validateCover(cover):
             changeCover(book, cover)
@@ -120,7 +121,7 @@ def optionHandl(action, args, cover = ''):
             print("Not valid cover, try another.")
     else:
         if len(args) > 1:
-            cover_path = Path(args[1]).resolve()
+            cover_path = Path(args[1].strip()).resolve()
             
             match action:
                 case 'set':
@@ -147,7 +148,6 @@ def optionHandl(action, args, cover = ''):
 def validateCover(cover_path):
     if cover_path.is_file():
         allowed_formats = ['.jpg', '.jpeg', '.png']
-        
         if cover_path.suffix in allowed_formats:
             return True
     return False

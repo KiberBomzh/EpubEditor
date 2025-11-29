@@ -7,6 +7,7 @@ import tempfile
 from rich.progress import track
 from rich.prompt import Confirm, Prompt
 from rich.console import Console
+from prompt_toolkit.completion import NestedCompleter
 
 from src.metadata_editor import main as metadata_editor
 from src.metadata_editor.get_metadata import getMetadata
@@ -249,8 +250,22 @@ def main(books: list):
         "\t-Print current books          [green]'list'[/]\n" +
         "\t-Repack bad zip               [green]'repack'[/]\n" +
         "\t-Exit")
-    optList = ['open', 'meta', 'toc', 'cover', 'rename', 'sort', 'pretty', 'just', 'list', 'repack']
-    prompt(chooseOption, optList, helpmsg, args = [books])
+
+    completer = NestedCompleter.from_nested_dict({
+        'open': None,
+        'meta': None,
+        'toc': None,
+        'cover': None,
+        'rename': None,
+        'sort': None,
+        'pretty': None,
+        'just': None,
+        'list': None,
+        'repack': None,
+        'help': None,
+        'exit': None
+    })
+    prompt(chooseOption, completer, helpmsg, args = [books])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

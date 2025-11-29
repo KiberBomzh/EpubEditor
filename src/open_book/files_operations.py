@@ -239,19 +239,19 @@ def get_rel(file, parent):
 
 def main(temp_path, action, arg):
     if action == 'add':
-        if ' to ' in arg:
-            inp, destination = arg.split(' to ')
-            inputs = inp.split()
+        if ' :to ' in arg:
+            inp, destination = arg.split(' :to ')
+            inputs = inp.split(' : ')
             dest = temp_path / destination
             if not dest.is_dir():
                 print('Not valid destination path.')
                 return
     
         else:
-            print('Not valid arguments, try with "file to folder"')
+            print('Not valid arguments, try with "path/to/file :to path/to/folder"')
             return
     else:
-        inputs = arg.split()
+        inputs = arg.split(' : ')
     
     from src.editor.main import getOpf
             

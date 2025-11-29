@@ -57,7 +57,7 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
                 cursor,
                 completer=completer,
                 style=style
-            )
+            ).strip()
             
             # Очистка двух строк
             print('\033[F\033[K', end='')

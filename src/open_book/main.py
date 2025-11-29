@@ -3,10 +3,12 @@ import zipfile
 import subprocess
 from pathlib import Path
 from rich.console import Console
+from prompt_toolkit.completion import PathCompleter
 
 from src.open_book import search
 from src.open_book.files_operations import main as do_with_file
 from src.open_book.multiple_renamer import main as multiple_renamer
+from src.open_book.completer import OpenCompleter
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
 
@@ -242,7 +244,6 @@ def main(book):
         "\t-Rename                      [green]'rename'[/]\n" +
         "\t-Go back                     [green]'..'[/]\n" +
         "\t-Exit")
-    optList = ['save', 'save_as', 'meta', 'toc', 'search', 'micro', 'nano', 'vim', 'bat', 'pretty', 'tree', 'ls', 'just_ls', 'rm', 'add', 'rename', '..']
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -250,12 +251,52 @@ def main(book):
         with zipfile.ZipFile(book, 'r') as book_read:
             try:
                 book_read.extractall(temp_path)
+                
+                global_completer = PathCompleter(
+                    expanduser=True,  # Раскрывать ~ в домашнюю директорию
+                    file_filter=lambda name: '.' != Path(name).stem[0],
+                    min_input_len=0,  # Показывать сразу
+                    get_paths=lambda: ['.'],
+                )
+                book_completer = PathCompleter(
+                    min_input_len=0,
+                    get_paths=lambda: [temp_path]
+                )
+                book_dest_completer = PathCompleter(
+                    file_filter=lambda name: Path(name).is_dir(),
+                    min_input_len=0,
+                    get_paths=lambda: [temp_path]
+                )
+                
+                completer = OpenCompleter({
+                    'save': None,
+                    'save_as': global_completer, # Один путь
+                    'meta': None,
+                    'toc': None,
+                    'search': None,
+                    'micro': book_completer, # Тут везде один путь
+                    'nano': book_completer,
+                    'vim': book_completer,
+                    'bat': book_completer,
+                    'pretty': None,
+                    'tree': None,
+                    'ls': None,
+                    'just_ls': None,
+                    'rm': book_completer, # Много
+                    # Сложное дополнение сначала много, потом - один
+                    'add': {global_completer: {'to': book_dest_completer}},
+                    'rename': book_completer, # Много
+                    '..': None,
+                    'exit': None,
+                    'help': None,
+                }, global_completer, book_completer, book_dest_completer, ['rename', 'rm'])
+                
+                return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
             except zipfile.BadZipFile:
                 print(book)
                 print("Bad zip file! Possible zipbomb!")
                 return None
         
-        return prompt(optionHandl, optList, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")
