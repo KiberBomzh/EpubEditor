@@ -1,4 +1,4 @@
-from lxml import etree
+from lxml import etree, html
 from rich.console import Console
 
 from src.open_book.files_operations import rename
@@ -10,8 +10,12 @@ def main(temp_path):
             
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)
-    toc = opf.parent / getToc(opf)
-    toc_tree = etree.parse(toc)
+    toc, what_is_it = getToc(opf)
+    toc = opf.parent / toc
+    if what_is_it == 'toc':
+        toc_tree = etree.parse(toc)
+    elif what_is_it == 'nav':
+        toc_tree = html.parse(toc)
     toc_root = toc_tree.getroot()
     
     tree = etree.parse(opf)
@@ -58,7 +62,10 @@ def main(temp_path):
                 if not rename(key, temp_path, opf, root, value, toc_root):
                     console.log(f"Cannot rename {key.name} to {value}! The name already exists!")
     
-    toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    if what_is_it == 'toc':
+        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    elif what_is_it == 'nav':
+        toc_tree.write(toc, encoding='utf-8', pretty_print = True)
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
 
 if __name__ == "__main__":

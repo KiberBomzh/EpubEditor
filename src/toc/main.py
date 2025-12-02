@@ -1,16 +1,19 @@
-from lxml import etree
+from lxml import etree, html
 
 from src.console_prompt import main as prompt
-from src.prompt_input import input
-from src.toc.functions import ls, add, show, to_any_case, put, second_arg_split, create_el, change_order, get_orders
-from src.toc.sort_spine import main as sort_spine
+from src.toc import sort_spine
 from src.toc.completer import TocCompleter
-from src.namespaces import namespaces as ns
 
 def optionHandl(action, args):
     root = args[0]
-    if len(args) > 1:
-        sec_arg = args[1].strip()
+    what_is_it = args[1]
+    if what_is_it == 'toc':
+        from src.toc.functions import ls, add, show, to_any_case, put, edit, rm
+    elif what_is_it == 'nav':
+        from src.toc.nav_functions import ls, add, show, to_any_case, put, edit, rm
+    
+    if len(args) > 2:
+        sec_arg = args[2].strip()
     else:
         sec_arg = None
     
@@ -18,91 +21,46 @@ def optionHandl(action, args):
         case 'ls':
             ls(root)
         case 'show':
-            if sec_arg:
-                elements = root.xpath(f'//ncx:navPoint[@playOrder="{sec_arg}"]', namespaces = ns)
-                if elements:
-                    el = elements[0]
-                    show(el)
-                else:
-                    elements = root.xpath(f'//ncx:navPoint[@id="{sec_arg}"]', namespaces = ns)
-                    if elements:
-                        el = elements[0]
-                        show(el)
+            if sec_arg is not None:
+                show(root, sec_arg)
             else:
                 print('Option needs second argument, try again.')
         case 'edit':
-            if sec_arg:
-                elements = root.xpath(f'//ncx:navPoint[@playOrder="{sec_arg}"]', namespaces = ns)
-                if not elements:
-                    elements = root.xpath(f'//ncx:navPoint[@id="{sec_arg}"]', namespaces = ns)
-                
-                if elements:
-                    el = elements[0]
-                    
-                    labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
-                    if labelL:
-                        label = labelL[0]
-                        label.text = input('Label', default = label.text)
-                    
-                    contentL = el.xpath('./ncx:content', namespaces = ns)
-                    if contentL:
-                        content = contentL[0]
-                        content.attrib['src'] = input('Content ', default = content.get('src'))
+            if sec_arg is not None:
+                edit(root, sec_arg)
             else:
                 print('Option needs second argument, try again.')
         case 'put':
-            if sec_arg:
+            if sec_arg is not None:
                 put(root, sec_arg)
             else:
                 print('Option needs second argument, try again.')
         case 'rm':
-            if sec_arg:
-                orders = second_arg_split(sec_arg)
-                
-                for order in orders:
-                    elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
-                    if elements:
-                        elements[0].getparent().remove(elements[0])
-                    else:
-                        elements = root.xpath(f'//ncx:navPoint[@id="{order}"]', namespaces = ns)
-                        if elements:
-                            elements[0].getparent().remove(elements[0])
+            if sec_arg is not None:
+                rm(root, sec_arg)
             else:
-                nav_map = root.find('ncx:navMap', namespaces = ns)
-                elements = nav_map.xpath('./ncx:navPoint', namespaces = ns)
-                for el in elements:
-                    nav_map.remove(el)
+                print('Option needs second argument, try again.')
         case 'add':
-            if sec_arg:
+            if sec_arg is not None:
                 add(root, sec_arg)
             else:
-                nav_map = root.xpath('//ncx:navMap', namespaces = ns)
-                point = create_el(root)
-                if nav_map:
-                    nav_map[0].append(point)
+                print('Option needs second argument, try again.')
         case 'upper' | 'lower' | 'capitalize' | 'title':
-            if sec_arg:
-                orders = second_arg_split(sec_arg)
-                
-                for order in orders:
-                    elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
-                    if elements:
-                        to_any_case(elements[0], action)
-                    else:
-                        elements = root.xpath(f'//ncx:navPoint[@id="{order}"]', namespaces = ns)
-                        if elements:
-                            to_any_case(elements[0], action)
-                    
-            else:
-                elements = root.xpath('//ncx:navPoint', namespaces = ns)
-                for el in elements:
-                    to_any_case(el, action)
+           to_any_case(root, action, sec_arg) 
         case _:
             print("Unknown option, try again.")
 
-def main(toc, opf, path = 'epubeditor/toc'):
-    toc_tree = etree.parse(toc)
-    toc_root = toc_tree.getroot()
+def main(toc, opf, what_is_it, path = 'epubeditor/toc'):
+    if what_is_it == 'toc':
+        from src.toc.functions import change_order, get_orders
+        toc_tree = etree.parse(toc)
+        toc_root = toc_tree.getroot()
+    elif what_is_it == 'nav':
+        from src.toc.nav_functions import change_order, get_orders, init_order
+        toc_tree = html.parse(toc)
+        toc_root = toc_tree.getroot()
+        init_order(toc_root)
+
     opf_tree = etree.parse(opf)
     opf_root = opf_tree.getroot()
     help_msg = ("Available options:\n" +
@@ -140,15 +98,19 @@ def main(toc, opf, path = 'epubeditor/toc'):
         'help': None,
     }, order_list, iba, ['show', 'edit'], ['put', 'add'])
     
-    #optList = ['ls', 'show', 'edit', 'put', 'rm', 'add', 'upper', 'lower', 'capitalize', 'title', '..']
-    act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root])
+    act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root, what_is_it])
     
-    order, src_in_toc = change_order(toc_root)
+    order, src_in_toc_raw = change_order(toc_root)
     if order > 0:
-        sort_spine(opf_root, src_in_toc)
+        src_in_toc = sort_spine.raw_to_src(src_in_toc_raw, toc.parent, opf.parent)
+        sort_spine.main(opf_root, src_in_toc)
     
-    toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
-    opf_tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    if what_is_it == 'toc':
+        toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
+    elif what_is_it == 'nav':
+        toc_tree.write(toc, encoding = 'utf-8', pretty_print = True)
+    
+    opf_tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     return act
 
 if __name__ == "__main__":

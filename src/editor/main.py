@@ -80,15 +80,20 @@ def getToc(opf):
     root = etree.parse(opf).getroot()
     toc_id = if_element(
         root.xpath('//opf:spine/@toc', namespaces = ns),
-        'Toc id not found!'
+        'Toc id is not found!'
     )
-    
-    toc = if_element(
-        root.xpath(f'//opf:manifest/opf:item[@id="{toc_id}"]/@href', namespaces = ns),
-        'Toc path not found!'
-    )
-    
-    return str(toc)
+    try:
+        toc = if_element(
+            root.xpath(f'//opf:manifest/opf:item[@id="{toc_id}"]/@href', namespaces = ns),
+            'Toc path is not found!'
+        )
+        return str(toc), 'toc'
+    except TypeError:
+        toc = if_element(
+            root.xpath('//opf:manifest/opf:item[@properties="nav"]/@href', namespaces = ns),
+            'Toc path is not found!'
+        )
+        return str(toc), 'nav'
 
 def editOpf(book):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -114,32 +119,30 @@ def editToc(book):
                 opf_file = getOpf(container)
             
             with book_r.open(opf_file) as opf_r:
-                ncx_file = getToc(opf_r)
-                
+                toc_file, what_is_it = getToc(opf_r)
+            
+            t_index = toc_file.rfind('/') + 1
             for f in book_r.namelist():
-                if ncx_file in f:
-                    ncx_file = f
+                if toc_file[t_index:] in f:
+                    toc_file = f
             
             book_r.extract(opf_file, temp_path)
-            book_r.extract(ncx_file, temp_path)
+            book_r.extract(toc_file, temp_path)
         
-        ncx = list(temp_path.rglob('*.ncx'))
-        if len(ncx) == 1:
-            toc = ncx[0]
-        else:
+        toc = temp_path / toc_file
+        if not toc.is_file():
             print("Error during geting .ncx file!")
             return
         
-        opf_f = list(temp_path.rglob('*.opf'))
-        if len(opf_f) == 1:
-            opf = opf_f[0]
-        else:
+        opf = temp_path / opf_file
+        if not opf.is_file():
             print("Error during geting .opf file!")
             return
+
         toc_relative = toc.relative_to(temp_path)
         opf_relative = opf.relative_to(temp_path)
         
-        act = tocEditor(toc, opf)
+        act = tocEditor(toc, opf, what_is_it)
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {opf_relative}', shell = True)
         return act
 
@@ -226,7 +229,10 @@ def chooseOption(action, args):
                     console.print(f"[dim]{book.parent.relative_to(Path.cwd())}/[/][blue]{book.name}[/]")
             case "repack":
                 subprocess_errors.clear()
-                repack(books)
+                repack(
+                    books, 
+                    with_what = args[1] if len(args) > 1 else 'zip'
+                )
                 if subprocess_errors:
                     print('Subprocess Error:')
                     for error in subprocess_errors:
@@ -261,7 +267,7 @@ def main(books: list):
         'pretty': None,
         'just': None,
         'list': None,
-        'repack': None,
+        'repack': {'zip': None, '7z': None},
         'help': None,
         'exit': None
     })

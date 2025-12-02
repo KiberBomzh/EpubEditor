@@ -96,7 +96,18 @@ def ls(root):
                 go_recursive(point, rec_ls, [tree])
             print(tree)
 
-def show(el):
+def show(root, sec_arg):
+    elements = root.xpath(f'//ncx:navPoint[@playOrder="{sec_arg}"]', namespaces = ns)
+    if elements:
+        el = elements[0]
+    else:
+        elements = root.xpath(f'//ncx:navPoint[@id="{sec_arg}"]', namespaces = ns)
+        if elements:
+            el = elements[0]
+        else:
+            print(f"Wrong num: {sec_arg}, try again.")
+            return
+    
     labelL = el.xpath('./ncx:navLabel/ncx:text/text()', namespaces = ns)
     label = labelL[0] if labelL else None
     
@@ -111,7 +122,28 @@ def show(el):
     
     print("[yellow]Content:", content)
 
-def to_any_case(el, action):
+def to_any_case(root, action, sec_arg):
+    if sec_arg is not None:
+        orders = second_arg_split(sec_arg)
+        
+        for order in orders:
+            elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
+            if elements:
+                el = elements[0]
+            else:
+                elements = root.xpath(f'//ncx:navPoint[@id="{order}"]', namespaces = ns)
+                if elements:
+                    el = elements[0]
+                else:
+                    print(f"Wrong num: {order}.")
+                    continue
+            to_any_case_do(el, action)
+    else:
+        elements = root.xpath('//ncx:navPoint', namespaces = ns)
+        for el in elements:
+            to_any_case_do(el, action)
+
+def to_any_case_do(el, action):
     labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
     label = labelL[0] if labelL else print(labelL)
     match action:
@@ -177,6 +209,9 @@ def put(root, arg):
     
     if dests:
         dest = dests[0]
+        if action == 'after':
+            orders = reversed(orders)
+        
         for order in orders:
             elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
             if not elements:
@@ -192,6 +227,44 @@ def put(root, arg):
                         dest.addprevious(el)
                     case 'after':
                         dest.addnext(el)
+            else:
+                print(f"Wrong num: {order}.")
+    else:
+        print(f"Wrong destination num: {destination}, try again.")
+
+def edit(root, sec_arg):
+    elements = root.xpath(f'//ncx:navPoint[@playOrder="{sec_arg}"]', namespaces = ns)
+    if not elements:
+        elements = root.xpath(f'//ncx:navPoint[@id="{sec_arg}"]', namespaces = ns)
+    
+    if elements:
+        el = elements[0]
+        
+        labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
+        if labelL:
+            label = labelL[0]
+            label.text = input('Label', default = label.text)
+        
+        contentL = el.xpath('./ncx:content', namespaces = ns)
+        if contentL:
+            content = contentL[0]
+            content.attrib['src'] = input('Content', default = content.get('src'))
+    else:
+        print(f"Wrong num: {sec_arg}, try again.")
+
+def rm(root, sec_arg):
+    orders = second_arg_split(sec_arg)
+    
+    for order in orders:
+        elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
+        if elements:
+            elements[0].getparent().remove(elements[0])
+        else:
+            elements = root.xpath(f'//ncx:navPoint[@id="{order}"]', namespaces = ns)
+            if elements:
+                elements[0].getparent().remove(elements[0])
+            else:
+                print(f"Wrong num: {order}.")
 
 def get_free_id_or_order(root, new_value, what):
     value = root.xpath(f'//ncx:navPoint[@{what}="{new_value}"]', namespaces = ns)
@@ -246,6 +319,8 @@ def add(root, sec_arg):
                 dest.addprevious(point)
             case 'after':
                 dest.addnext(point)
+    else:
+        print(f"Wrong destination num: {destination}, try again.")
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

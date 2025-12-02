@@ -2,13 +2,13 @@ import tempfile
 import zipfile
 import subprocess
 from pathlib import Path
-from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
 
 from src.open_book import search
 from src.open_book.files_operations import main as do_with_file
 from src.open_book.multiple_renamer import main as multiple_renamer
 from src.open_book.completer import OpenCompleter
+from src.open_book.functions import ls, tree
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
 
@@ -93,54 +93,6 @@ def save_as(temp_path, book):
                 arcname = file.relative_to(temp_path).as_posix()
                 book_write.write(file, arcname)
 
-def ls(temp_path):
-    book_content = []
-    css = []
-    images = []
-    fonts = []
-    other = []
-    opf = ''
-    ncx = ''
-    for file in temp_path.rglob('*'):
-        if file.is_file():
-            f = file.relative_to(temp_path)
-            match file.suffix.lower():
-                case '.xhtml' | '.html' | '.htm':
-                    book_content.append(f)
-                case '.jpg' | '.jpeg' | '.png' | '.gif':
-                    images.append(f)
-                case '.ttf' | '.otf':
-                    fonts.append(f)
-                case '.css':
-                    css.append(f)
-                case '.opf':
-                    opf = f
-                case '.ncx':
-                    ncx = f
-                case _:
-                    other.append(f)
-    
-    if opf:
-        console.print(f'[yellow]{opf}')
-    if ncx:
-        console.print(f'[cyan]{ncx}')
-    
-    for f in sorted(book_content):
-        console.print(f'[green]{f}')
-    
-    for f in css:
-        console.print(f'[blue]{f}')
-    
-    for f in fonts:
-        console.print(f'[dark_orange]{f}')
-    
-    for f in images:
-        console.print(f'[magenta]{f}')
-    
-    if other:
-        for f in other:
-            console.print(f'[dim]{f}')
-
 def optionHandl(action, args):
     book = args[0]
     temp_path = args[1]
@@ -177,9 +129,10 @@ def optionHandl(action, args):
             
             container = temp_path / 'META-INF/container.xml'
             opf = temp_path / getOpf(container)
-            toc = opf.parent / getToc(opf)
+            toc, what_is_it = getToc(opf)
+            toc = opf.parent / toc
             
-            return tocEditor(toc, opf, path = 'epubeditor/open/toc')
+            return tocEditor(toc, opf, what_is_it, path = 'epubeditor/open/toc')
 
         case 'search':
             if arg:
@@ -192,7 +145,7 @@ def optionHandl(action, args):
             else:
                 print("Option needs second argument.")
         
-        case 'micro' | 'nano' | 'vim' | 'bat':
+        case 'micro' | 'nano' | 'vim' | 'nvim' | 'bat':
             if arg:
                 subprocess.run([action, file])
             else:
@@ -207,7 +160,7 @@ def optionHandl(action, args):
                     print(file.relative_to(temp_path))
         
         case 'tree':
-            subprocess.run(['tree', temp_path])
+            tree(temp_path, book.stem)
         case 'ls':
             ls(temp_path)
         case 'just_ls':
@@ -224,8 +177,6 @@ def optionHandl(action, args):
         case _:
             print("Unknown option, try again.")
 
-console = Console()
-
 def main(book):
     helpmsg = ("Options:\n" +
         "\t-Save                        [green]'save'[/]\n" +
@@ -234,7 +185,7 @@ def main(book):
         "\t-Table of contents editor    [green]'toc'[/]\n" +
         "\t-Search in files             [green]'search'[/] [magenta]'query'[/]\n" +
         "\t-Search and replace          [green]'search'[/] [magenta]'query'[/] [dark_orange]&replace_to[/] [magenta]'new value'[/]\n" +
-        "\t-Open in text editor         [green]'{micro/nano/vim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
+        "\t-Open in text editor         [green]'{micro/nano/vim/nvim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
         "\t-Format .xml files           [green]'pretty'[/]\n" +
         "\t-Print book's tree           [green]'tree'[/]\n" +
         "\t-Print all files             [green]'ls'[/]\n" +
@@ -277,6 +228,7 @@ def main(book):
                     'micro': book_completer, # Тут везде один путь
                     'nano': book_completer,
                     'vim': book_completer,
+                    'nvim': book_completer,
                     'bat': book_completer,
                     'pretty': None,
                     'tree': None,

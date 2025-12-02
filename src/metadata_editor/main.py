@@ -61,7 +61,7 @@ def main(opf, path = 'epubeditor/meta'):
     })
     
     act = prompt(optionHandl, completer, help_msg, path = path, args = [root])
-    tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     return act
 
 if __name__ == "__main__":

@@ -27,9 +27,6 @@ uv tool install git+https://github.com/KiberBomzh/EpubEditor
 - xmllint (libxml2-utils)
 - zip, unzip
 - 7z
-- tree
-- bat
-- micro
 
 ## How to use
 Open book or books or directory with books (include all subdirectory)
@@ -93,21 +90,21 @@ Open table of contents editor, commands:
 #### `open`
 Open book (extract all files in temporary folder) for editing. Here you can:
 - `save` - don't forget to do it, `exit` and `..` don't save your book!
-- `save_as path/to/book.epub` - save book as
+- `save_as path/to/book.epub` - save a book as
 - `meta` - open metadata editor, for detail look up
 - `toc` - open toc editor
-- `rm path/to/file` - remove file(s)
-- `add path/to/file to path/in/book` - add a file
-- `rename path/in/book` - rename a file
+- `rm path/to/file1 : path/to/file2` - remove file(s)
+- `add path/to/file1 : path/to/file2 :to path/in/book` - add a file
+- `rename path/to/file1 : path/to/file2` - rename a file
 - `search query` or `search query &replace_to new_value` for search with replacing
 
     *Search works with lxml and it is searching only in p tags or if there's not p in div*
 
-- open a file in text editor such as `micro`, `nano`, `vim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
+- open a file in a text editor such as `micro`, `nano`, `vim`, `nvim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
 - `pretty` - the same as the pretty in simple commands
-- `tree` - print book tree, needs console tool 'tree'
-- `ls` - print all files in book, very usefull for editing with text editor
-- `just_ls` - print all files witgout formatting
+- `tree` - print a book tree
+- `ls` - print all files in a book
+- `just_ls` - print all files without formatting
 
 ## Flags
 TODO
@@ -127,7 +124,7 @@ TODO
 	- [ ] Spliting files according to TOC
 
 - [x] Table of contents editor
-- [ ] Add support for books with nav.xhtm
+- [x] Add support for books with nav.xhtm
 - [ ] Fast creating TOC from h1, h2, h3
 
 - [x] Books renaming {author - series 01.0, title}

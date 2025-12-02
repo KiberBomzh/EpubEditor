@@ -129,16 +129,19 @@ def rm(file, temp_path, opf, opf_root):
         case '.ttf' | '.otf':
             pass # Нахуй, потом допишу это колупание в css
 
-# Удаление файла с оглавления
-def rm_from_toc(file, opf):
-    from src.editor.main import getToc
-    
-    toc = opf.parent / getToc(opf)
-    toc_tree = etree.parse(toc)
-    toc_root = toc_tree.getroot()
-    
-    relative_to_toc = get_rel(file, toc.parent)
-    contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
+def rm_from_nav(root, relative):
+    elements = root.xpath(f'//a[@href="{relative}"]')
+    for element in elements:
+        li = element.getparent()
+        li.remove(element)
+        
+        for child in reversed(li.getchildren()):
+            li.addnext(child)
+        
+        li.getparent().remove(li)
+
+def rm_from_ncx(root, relative):
+    contents = root.xpath(f'//ncx:content[@src="{relative}"]', namespaces = ns)
     for content in contents:
         point = content.getparent()
         label = point.find('ncx:navLabel', namespaces = ns)
@@ -149,8 +152,31 @@ def rm_from_toc(file, opf):
             point.addnext(child)
         
         point.getparent().remove(point)
+
+# Удаление файла с оглавления
+def rm_from_toc(file, opf):
+    from src.editor.main import getToc
     
-    toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    toc, what_is_it = getToc(opf)
+    toc = opf.parent / toc
+    if what_is_it == 'toc':
+        toc_tree = etree.parse(toc)
+    elif what_is_it == 'nav':
+        toc_tree = html.parse(toc)
+    
+    toc_root = toc_tree.getroot()
+    
+    relative_to_toc = get_rel(file, toc.parent)
+    
+    if what_is_it == 'toc':
+        rm_from_ncx(toc_root, relative_to_toc)
+        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+        # Здесь нужно дёрнуть функцию для синхронизации
+        # с nav если он есть.
+        # Функцию потом напишу
+    elif what_is_it == 'nav':
+        rm_from_nav(toc_root, relative_to_toc)
+        toc_tree.write(toc, encoding='utf-8', pretty_print = True)
 
 def search_in_files(temp_path, func, q_path, args = []):
     file_formats = ['.xhtml', '.html', '.htm']
@@ -173,6 +199,18 @@ def search_in_files(temp_path, func, q_path, args = []):
 def rm_refs(element):
     parent = element.getparent()
     parent.remove(element)
+
+def rename_in_ncx(root, relative, old_name, new_name):
+    contents = root.xpath(f'//ncx:content[@src="{relative}"]', namespaces = ns)
+    for content in contents:
+        src = content.get('src')
+        content.attrib['src'] = src.replace(old_name, new_name)
+
+def rename_in_nav(root, relative, old_name, new_name):
+    hrefs = root.xpath(f'//a[@href="{relative}"]')
+    for a in hrefs:
+        href = a.get('href')
+        a.attrib['href'] = href.replace(old_name, new_name)
 
 def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
     was_new_name = True
@@ -201,24 +239,30 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
     # В toc.ncx
     if file.suffix.lower() in formats:
         from src.editor.main import getToc
-        toc = opf.parent / getToc(opf)
+        toc, what_is_it = getToc(opf)
+        toc = opf.parent / toc
         relative_to_toc = get_rel(file, toc.parent)
         
-        if toc_root is None:
-            toc_tree = etree.parse(toc)
-            toc_root = toc_tree.getroot()
-            
-            contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
-            for content in contents:
-                src = content.get('src')
-                content.attrib['src'] = src.replace(file.name, new_name)
-            
-            toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
-        else:
-            contents = toc_root.xpath(f'//ncx:content[@src="{relative_to_toc}"]', namespaces = ns)
-            for content in contents:
-                src = content.get('src')
-                content.attrib['src'] = src.replace(file.name, new_name)
+        if what_is_it == 'toc':
+            if toc_root is None:
+                toc_tree = etree.parse(toc)
+                toc_root = toc_tree.getroot()
+                
+                rename_in_ncx(toc_root, relative_to_toc, file.name, new_name)
+                
+                toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+            else:
+                rename_in_ncx(toc_root, relative_to_toc, file.name, new_name)
+        elif what_is_it == 'nav':
+            if toc_root is None:
+                toc_tree = html.parse(toc)
+                toc_root = toc_tree.getroot()
+                
+                rename_in_nav(toc_root, relative_to_toc, file.name, new_name)
+                
+                toc_tree.write(toc, encoding='utf-8', pretty_print = True)
+            else:
+                rename_in_nav(toc_root, relative_to_toc, file.name, new_name)
         
     search_in_files(temp_path, replace_name, file, args = [file.name, new_name])
     return True

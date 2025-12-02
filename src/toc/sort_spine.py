@@ -1,25 +1,28 @@
 from rich import print
 from src.namespaces import namespaces
+from src.open_book.files_operations import get_rel
 
 debug = False
 
-def raw_to_src(src_in_toc_raw):
-    if debug:
-        print(src_in_toc_raw)
-    
+def raw_to_src(src_in_toc_raw, toc_parent, opf_parent):
     src_in_toc = []
     for src in src_in_toc_raw:
         if '#' in src:
             index = src.find('#')
             src = src[:index]
         
-        # Пусть пока так побудет
-        # if '/' in src:
-            # index = src.rfind('/') + 1
-            # src = src[index:]
+        src_path = toc_parent / src
+        src_rel = get_rel(src_path.resolve(), opf_parent)
         
-        if src not in src_in_toc:
-            src_in_toc.append(src)
+        if src_rel not in src_in_toc:
+            src_in_toc.append(src_rel)
+    
+    if debug:
+        print('src raw')
+        print(src_in_toc_raw)
+        print('src')
+        print(src_in_toc)
+    
     return src_in_toc
 
 def get_item_ids(src_in_toc, items, itemrefs_all):
@@ -92,7 +95,7 @@ def get_ref_between(item_id_old, itemrefs_all):
             ref_between[v] = items
     return ref_between
 
-def main(opf_root, src_in_toc_raw):
+def main(opf_root, src_in_toc):
     manifest = opf_root.xpath('//opf:manifest', namespaces = namespaces)
     spine = opf_root.xpath('//opf:spine', namespaces = namespaces)
     if manifest and spine:
@@ -101,8 +104,6 @@ def main(opf_root, src_in_toc_raw):
     else:
         print("Error while parsing spine in .opf file!")
         return
-    
-    src_in_toc = raw_to_src(src_in_toc_raw)
     
     items = manifest.xpath('./opf:item', namespaces = namespaces)
     itemrefs_all = spine.xpath('./opf:itemref', namespaces = namespaces)
