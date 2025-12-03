@@ -2,6 +2,7 @@ from lxml import etree, html
 from pathlib import Path
 import shutil
 
+from src.toc import sync_toc_and_nav
 from src.namespaces import namespaces as ns
 from src.prompt_input import input
 
@@ -130,18 +131,23 @@ def rm(file, temp_path, opf, opf_root):
             pass # Нахуй, потом допишу это колупание в css
 
 def rm_from_nav(root, relative):
-    elements = root.xpath(f'//a[@href="{relative}"]')
+    elements = root.xpath(f'//a[contains(@href, "{relative}")]')
+    print(len(elements))
     for element in elements:
         li = element.getparent()
         li.remove(element)
         
-        for child in reversed(li.getchildren()):
-            li.addnext(child)
-        
-        li.getparent().remove(li)
+        ol = li.find('ol')
+        if ol is not None:
+            for child in ol.getchildren():
+                li.addprevious(child)
+        parent_ol = li.getparent()
+        parent_ol.remove(li)
+        if not parent_ol.getchildren():
+            parent_ol.getparent().remove(parent_ol)
 
 def rm_from_ncx(root, relative):
-    contents = root.xpath(f'//ncx:content[@src="{relative}"]', namespaces = ns)
+    contents = root.xpath(f'//ncx:content[contains(@src, "{relative}")]', namespaces = ns)
     for content in contents:
         point = content.getparent()
         label = point.find('ncx:navLabel', namespaces = ns)
@@ -157,23 +163,28 @@ def rm_from_ncx(root, relative):
 def rm_from_toc(file, opf):
     from src.editor.main import getToc
     
-    toc, what_is_it = getToc(opf)
-    toc = opf.parent / toc
+    toc_tuple_str, what_is_it = getToc(opf)
+    toc = (opf.parent / toc_tuple_str[0]).resolve()
     if what_is_it == 'toc':
         toc_tree = etree.parse(toc)
     elif what_is_it == 'nav':
         toc_tree = html.parse(toc)
+    elif what_is_it == 'toc and nav':
+        toc_tree = etree.parse(toc)
+        nav = (opf.parent / toc_tuple_str[1]).resolve()
+        nav_tree = html.parse(nav)
+        nav_root = nav_tree.getroot()
     
     toc_root = toc_tree.getroot()
     
     relative_to_toc = get_rel(file, toc.parent)
     
-    if what_is_it == 'toc':
+    if what_is_it == 'toc' or what_is_it == 'toc and nav':
         rm_from_ncx(toc_root, relative_to_toc)
         toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
-        # Здесь нужно дёрнуть функцию для синхронизации
-        # с nav если он есть.
-        # Функцию потом напишу
+        if what_is_it == 'toc and nav':
+            sync_toc_and_nav.main(toc_root, nav_root)
+            nav_tree.write(nav, encoding='utf-8', pretty_print = True)
     elif what_is_it == 'nav':
         rm_from_nav(toc_root, relative_to_toc)
         toc_tree.write(toc, encoding='utf-8', pretty_print = True)
@@ -201,13 +212,13 @@ def rm_refs(element):
     parent.remove(element)
 
 def rename_in_ncx(root, relative, old_name, new_name):
-    contents = root.xpath(f'//ncx:content[@src="{relative}"]', namespaces = ns)
+    contents = root.xpath(f'//ncx:content[contains(@src, "{relative}")]', namespaces = ns)
     for content in contents:
         src = content.get('src')
         content.attrib['src'] = src.replace(old_name, new_name)
 
 def rename_in_nav(root, relative, old_name, new_name):
-    hrefs = root.xpath(f'//a[@href="{relative}"]')
+    hrefs = root.xpath(f'//a[contains(@href, "{relative}")]')
     for a in hrefs:
         href = a.get('href')
         a.attrib['href'] = href.replace(old_name, new_name)
@@ -239,11 +250,11 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
     # В toc.ncx
     if file.suffix.lower() in formats:
         from src.editor.main import getToc
-        toc, what_is_it = getToc(opf)
-        toc = opf.parent / toc
+        toc_tuple_str, what_is_it = getToc(opf)
+        toc = (opf.parent / toc_tuple_str[0]).resolve()
         relative_to_toc = get_rel(file, toc.parent)
         
-        if what_is_it == 'toc':
+        if what_is_it == 'toc' or what_is_it == 'toc and nav':
             if toc_root is None:
                 toc_tree = etree.parse(toc)
                 toc_root = toc_tree.getroot()
@@ -251,8 +262,17 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
                 rename_in_ncx(toc_root, relative_to_toc, file.name, new_name)
                 
                 toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+                
+                if what_is_it == 'toc and nav':
+                    nav = (opf.parent / toc_tuple_str[1]).resolve()
+                    nav_tree = html.parse(nav)
+                    nav_root = nav_tree.getroot()
+                    sync_toc_and_nav.main(toc_root, nav_root)
+                    nav_tree.write(nav, encoding='utf-8', pretty_print = True)
             else:
+                # Синхронизацию дёрнуть в multiple_renamer
                 rename_in_ncx(toc_root, relative_to_toc, file.name, new_name)
+            
         elif what_is_it == 'nav':
             if toc_root is None:
                 toc_tree = html.parse(toc)

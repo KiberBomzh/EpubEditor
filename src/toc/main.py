@@ -2,12 +2,13 @@ from lxml import etree, html
 
 from src.console_prompt import main as prompt
 from src.toc import sort_spine
+from src.toc import sync_toc_and_nav
 from src.toc.completer import TocCompleter
 
 def optionHandl(action, args):
     root = args[0]
     what_is_it = args[1]
-    if what_is_it == 'toc':
+    if what_is_it == 'toc' or what_is_it == 'toc and nav':
         from src.toc.functions import ls, add, show, to_any_case, put, edit, rm
     elif what_is_it == 'nav':
         from src.toc.nav_functions import ls, add, show, to_any_case, put, edit, rm
@@ -50,16 +51,26 @@ def optionHandl(action, args):
         case _:
             print("Unknown option, try again.")
 
-def main(toc, opf, what_is_it, path = 'epubeditor/toc'):
+def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
     if what_is_it == 'toc':
+        toc = toc_tuple[0].resolve()
         from src.toc.functions import change_order, get_orders
         toc_tree = etree.parse(toc)
         toc_root = toc_tree.getroot()
     elif what_is_it == 'nav':
+        toc = toc_tuple[0].resolve()
         from src.toc.nav_functions import change_order, get_orders, init_order
         toc_tree = html.parse(toc)
         toc_root = toc_tree.getroot()
         init_order(toc_root)
+    elif what_is_it == 'toc and nav':
+        toc = toc_tuple[0].resolve()
+        nav = toc_tuple[1].resolve()
+        from src.toc.functions import change_order, get_orders
+        toc_tree = etree.parse(toc)
+        toc_root = toc_tree.getroot()
+        nav_tree = html.parse(nav)
+        nav_root = nav_tree.getroot()
 
     opf_tree = etree.parse(opf)
     opf_root = opf_tree.getroot()
@@ -109,6 +120,10 @@ def main(toc, opf, what_is_it, path = 'epubeditor/toc'):
         toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     elif what_is_it == 'nav':
         toc_tree.write(toc, encoding = 'utf-8', pretty_print = True)
+    elif what_is_it == 'toc and nav':
+        toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
+        sync_toc_and_nav.main(toc_root, nav_root)
+        nav_tree.write(nav, encoding = 'utf-8', pretty_print = True)
     
     opf_tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     return act

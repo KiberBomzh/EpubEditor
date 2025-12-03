@@ -37,6 +37,11 @@ class OpenCompleter(Completer):
             yield from self.get_path_completions(self.book_completer, text, document, complete_event, len_first_word)
             return
         
+        elif first_word in self.nested_dict and self.nested_dict[first_word] is self.book_dest_completer and (current_word != first_word or text.endswith(' ')):
+            len_first_word = len(first_word) + 1 # С пробелом
+            yield from self.get_path_completions(self.book_dest_completer, text, document, complete_event, len_first_word)
+            return
+        
         elif first_word in self.cmd_with_many_paths:
             paths = text[len(first_word) + 1:].split(' : ')
             current_path = paths[-1]

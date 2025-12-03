@@ -77,14 +77,8 @@ def change_order(root):
     return 0, None
 
 def ls(root):
-    doc_title = root.xpath('//ncx:docTitle/ncx:text', namespaces = ns)
-    if doc_title:
-        print("[blue]Doc Title:[/blue]", doc_title[0].text, '\n')
-    
     nav_points = root.xpath('//ncx:navMap/ncx:navPoint', namespaces = ns)
     if nav_points:
-        print("[cyan]Table of contents[/cyan]")
-        print("--------------------")
         for point in nav_points:
             label = point.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
             if label:

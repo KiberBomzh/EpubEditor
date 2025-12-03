@@ -107,7 +107,7 @@ def tree_rec(path, branch):
         branch.add(file)
 
 def tree(temp_path, book_name):
-    book_tree = Tree(f'[bold blue]{book_name}[/]')
+    book_tree = Tree(book_name)
     folders = []
     files = []
     for path in temp_path.glob('*'):
@@ -126,13 +126,17 @@ def tree(temp_path, book_name):
     
     print(book_tree)
 
-def ls(temp_path):
+def ls(temp_path, separators = True):
     files = []
     for file in temp_path.rglob('*'):
         if file.is_file():
             files.append(file)
     
-    new_files = sort_and_paint_files(files, temp_path, separators = True)
+    new_files = sort_and_paint_files(
+        files, 
+        temp_path, 
+        separators = separators
+    )
     
     for f in new_files:
         print(f)

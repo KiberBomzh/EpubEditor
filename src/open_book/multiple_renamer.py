@@ -1,6 +1,7 @@
 from lxml import etree, html
 from rich.console import Console
 
+from src.toc import sync_toc_and_nav
 from src.open_book.files_operations import rename
 from src.namespaces import namespaces as ns
 from src.prompt_input import input
@@ -10,12 +11,18 @@ def main(temp_path):
             
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)
-    toc, what_is_it = getToc(opf)
-    toc = opf.parent / toc
+    toc_tuple_str, what_is_it = getToc(opf)
+    toc = (opf.parent / toc_tuple_str[0]).resolve()
     if what_is_it == 'toc':
         toc_tree = etree.parse(toc)
     elif what_is_it == 'nav':
         toc_tree = html.parse(toc)
+    elif what_is_it == 'toc and nav':
+        toc_tree = etree.parse(toc)
+        nav = (opf.parent / toc_tuple_str[1]).resolve()
+        nav_tree = html.parse(nav)
+        nav_root = nav_tree.getroot()
+    
     toc_root = toc_tree.getroot()
     
     tree = etree.parse(opf)
@@ -66,6 +73,11 @@ def main(temp_path):
         toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
     elif what_is_it == 'nav':
         toc_tree.write(toc, encoding='utf-8', pretty_print = True)
+    elif what_is_it == 'toc and nav':
+        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+        sync_toc_and_nav.main(toc_root, nav_root)
+        nav_tree.write(nav, encoding='utf-8', pretty_print = True)
+        
     tree.write(opf, encoding='utf-8', xml_declaration = True, pretty_print = True)
 
 if __name__ == "__main__":

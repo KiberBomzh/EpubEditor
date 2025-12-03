@@ -36,7 +36,7 @@ class TocCompleter(Completer):
                     yield Completion(order)
             else:
                 for order in self.order_list.keys():
-                    if current_word in order:
+                    if order.startswith(current_word) and current_word != order:
                         yield Completion(order, start_position = -len(current_word))
             return
         
@@ -45,7 +45,7 @@ class TocCompleter(Completer):
                 if text.endswith(' '):
                     if order not in words:
                         yield Completion(order)
-                elif current_word in order and order not in words:
+                elif order.startswith(current_word) and current_word != order and order not in words:
                     yield Completion(order, start_position = -len(current_word))
             return
         
@@ -62,14 +62,14 @@ class TocCompleter(Completer):
                 # Иначе проверять ещё и текущее слово чтоб его можно было дополнить
                 else:
                     for order in self.order_list.keys():
-                        if current_word in order and order not in words:
+                        if order.startswith(current_word) and current_word != order and order not in words:
                             yield Completion(order, start_position = -len(current_word))
                     
             
             # Вторая комманда (in, before, after)
             if any(current_word in act for act in self.iba) and not any(act in words for act in self.iba):
                 for act in self.iba.keys():
-                    if current_word in act:
+                    if act.startswith(current_word):
                         yield Completion(act, start_position = -len(current_word))
                 
             
@@ -81,7 +81,7 @@ class TocCompleter(Completer):
                             if order not in words:
                                 yield Completion(order)
                         else:
-                            if order not in words and current_word in order:
+                            if order.startswith(current_word) and current_word != order and order not in words:
                                 yield Completion(order, start_position = -len(current_word))
             return
         
@@ -93,7 +93,7 @@ class TocCompleter(Completer):
                         yield Completion(act)
                 elif any(current_word in act for act in self.iba):
                     for act in self.iba.keys():
-                        if current_word in act:
+                        if act.startswith(current_word):
                             yield Completion(act, start_position = -len(current_word))
             else:
                 if text.endswith(' '):
@@ -104,6 +104,6 @@ class TocCompleter(Completer):
                         yield Completion(order)
                 else:
                     for order in self.order_list.keys():
-                        if current_word in order:
+                        if order.startswith(current_word) and current_word != order:
                             yield Completion(order, start_position = -len(current_word))
             return

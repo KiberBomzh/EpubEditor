@@ -60,11 +60,14 @@ def repack(books, with_what = 'zip'):
         else:
             print(f'Reapcked: {books[0]}')
 
-def if_element(elements, error_msg):
+def if_element(elements, error_msg, raise_error = True):
     if elements:
         return elements[0]
     else:
-        raise TypeError(error_msg)
+        if raise_error:
+            raise TypeError(error_msg)
+        else:
+            return None
 
 def getOpf(container):
     root = etree.parse(container).getroot()
@@ -82,18 +85,30 @@ def getToc(opf):
         root.xpath('//opf:spine/@toc', namespaces = ns),
         'Toc id is not found!'
     )
-    try:
-        toc = if_element(
-            root.xpath(f'//opf:manifest/opf:item[@id="{toc_id}"]/@href', namespaces = ns),
-            'Toc path is not found!'
-        )
-        return str(toc), 'toc'
-    except TypeError:
-        toc = if_element(
+    
+    toc = if_element(
+        root.xpath(f'//opf:manifest/opf:item[@id="{toc_id}"]/@href', namespaces = ns),
+        'Toc path is not found!',
+        raise_error = False
+    )
+    if toc is not None:
+        nav = if_element(
             root.xpath('//opf:manifest/opf:item[@properties="nav"]/@href', namespaces = ns),
-            'Toc path is not found!'
+            'Nav path is not found!',
+            raise_error = False
         )
-        return str(toc), 'nav'
+        
+        if nav is not None:
+            return (toc, nav), 'toc and nav'
+    
+    else:
+        nav = if_element(
+            root.xpath('//opf:manifest/opf:item[@properties="nav"]/@href', namespaces = ns),
+            'Nav path is not found!'
+        )
+        return (nav,), 'nav'
+    
+    return (toc,), 'toc'
 
 def editOpf(book):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -119,12 +134,28 @@ def editToc(book):
                 opf_file = getOpf(container)
             
             with book_r.open(opf_file) as opf_r:
-                toc_file, what_is_it = getToc(opf_r)
+                toc_tuple_str, what_is_it = getToc(opf_r)
+            
+            nav_file = None
+            match what_is_it:
+                case 'toc' | 'nav':
+                    toc_file = toc_tuple_str[0]
+                case 'toc and nav':
+                    toc_file = toc_tuple_str[0]
+                    nav_file = toc_tuple_str[1]
             
             t_index = toc_file.rfind('/') + 1
             for f in book_r.namelist():
                 if toc_file[t_index:] in f:
                     toc_file = f
+            
+            if nav_file is not None:
+                t_index = nav_file.rfind('/') + 1
+                for f in book_r.namelist():
+                    if nav_file[t_index:] in f:
+                        nav_file = f
+                
+                book_r.extract(nav_file, temp_path)
             
             book_r.extract(opf_file, temp_path)
             book_r.extract(toc_file, temp_path)
@@ -138,11 +169,26 @@ def editToc(book):
         if not opf.is_file():
             print("Error during geting .opf file!")
             return
-
+        
         toc_relative = toc.relative_to(temp_path)
         opf_relative = opf.relative_to(temp_path)
         
-        act = tocEditor(toc, opf, what_is_it)
+        if nav_file is not None:
+            nav = temp_path / nav_file
+            if not nav.is_file():
+                print("Error during geting nav file!")
+                return
+            
+            nav_relative = nav.relative_to(temp_path)
+            
+            toc_tuple = (toc, nav)
+            
+            act = tocEditor(toc_tuple, opf, what_is_it)
+            subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {nav_relative} {opf_relative}', shell = True)
+            return act
+        
+        toc_tuple = (toc,)
+        act = tocEditor(toc_tuple, opf, what_is_it)
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {opf_relative}', shell = True)
         return act
 

@@ -6,7 +6,7 @@ from src.toc.functions import second_arg_split, iba_first_split
 from src.prompt_input import input
 
 def get_nav(root):
-    nav = root.xpath('//nav')
+    nav = root.xpath('//nav[@id="toc"]')
     if nav:
         nav = nav[0]
     else:
@@ -65,8 +65,6 @@ def ls(root):
     nav_points = nav.xpath('./ol/li')
     if nav_points:
         global points_order
-        print("[cyan]Table of contents[/cyan]")
-        print("--------------------")
         for point in nav_points:
             label = point.find('a')
             if label is not None:

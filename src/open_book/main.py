@@ -129,10 +129,16 @@ def optionHandl(action, args):
             
             container = temp_path / 'META-INF/container.xml'
             opf = temp_path / getOpf(container)
-            toc, what_is_it = getToc(opf)
-            toc = opf.parent / toc
+            toc_tuple_str, what_is_it = getToc(opf)
+            toc = (opf.parent / toc_tuple_str[0]).resolve()
             
-            return tocEditor(toc, opf, what_is_it, path = 'epubeditor/open/toc')
+            if what_is_it == 'toc and nav':
+                nav = (opf.parent / toc_tuple_str[1]).resolve()
+                toc_tuple = (toc, nav)
+            else:
+                toc_tuple = (toc,)
+            
+            return tocEditor(toc_tuple, opf, what_is_it, path = 'epubeditor/open/toc')
 
         case 'search':
             if arg:
@@ -160,9 +166,21 @@ def optionHandl(action, args):
                     print(file.relative_to(temp_path))
         
         case 'tree':
-            tree(temp_path, book.stem)
+            if arg:
+                if file.is_dir():
+                    tree(file, file.name)
+                else:
+                    print(f"Not valid path: {arg}, try again.")
+            else:
+                tree(temp_path, book.stem)
         case 'ls':
-            ls(temp_path)
+            if arg:
+                if file.is_dir():
+                    ls(file, separators = False)
+                else:
+                    print(f"Not valid path: {arg}, try again.")
+            else:
+                ls(temp_path)
         case 'just_ls':
             for f in temp_path.rglob('*'):
                 print(f.relative_to(temp_path))
@@ -187,8 +205,8 @@ def main(book):
         "\t-Search and replace          [green]'search'[/] [magenta]'query'[/] [dark_orange]&replace_to[/] [magenta]'new value'[/]\n" +
         "\t-Open in text editor         [green]'{micro/nano/vim/nvim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
         "\t-Format .xml files           [green]'pretty'[/]\n" +
-        "\t-Print book's tree           [green]'tree'[/]\n" +
-        "\t-Print all files             [green]'ls'[/]\n" +
+        "\t-Print book's tree           [green]'tree'[/] or you can use [green]'tree'[/] [cyan]'path/to/folder'[/]\n" +
+        "\t-Print all files             [green]'ls'[/] or you can use [green]'ls'[/] [cyan]'path/to/folder'[/]\n" +
         "\t-ls without formatting       [green]'just_ls'[/]\n" +
         "\t-Delete files                [green]'rm'[/]\n" +
         "\t-Add file                    [green]'add'[/]\n" +
@@ -231,8 +249,8 @@ def main(book):
                     'nvim': book_completer,
                     'bat': book_completer,
                     'pretty': None,
-                    'tree': None,
-                    'ls': None,
+                    'tree': book_dest_completer,
+                    'ls': book_dest_completer,
                     'just_ls': None,
                     'rm': book_completer, # Много
                     # Сложное дополнение сначала много, потом - один

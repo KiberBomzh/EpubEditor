@@ -1,6 +1,9 @@
 import argparse
 from pathlib import Path
 
+from rich.traceback import install
+install(show_locals=True)
+
 parser = argparse.ArgumentParser(description="Epub editor - cli tool for editing epub books.")
 parser.add_argument('input', nargs = '+', type = str, help = "Input file (book) or directory with books")
 parser.add_argument('-P', '--proceed', action = 'store_true', help = "Continue editing after start with argument")
