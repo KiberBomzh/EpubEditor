@@ -2,9 +2,10 @@ from prompt_toolkit.completion import Completer, Completion, NestedCompleter
 from prompt_toolkit.document import Document
 
 class OpenCompleter(Completer):
-    def __init__(self, nested_dict, global_completer, book_completer, book_dest_completer, cmd_with_many_paths):
+    def __init__(self, nested_dict, global_completer, global_dest_completer, book_completer, book_dest_completer, cmd_with_many_paths):
         self.nested_dict = nested_dict
         self.global_completer = global_completer
+        self.global_dest_completer = global_dest_completer
         self.book_completer = book_completer
         self.book_dest_completer = book_dest_completer
         self.base_completer = NestedCompleter.from_nested_dict(nested_dict)
@@ -31,7 +32,12 @@ class OpenCompleter(Completer):
             len_first_word = len(first_word) + 1 # С пробелом
             yield from self.get_path_completions(self.global_completer, text, document, complete_event, len_first_word)
             return
-        
+
+        elif first_word in self.nested_dict and self.nested_dict[first_word] is self.global_dest_completer and (current_word != first_word or text.endswith(' ')):
+            len_first_word = len(first_word) + 1 # С пробелом
+            yield from self.get_path_completions(self.global_dest_completer, text, document, complete_event, len_first_word)
+            return 
+
         elif first_word in self.nested_dict and self.nested_dict[first_word] is self.book_completer and first_word not in self.cmd_with_many_paths:
             len_first_word = len(first_word) + 1 # С пробелом
             yield from self.get_path_completions(self.book_completer, text, document, complete_event, len_first_word)

@@ -85,13 +85,36 @@ def save(temp_path, book):
         if temp_book.exists():
             temp_book.unlink()
 
-def save_as(temp_path, book):
-    # Запись книги из временной папки (сохранение изменений)
-    with zipfile.ZipFile(book, 'w') as book_write:
+def extract(in_file):
+    if not in_file.is_file():
+        print(f'Invalid path: {in_file}, try again:')
+        return
+
+    out_path = Path.cwd()
+    subprocess.run(['cp', in_file, out_path])
+
+def save_as(temp_path, out_path, book):
+    if out_path.is_dir():
+        book_as = get_free_name_as(out_path, book)
+    elif out_path.parent.exists():
+        book_as = out_path
+    else:
+        print(f'Invalid path: {out_path}, try again:')
+        return
+
+    with zipfile.ZipFile(book_as, 'w') as book_write:
         for file in temp_path.rglob('*'):
             if file.is_file():
                 arcname = file.relative_to(temp_path).as_posix()
                 book_write.write(file, arcname)
+
+def get_free_name_as(path, book):
+    book_as = path / (book.stem + '_as' + book.suffix)
+    counter = 0
+    while book_as.exists():
+       counter += 1
+       book_as = path / (book.stem + '_as' + f'({counter})' + book.sufiix)
+    return book_as
 
 def optionHandl(action, args):
     book = args[0]
@@ -108,15 +131,19 @@ def optionHandl(action, args):
             save(temp_path, book)
         case 'save_as':
             if arg:
-                book_as = Path(arg)
-                if book_as.parent.exists():
-                    save_as(temp_path, book_as)
-                else:
-                    print(f'Invalid path: {book_as}, try again:')
-            
+                out_path = Path(arg)
+                save_as(temp_path, out_path, book)
+            else:
+                out_path = Path.cwd()
+                book_as = get_free_name_as(out_path, book)
+                save_as(temp_path, book_as, book)
+        
+        case 'extract':
+            if arg:
+                extract(file)
             else:
                 print("Option needs second argument.")
-        
+
         case 'meta':
             from src.editor.main import getOpf
             
@@ -151,7 +178,7 @@ def optionHandl(action, args):
             else:
                 print("Option needs second argument.")
         
-        case 'micro' | 'nano' | 'vim' | 'nvim' | 'bat':
+        case 'micro' | 'nano' | 'vim' | 'nvim' | 'bat' | 'chafa':
             if arg:
                 subprocess.run([action, file])
             else:
@@ -199,11 +226,13 @@ def main(book):
     helpmsg = ("Options:\n" +
         "\t-Save                        [green]'save'[/]\n" +
         "\t-Save as                     [green]'save_as'[/] [cyan]'path/to/book_as.epub'[/]\n" +
+        "\t-Extract file                [green]'extract'[/] [cyan]'path/to/file'[/]\n" +
         "\t-Metadata editor             [green]'meta'[/]\n" +
         "\t-Table of contents editor    [green]'toc'[/]\n" +
         "\t-Search in files             [green]'search'[/] [magenta]'query'[/]\n" +
         "\t-Search and replace          [green]'search'[/] [magenta]'query'[/] [dark_orange]&replace_to[/] [magenta]'new value'[/]\n" +
         "\t-Open in text editor         [green]'{micro/nano/vim/nvim/bat}'[/] [cyan]full/file/name.suffix[/]\n" +
+        "\t-Open image                  [green]'chafa' [/] [cyan]path/to/image.jpg[/]\n" +
         "\t-Format .xml files           [green]'pretty'[/]\n" +
         "\t-Print book's tree           [green]'tree'[/] or you can use [green]'tree'[/] [cyan]'path/to/folder'[/]\n" +
         "\t-Print all files             [green]'ls'[/] or you can use [green]'ls'[/] [cyan]'path/to/folder'[/]\n" +
@@ -227,6 +256,12 @@ def main(book):
                     min_input_len=0,  # Показывать сразу
                     get_paths=lambda: ['.'],
                 )
+                global_dest_completer = PathCompleter(
+                    expanduser=True,
+                    file_filter=lambda name: Path(name).is_dir() and Path(name).stem[0] != '.',
+                    min_input_len=0,
+                    get_paths=lambda: ['.'],
+                )
                 book_completer = PathCompleter(
                     min_input_len=0,
                     get_paths=lambda: [temp_path]
@@ -239,7 +274,8 @@ def main(book):
                 
                 completer = OpenCompleter({
                     'save': None,
-                    'save_as': global_completer, # Один путь
+                    'save_as': global_dest_completer, # Один путь
+                    'extract': book_completer,
                     'meta': None,
                     'toc': None,
                     'search': None,
@@ -248,6 +284,7 @@ def main(book):
                     'vim': book_completer,
                     'nvim': book_completer,
                     'bat': book_completer,
+                    'chafa': book_completer,
                     'pretty': None,
                     'tree': book_dest_completer,
                     'ls': book_dest_completer,
@@ -259,7 +296,7 @@ def main(book):
                     '..': None,
                     'exit': None,
                     'help': None,
-                }, global_completer, book_completer, book_dest_completer, ['rename', 'rm'])
+                }, global_completer, global_dest_completer, book_completer, book_dest_completer, ['rename', 'rm'])
                 
                 return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
             except zipfile.BadZipFile:

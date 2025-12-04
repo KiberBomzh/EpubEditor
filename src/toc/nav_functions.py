@@ -121,7 +121,9 @@ def to_any_case(root, action, sec_arg):
     global points_order
     
     if sec_arg is not None:
-        orders = second_arg_split(sec_arg)
+        orders = second_arg_split(sec_arg, get_orders(root))
+        if orders is None:
+            return
         
         for order in orders:
             try:
@@ -200,7 +202,9 @@ def put(root, arg):
         print("Unknown option for 'put', try again.")
         return
     
-    orders = second_arg_split(input_orders)
+    orders = second_arg_split(input_orders, get_orders(root))
+    if orders is None:
+        return
     
     try:
         dest = points_order_rev[destination]

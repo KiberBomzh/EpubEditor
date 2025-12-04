@@ -132,7 +132,7 @@ def rm(file, temp_path, opf, opf_root):
 
 def rm_from_nav(root, relative):
     elements = root.xpath(f'//a[contains(@href, "{relative}")]')
-    print(len(elements))
+    
     for element in elements:
         li = element.getparent()
         li.remove(element)

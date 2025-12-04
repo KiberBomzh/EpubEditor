@@ -205,13 +205,29 @@ def open_books(books):
 
 console = Console()
 
+def get_choosen_book(books, sec_arg):
+    choosen_book = None
+    for book in books:
+        book_str = book.parent.name + '/' + book.stem
+        if book_str == sec_arg:
+            choosen_book = book
+            break
+    
+    if choosen_book is None:
+        print(f"There's no such book: {sec_arg}!")
+        return None
+    return choosen_book
+
 def chooseOption(action, args):
     books = args[0]
+    sec_arg = ''
+    if len(args) > 1:
+        sec_arg = args[1]
     
     if books:
         match action:
             case "open":
-                if len(books) > 1:
+                if len(books) > 1 and not sec_arg:
                     if len(books) > 100:
                         if Confirm.ask(f'[green]Show all({len(books)}) books?[/]'):
                             
@@ -221,6 +237,13 @@ def chooseOption(action, args):
                         
                         if open_books(books) == 'exit':
                             sys.exit()
+                elif len(books) > 1 and sec_arg:
+                    choosen_book = get_choosen_book(books, sec_arg)
+                    if choosen_book is None:
+                        return
+                    
+                    if open_book.main(choosen_book) == 'exit':
+                        sys.exit()
                 else:
                     if open_book.main(books[0]) == 'exit':
                         sys.exit()
@@ -228,17 +251,38 @@ def chooseOption(action, args):
                 if len(books) == 1:
                     if editOpf(books[0]) == 'exit':
                         sys.exit()
+                elif len(books) > 1 and sec_arg:
+                    choosen_book = get_choosen_book(books, sec_arg)
+                    if choosen_book is None:
+                        return
+                    
+                    if editOpf(choosen_book) == 'exit':
+                        sys.exit()
                 else:
                     multipleEditor(books)
             case "toc":
                 if len(books) == 1:
                     if editToc(books[0]) == 'exit':
                         sys.exit()
+                elif len(books) > 1 and sec_arg:
+                    choosen_book = get_choosen_book(books, sec_arg)
+                    if choosen_book is None:
+                        return
+                    
+                    if editToc(choosen_book) == 'exit':
+                        sys.exit()
                 else:
                     print("There's more than one book!")
             case "cover":
                 if len(books) == 1:
                     if cover.main(books[0]) == 'exit':
+                        sys.exit()
+                elif len(books) > 1 and sec_arg:
+                    choosen_book = get_choosen_book(books, sec_arg)
+                    if choosen_book is None:
+                        return
+                    
+                    if cover.main(choosen_book) == 'exit':
                         sys.exit()
                 else:
                     print("There's more than one book!")
@@ -302,12 +346,20 @@ def main(books: list):
         "\t-Print current books          [green]'list'[/]\n" +
         "\t-Repack bad zip               [green]'repack'[/]\n" +
         "\t-Exit")
-
+    
+    if len(books) > 1:
+        compl_books = {}
+        for book in books:
+            book_str = book.parent.name + '/' + book.stem
+            compl_books[book_str] = None
+    else:
+        compl_books = None
+    
     completer = NestedCompleter.from_nested_dict({
-        'open': None,
-        'meta': None,
-        'toc': None,
-        'cover': None,
+        'open': compl_books,
+        'meta': compl_books,
+        'toc': compl_books,
+        'cover': compl_books,
         'rename': None,
         'sort': None,
         'pretty': None,

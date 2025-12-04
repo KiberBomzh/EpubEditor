@@ -118,7 +118,9 @@ def show(root, sec_arg):
 
 def to_any_case(root, action, sec_arg):
     if sec_arg is not None:
-        orders = second_arg_split(sec_arg)
+        orders = second_arg_split(sec_arg, get_orders(root))
+        if orders is None:
+            return
         
         for order in orders:
             elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)
@@ -174,14 +176,71 @@ def iba_first_split(arg, inputs = True):
         input_orders, destination = arg.split(' after ')
         action = 'after'
     else:
-        return
+        if inputs:
+            return None, None, None
+        else:
+            return None, None
     
     if inputs:
         return input_orders, destination, action
     else:
         return destination, action
 
-def second_arg_split(input_orders):
+def get_orders_slice(input_orders, orders_dict):
+    index = input_orders.find(':')
+    start_index = input_orders[:index].rfind(' ') + 1
+    end_index = input_orders[index + 1:].find(' ')
+    if end_index == -1:
+        end_index = len(input_orders)
+    
+    if index == 0 or input_orders[index - 1] == ' ':
+        start = list(orders_dict.keys())[0]
+    else:
+        start = input_orders[start_index:index]
+    include_last_el = False
+    if index == len(input_orders) - 1 or input_orders[index + 1] == ' ':
+        end = list(orders_dict.keys())[-1]
+        include_last_el = True
+    else:
+        end = input_orders[index + 1:index + 1 + end_index]
+    
+    input_orders_left = input_orders[:start_index]
+    input_orders_right = input_orders[index + 1 + end_index:]
+    
+    if start not in orders_dict.keys() or end not in orders_dict.keys():
+        print('Error, not valid slice!')
+        return None
+    
+    orders_iter = iter(orders_dict)
+    orders_slice = []
+    for o in orders_iter:
+        if o == start:
+            orders_slice.append(o)
+            break
+    
+    if not orders_slice:
+        print('Not found start element!')
+        return None
+    
+    for o in orders_iter:
+        if o != end:
+            orders_slice.append(o)
+        else:
+            if include_last_el:
+                orders_slice.append(o)
+            break
+    
+    o_slice_str = ' '.join(orders_slice)
+    new_input_orders = input_orders_left + o_slice_str + input_orders_right
+    return new_input_orders
+
+
+def second_arg_split(input_orders, orders_dict = {}):
+    while ':' in input_orders:
+        input_orders = get_orders_slice(input_orders, orders_dict)
+        if input_orders is None:
+            return None
+    
     if ' ' in input_orders:
         orders = input_orders.split()
     else:
@@ -189,13 +248,18 @@ def second_arg_split(input_orders):
     return orders
 
 def put(root, arg):
-    input_orders, destination, action = iba_first_split(arg)
+    if any(a in arg for a in ['in', 'after', 'before']):
+        input_orders, destination, action = iba_first_split(arg)
+    else:
+        print("Not valid action,for 'put', try with (in/before/after).")
     
     if not action:
         print("Unknown option for 'put', try again.")
         return
     
-    orders = second_arg_split(input_orders)
+    orders = second_arg_split(input_orders, get_orders(root))
+    if orders is None:
+        return
     
     dests = root.xpath(f'//ncx:navPoint[@playOrder="{destination}"]', namespaces = ns)
     if not dests:
