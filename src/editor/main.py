@@ -293,30 +293,33 @@ def chooseOption(action, args):
                 args[0] = sort.main(books)
                 return args[0]
             case "pretty":
-                zip_errors.clear()
-                subprocess_errors.clear()
-                if len(books) > 1:
-                    for book in track(books, description = "Pretty"):
-                        print('--------------------')
-                        print(book.relative_to(Path.cwd()))
-                        open_book.openBook(book, open_book.toPretty, [book])
+                if sec_arg:
+                    zip_errors.clear()
+                    subprocess_errors.clear()
+                    if len(books) > 1:
+                        for book in track(books, description = "Pretty"):
+                            print('--------------------')
+                            print(book.relative_to(Path.cwd()))
+                            open_book.openBook(book, open_book.toPretty, [book, sec_arg])
+                    else:
+                        open_book.openBook(books[0], open_book.toPretty, [books[0], sec_arg])
+                    
+                    if subprocess_errors:
+                        print('Subprocess Error:')
+                        for error in subprocess_errors:
+                            print(error)
+                    
+                    if zip_errors:
+                        print('Bad zip file!')
+                        for er in zip_errors:
+                            print(er)
                 else:
-                    open_book.openBook(books[0], open_book.toPretty)
-                
-                if subprocess_errors:
-                    print('Subprocess Error:')
-                    for error in subprocess_errors:
-                        print(error)
-                
-                if zip_errors:
-                    print('Bad zip file!')
-                    for er in zip_errors:
-                        print(er)
+                    print('Option needs second argument, try again.')
             case "just":
                 justReadMetadata(books)
             case "list":
                 for book in books:
-                    console.print(f"[dim]{book.parent.relative_to(Path.cwd())}/[/][blue]{book.name}[/]")
+                    console.print(f"[dim]{book.parent.name}/[/][blue]{book.name}[/]")
             case "repack":
                 subprocess_errors.clear()
                 repack(
@@ -362,7 +365,7 @@ def main(books: list):
         'cover': compl_books,
         'rename': None,
         'sort': None,
-        'pretty': None,
+        'pretty': {'native', 'xmllint'},
         'just': None,
         'list': None,
         'repack': {'zip': None, '7z': None},

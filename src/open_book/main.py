@@ -11,6 +11,7 @@ from src.open_book.completer import OpenCompleter
 from src.open_book.functions import ls, tree
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
+from src.editor.html_formatter import main as html_formatter
 
 from src.console_prompt import main as prompt
 
@@ -18,15 +19,27 @@ subprocess_errors = []
 
 def toPretty(temp_path, args):
     book = args[0]
+    formatter = args[1]
     file_formats = ['.xhtml', '.html', '.htm', '.xml', '.opf', '.ncx']
+    html_formats = file_formats[:3]
     for file in temp_path.rglob('*'):
         if file.is_file() and file.suffix.lower() in file_formats:
-            result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
+            if formatter == 'xmllint':
+                result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
             
-            if result.stderr:
-                subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
+                if result.stderr:
+                    subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
+                
+                print(file.relative_to(temp_path))
             
-            print(file.relative_to(temp_path))
+            elif formatter == 'native':
+                if file.suffix.lower() in html_formats:
+                    html_formatter(file, line_indent = True, xml_declaration = True)
+                    print(file.relative_to(temp_path))
+            
+            else:
+                print('Unknown formatter, try again.')
+                return
 
 # Переменная с ошибками открытия zip
 zip_errors = []
@@ -185,12 +198,16 @@ def optionHandl(action, args):
                 print("Option needs second argument.")
         
         case 'pretty':
-            file_formats = ['.xhtml', '.html', '.htm', '.xml', '.opf', '.ncx']
-            for file in temp_path.rglob('*'):
-                if file.is_file() and file.suffix.lower() in file_formats:
-                    subprocess.run(["xmllint", file, "--format", "-o", file])
+            subprocess_errors.clear()
+            if arg:
+                toPretty(temp_path, [book, arg])
+            else:
+                print("Option needs second argument.")
             
-                    print(file.relative_to(temp_path))
+            if subprocess_errors:
+                print('Subprocess Error:')
+                for error in subprocess_errors:
+                    print(error)
         
         case 'tree':
             if arg:
@@ -285,7 +302,7 @@ def main(book):
                     'nvim': book_completer,
                     'bat': book_completer,
                     'chafa': book_completer,
-                    'pretty': None,
+                    'pretty': {'native', 'xmllint'},
                     'tree': book_dest_completer,
                     'ls': book_dest_completer,
                     'just_ls': None,

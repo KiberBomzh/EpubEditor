@@ -234,14 +234,20 @@ def put(root, arg):
         except KeyError:
             print(f"Wrong num: {order}.")
 
+def rec_get_orders(point, args):
+    global points_order
+    order_list = args[0]
+    order = points_order[point]
+    order_list[order] = None
+    return [order_list]
+
 # Возвращает все номера элементов
 # для комплитера, аргумент нужен
 # для правильного вызова
 def get_orders(root):
-    global points_order_rev
+    nav = get_nav(root)
     order_list = {}
-    for order in points_order_rev:
-        order_list[order] = None
+    go_recursive(nav, rec_get_orders, [order_list])
     return order_list
 
 # Заглушка, которая просто возвращает

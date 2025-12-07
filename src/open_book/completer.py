@@ -28,6 +28,20 @@ class OpenCompleter(Completer):
                 yield completion
             return
         
+        elif first_word == 'pretty':
+            if text.endswith(' '):
+                if len(words) >= 2:
+                    return
+                
+                for compl_text in self.nested_dict[first_word]:
+                    yield Completion(compl_text)
+                
+            else:
+                for compl_text in self.nested_dict[first_word]:
+                    if compl_text.startswith(current_word) and current_word != compl_text:
+                        yield Completion(compl_text, start_position = -len(current_word))
+            return
+        
         elif first_word in self.nested_dict and self.nested_dict[first_word] is self.global_completer:
             len_first_word = len(first_word) + 1 # С пробелом
             yield from self.get_path_completions(self.global_completer, text, document, complete_event, len_first_word)
