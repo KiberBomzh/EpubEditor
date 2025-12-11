@@ -1,6 +1,27 @@
 import os
 from rich import print
 from rich.tree import Tree
+from lxml import etree
+from src.namespaces import namespaces as ns
+
+def get_files_in_spine_order(temp_path):
+    from src.editor.main import getOpf
+    
+    container = temp_path / 'META-INF/container.xml'
+    opf = temp_path / getOpf(container)
+    root = etree.parse(opf).getroot()
+    
+    manifest = root.find('opf:manifest', namespaces = ns)
+    spine = root.find('opf:spine', namespaces = ns)
+    
+    files = []
+    for itemref in spine.xpath('./opf:itemref', namespaces = ns):
+        ref = itemref.get('idref')
+        item = manifest.find(f'opf:item[@id="{ref}"]', namespaces = ns)
+        file = opf.parent / item.get('href')
+        files.append(file.resolve())
+    
+    return files
 
 def get_separator(word, color = ''):
     columns, lines = os.get_terminal_size()
@@ -20,8 +41,11 @@ def get_separator(word, color = ''):
     
     return separator
 
-def sort_and_paint_files(files, path, separators = False):
+def sort_and_paint_files(files, path, separators = False, files_in_order = []):
     book_content = []
+    for file in files_in_order:
+        book_content.append(f'[green]{file.relative_to(path)}[/]')
+    
     css = []
     images = []
     fonts = []
@@ -60,7 +84,7 @@ def sort_and_paint_files(files, path, separators = False):
     if book_content and separators:
         separator = get_separator('HTML', color = 'green')
         new_files.append(separator)
-    for f in sorted(book_content):
+    for f in book_content:
         new_files.append(f)
     
     if css and separators:
@@ -127,15 +151,18 @@ def tree(temp_path, book_name):
     print(book_tree)
 
 def ls(temp_path, separators = True):
+    files_in_so = get_files_in_spine_order(temp_path)
     files = []
     for file in temp_path.rglob('*'):
-        if file.is_file():
+        if file.is_file() and file not in files_in_so:
             files.append(file)
+    
     
     new_files = sort_and_paint_files(
         files, 
         temp_path, 
-        separators = separators
+        separators = separators,
+        files_in_order = files_in_so
     )
     
     for f in new_files:

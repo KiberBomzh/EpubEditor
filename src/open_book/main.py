@@ -12,6 +12,8 @@ from src.open_book.functions import ls, tree
 from src.metadata_editor import main as metadata_editor
 from src.toc.main import main as tocEditor
 from src.editor.html_formatter import main as html_formatter
+from src.open_book.split import main as split
+from src.open_book.merge import main as merge
 
 from src.console_prompt import main as prompt
 
@@ -156,6 +158,18 @@ def optionHandl(action, args):
                 extract(file)
             else:
                 print("Option needs second argument.")
+        
+        case 'merge':
+            if arg:
+                merge(temp_path, arg)
+            else:
+                print("Option needs second argument.")
+        
+        case 'split':
+            if arg:
+                split(temp_path, arg)
+            else:
+                print("Option needs second argument.")
 
         case 'meta':
             from src.editor.main import getOpf
@@ -244,6 +258,8 @@ def main(book):
         "\t-Save                        [green]'save'[/]\n" +
         "\t-Save as                     [green]'save_as'[/] [cyan]'path/to/book_as.epub'[/]\n" +
         "\t-Extract file                [green]'extract'[/] [cyan]'path/to/file'[/]\n" +
+        "\t-Merge files                 [green]'merge'[/] [cyan]'path/to/main_file'[/] [dark_orange]how many files merge (number)[/]\n" +
+        "\t-Split files                 [green]'split'[/] [cyan]'path/to/file'[/] : [cyan]'path/to/file'[/], you'll need to put tag [green]<split_file_here/>[/] in file before\n" +
         "\t-Metadata editor             [green]'meta'[/]\n" +
         "\t-Table of contents editor    [green]'toc'[/]\n" +
         "\t-Search in files             [green]'search'[/] [magenta]'query'[/]\n" +
@@ -293,6 +309,8 @@ def main(book):
                     'save': None,
                     'save_as': global_dest_completer, # Один путь
                     'extract': book_completer,
+                    'merge': book_completer,
+                    'split': book_completer,
                     'meta': None,
                     'toc': None,
                     'search': None,
@@ -313,7 +331,7 @@ def main(book):
                     '..': None,
                     'exit': None,
                     'help': None,
-                }, global_completer, global_dest_completer, book_completer, book_dest_completer, ['rename', 'rm'])
+                }, global_completer, global_dest_completer, book_completer, book_dest_completer, ['rename', 'rm', 'split'])
                 
                 return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
             except zipfile.BadZipFile:

@@ -116,12 +116,8 @@ def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
         src_in_toc = sort_spine.raw_to_src(src_in_toc_raw, toc.parent, opf.parent)
         sort_spine.main(opf_root, src_in_toc)
     
-    if what_is_it == 'toc':
-        toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
-    elif what_is_it == 'nav':
-        toc_tree.write(toc, encoding = 'utf-8', pretty_print = True)
-    elif what_is_it == 'toc and nav':
-        toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
+    toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
+    if what_is_it == 'toc and nav':
         sync_toc_and_nav.main(toc_root, nav_root)
         nav_tree.write(nav, encoding = 'utf-8', pretty_print = True)
     

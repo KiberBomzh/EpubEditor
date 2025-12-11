@@ -184,10 +184,10 @@ def rm_from_toc(file, opf):
         toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
         if what_is_it == 'toc and nav':
             sync_toc_and_nav.main(toc_root, nav_root)
-            nav_tree.write(nav, encoding='utf-8', pretty_print = True)
+            nav_tree.write(nav, encoding='utf-8', xml_declaration = True, pretty_print = True)
     elif what_is_it == 'nav':
         rm_from_nav(toc_root, relative_to_toc)
-        toc_tree.write(toc, encoding='utf-8', pretty_print = True)
+        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
 
 def search_in_files(temp_path, func, q_path, args = []):
     file_formats = ['.xhtml', '.html', '.htm']
@@ -268,7 +268,7 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
                     nav_tree = html.parse(nav)
                     nav_root = nav_tree.getroot()
                     sync_toc_and_nav.main(toc_root, nav_root)
-                    nav_tree.write(nav, encoding='utf-8', pretty_print = True)
+                    nav_tree.write(nav, encoding='utf-8', xml_declaration = True, pretty_print = True)
             else:
                 # Синхронизацию дёрнуть в multiple_renamer
                 rename_in_ncx(toc_root, relative_to_toc, file.name, new_name)
@@ -280,7 +280,7 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
                 
                 rename_in_nav(toc_root, relative_to_toc, file.name, new_name)
                 
-                toc_tree.write(toc, encoding='utf-8', pretty_print = True)
+                toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
             else:
                 rename_in_nav(toc_root, relative_to_toc, file.name, new_name)
         

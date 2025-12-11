@@ -69,12 +69,8 @@ def main(temp_path):
                 if not rename(key, temp_path, opf, root, value, toc_root):
                     console.log(f"Cannot rename {key.name} to {value}! The name already exists!")
     
-    if what_is_it == 'toc':
-        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
-    elif what_is_it == 'nav':
-        toc_tree.write(toc, encoding='utf-8', pretty_print = True)
-    elif what_is_it == 'toc and nav':
-        toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    toc_tree.write(toc, encoding='utf-8', xml_declaration = True, pretty_print = True)
+    if what_is_it == 'toc and nav':
         sync_toc_and_nav.main(toc_root, nav_root)
         nav_tree.write(nav, encoding='utf-8', pretty_print = True)
         

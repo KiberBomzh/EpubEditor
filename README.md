@@ -48,7 +48,7 @@ To go back write `..`
 ### Simple commands
 - `rename` - rename input (author1 & author2 - series 01.0, title)
 - `sort` - sort input in directory, needs main directory. Example main/author/series/01.0 - title
-- `pretty` - make xml and html files in a book looks pretty, needs xmllint
+- `pretty` `[xmllint/native]` - make xml and html files in a book looks pretty, `native` option is unstable and only for html(xhtml, htm)
 - `just` - just print metadata for book(s)
 - `list` - show all current books
 - `repack` - repack all books with zip console utility, if you want to repack them with 7z use during start flag -R 7z
@@ -91,6 +91,10 @@ Open table of contents editor, commands:
 Open book (extract all files in temporary folder) for editing. Here you can:
 - `save` - don't forget to do it, `exit` and `..` don't save your book!
 - `save_as path/to/book.epub` - save a book as
+- `chafa path/to/img` - open an image with chafa
+- `extract path/to/file` - extract file in current folder
+- `merge path/to/main_file number` - merge files, the number is how many files after main_file you want to merge
+- `split path/to/file : path/to/file2` - split files, before this you'll need to add a tag <split_file_here/> in those places where you want to split
 - `meta` - open metadata editor, for detail look up
 - `toc` - open toc editor
 - `rm path/to/file1 : path/to/file2` - remove file(s)
@@ -101,31 +105,55 @@ Open book (extract all files in temporary folder) for editing. Here you can:
     *Search works with lxml and it is searching only in p tags or if there's not p in div*
 
 - open a file in a text editor such as `micro`, `nano`, `vim`, `nvim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
-- `pretty` - the same as the pretty in simple commands
+- `pretty` `[xmllint/native]` - the same as the pretty in simple commands
 - `tree` - print a book tree
 - `ls` - print all files in a book
 - `just_ls` - print all files without formatting
 
 ## Flags
-TODO
+### Flags for fast editing
+This flags needs for fast editing (without entering in programm)
+- `-r`, `--rename` - do the same as the command `rename`
+- `-s`, `--sort` - do the same as the command `sort`
+- `-j`, `--just` - do the same as the command `just`
+- `-p`, `--pretty` `[xmllint/native]` - do the same as the command `pretty`
+- `-R`, `--repack` `[zip/7z]` - do the same as the command `repack`
+- `-c`, `--cover` `path/to/new/cover.jpg` - set new cover for a book (only if there's already cover)
+
+### Flags for editing metadata
+- `--title` "Title"
+- `--author` "First Author Name" "Second Author Name"
+- `--series` "Series"
+- `--series-index` "1.5"
+- `--language` "lan-one" "lan-two"
+- `--generate-sort` - generate sort names for a title and an author(s)
+- `--generate-sort` - generate sort names for a title and an author(s)
+
+### Other
+- `--no-subdirs` - do **not** include books from subdirectories
+- `--script` `path/to/your/script`
+
+Your script must be executable and take one command-line argument.
+This argument is a path to a temp directory in which will be extracted your book.
+You can do with files whatever you want, after that they wiil be ziped in your book.
+There's some examples in folder scripts, that I use now and then
 
 ## Tasks
 - [x] Metadata editor
 - [x] Pretty print for xml, html files written in one line
 
-- [ ] Open book
+- [x] Open book
 	- [x] Search in book with replace
 	- [x] Editing files (with micro, nano, vim and bat)
 	- [x] Renaming files
 	- [x] Multiple renaming
 	- [x] Add new files
 	- [x] Delete files
-	- [ ] Merge and split
-	- [ ] Spliting files according to TOC
+	- [x] Merge and split
 
 - [x] Table of contents editor
 - [x] Add support for books with nav.xhtm
-- [ ] Fast creating TOC from h1, h2, h3
+- [ ] Fast creating TOC from titles
 
 - [x] Books renaming {author - series 01.0, title}
 - [x] Multiple metadata editor
