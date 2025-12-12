@@ -14,6 +14,8 @@ from epubeditor.toc.main import main as tocEditor
 from epubeditor.editor.html_formatter import main as html_formatter
 from epubeditor.open_book.split import main as split
 from epubeditor.open_book.merge import main as merge
+from epubeditor.open_book.scripts import main as scripts
+from epubeditor.open_book.scripts import scripts_list
 
 from epubeditor.console_prompt import main as prompt
 
@@ -250,6 +252,11 @@ def optionHandl(action, args):
                     multiple_renamer(temp_path)
                 else:
                     print("Option needs second argument.")
+        case 'script':
+            if arg:
+                scripts(temp_path, arg)
+            else:
+                print("Option needs second argument.")
         case _:
             print("Unknown option, try again.")
 
@@ -273,8 +280,13 @@ def main(book):
         "\t-Delete files                [green]'rm'[/]\n" +
         "\t-Add file                    [green]'add'[/]\n" +
         "\t-Rename                      [green]'rename'[/]\n" +
+        "\t-Start script                [green]'script' name[/]\n" +
         "\t-Go back                     [green]'..'[/]\n" +
         "\t-Exit")
+    
+    scripts_dict = {}
+    for scr in scripts_list:
+        scripts_dict[scr] = None
     
     #Извлечение всех файлов книги во временную папк
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -328,6 +340,7 @@ def main(book):
                     # Сложное дополнение сначала много, потом - один
                     'add': {global_completer: {'to': book_dest_completer}},
                     'rename': book_completer, # Много
+                    'script': scripts_dict,
                     '..': None,
                     'exit': None,
                     'help': None,

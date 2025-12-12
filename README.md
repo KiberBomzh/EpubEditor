@@ -136,7 +136,6 @@ This flags needs for fast editing (without entering in programm)
 Your script must be executable and take one command-line argument.
 This argument is a path to a temp directory in which will be extracted your book.
 You can do with files whatever you want, after that they wiil be ziped in your book.
-There's some examples in folder scripts, that I use now and then
 
 ## Tasks
 - [x] Metadata editor

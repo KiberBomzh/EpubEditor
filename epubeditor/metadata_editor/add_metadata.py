@@ -103,7 +103,7 @@ def main(action, root):
     match action:
         case "title":
             if metadata['title']:
-                print("Title already exists. Try set/title")
+                print("Title already exists. Try set title")
             else:
                 metadata = getMetadataRaw(root)
                 title = input("Title")
@@ -115,7 +115,7 @@ def main(action, root):
         case "series":
             metadata = getMetadataRaw(root)
             if metadata['series']:
-                print('Series already exists. Try set/series')
+                print('Series already exists. Try set series')
             else:
                 new_series = input("Series")
                 addSeries(metadata, new_series)
