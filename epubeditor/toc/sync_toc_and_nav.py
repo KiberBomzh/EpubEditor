@@ -1,6 +1,6 @@
 from lxml import html
-from src.toc.nav_functions import get_nav
-from src.namespaces import namespaces as ns
+from epubeditor.toc.nav_functions import get_nav
+from epubeditor.namespaces import namespaces as ns
 
 def recursive(toc, nav):
     points = toc.xpath('./ncx:navPoint', namespaces = ns)

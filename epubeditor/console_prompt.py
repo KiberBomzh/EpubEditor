@@ -5,7 +5,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
 from rich.console import Console
 
-from src.cli import inputHandler
+from epubeditor.cli import inputHandler
 
 console = Console()
 

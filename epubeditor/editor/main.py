@@ -9,16 +9,16 @@ from rich.prompt import Confirm, Prompt
 from rich.console import Console
 from prompt_toolkit.completion import NestedCompleter
 
-from src.metadata_editor import main as metadata_editor
-from src.metadata_editor.get_metadata import getMetadata
-from src.metadata_editor.multiple_editor import main as multipleEditor
-from src.open_book import main as open_book
-from src.open_book.main import zip_errors, subprocess_errors
-from src.editor import cover, book_renamer, sort
-from src.toc.main import main as tocEditor
-from src.namespaces import namespaces as ns
+from epubeditor.metadata_editor import main as metadata_editor
+from epubeditor.metadata_editor.get_metadata import getMetadata
+from epubeditor.metadata_editor.multiple_editor import main as multipleEditor
+from epubeditor.open_book import main as open_book
+from epubeditor.open_book.main import zip_errors, subprocess_errors
+from epubeditor.editor import cover, book_renamer, sort
+from epubeditor.toc.main import main as tocEditor
+from epubeditor.namespaces import namespaces as ns
 
-from src.console_prompt import main as prompt
+from epubeditor.console_prompt import main as prompt
 
 def justReadMetadata(books):
     for book in books:

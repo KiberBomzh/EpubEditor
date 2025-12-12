@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "EpubEditor"
 version = "0.0.6"
-description = "Add your description here"
+description = "Cli tool for editing epub"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,16 +15,10 @@ dependencies = [
 ]
 
 [project.scripts]
-epubeditor = "src.cli:main"
+epubeditor = "epubeditor.cli:main"
 
 [tool.setuptools]
-packages = [
-	"src",
-	"src.editor",
-	"src.metadata_editor",
-	"src.toc",
-	"src.open_book"
-]
+packages = ["epubeditor"]
 
 [dependency-groups]
 dev = []

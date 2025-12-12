@@ -1,7 +1,7 @@
 from lxml import html, etree
-from src.open_book.functions import get_files_in_spine_order
-from src.open_book.files_operations import get_rel
-from src.namespaces import namespaces as ns
+from epubeditor.open_book.functions import get_files_in_spine_order
+from epubeditor.open_book.files_operations import get_rel
+from epubeditor.namespaces import namespaces as ns
 
 
 def merge(temp_path, main_file, how_many_files):
@@ -44,7 +44,7 @@ def merge(temp_path, main_file, how_many_files):
     
     
     # Работа с opf
-    from src.editor.main import getOpf
+    from epubeditor.editor.main import getOpf
     
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)

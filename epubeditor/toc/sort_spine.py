@@ -1,6 +1,6 @@
 from rich import print
-from src.namespaces import namespaces
-from src.open_book.files_operations import get_rel
+from epubeditor.namespaces import namespaces
+from epubeditor.open_book.files_operations import get_rel
 
 debug = False
 

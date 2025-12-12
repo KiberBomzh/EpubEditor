@@ -2,8 +2,8 @@ from rich.tree import Tree
 from rich import print
 from lxml import html
 
-from src.toc.functions import second_arg_split, iba_first_split
-from src.prompt_input import input
+from epubeditor.toc.functions import second_arg_split, iba_first_split
+from epubeditor.prompt_input import input
 
 def get_nav(root):
     nav = root.xpath('//nav[@id="toc"]')

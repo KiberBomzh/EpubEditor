@@ -1,7 +1,7 @@
 from lxml import etree
 
-from src.metadata_editor.get_metadata import getMetadataRaw
-from src.namespaces import namespaces
+from epubeditor.metadata_editor.get_metadata import getMetadataRaw
+from epubeditor.namespaces import namespaces
 
 def get_free_id(metadata, Id):
     new_id = Id

@@ -3,8 +3,8 @@ from rich import print
 from lxml import etree
 import random
 
-from src.prompt_input import input
-from src.namespaces import namespaces as ns
+from epubeditor.prompt_input import input
+from epubeditor.namespaces import namespaces as ns
 
 # Функция для простых рекурсивных обходов
 def go_recursive(root, func, args = []):

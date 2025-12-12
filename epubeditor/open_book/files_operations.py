@@ -2,9 +2,9 @@ from lxml import etree, html
 from pathlib import Path
 import shutil
 
-from src.toc import sync_toc_and_nav
-from src.namespaces import namespaces as ns
-from src.prompt_input import input
+from epubeditor.toc import sync_toc_and_nav
+from epubeditor.namespaces import namespaces as ns
+from epubeditor.prompt_input import input
 
 def get_relative_path(path, parent):
     path_l = str(path).split('/')
@@ -161,7 +161,7 @@ def rm_from_ncx(root, relative):
 
 # Удаление файла с оглавления
 def rm_from_toc(file, opf):
-    from src.editor.main import getToc
+    from epubeditor.editor.main import getToc
     
     toc_tuple_str, what_is_it = getToc(opf)
     toc = (opf.parent / toc_tuple_str[0]).resolve()
@@ -249,7 +249,7 @@ def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
     
     # В toc.ncx
     if file.suffix.lower() in formats:
-        from src.editor.main import getToc
+        from epubeditor.editor.main import getToc
         toc_tuple_str, what_is_it = getToc(opf)
         toc = (opf.parent / toc_tuple_str[0]).resolve()
         relative_to_toc = get_rel(file, toc.parent)
@@ -317,7 +317,7 @@ def main(temp_path, action, arg):
     else:
         inputs = arg.split(' : ')
     
-    from src.editor.main import getOpf
+    from epubeditor.editor.main import getOpf
             
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)

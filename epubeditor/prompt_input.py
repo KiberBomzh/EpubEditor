@@ -1,7 +1,7 @@
 from rich import print
 from prompt_toolkit import prompt
 
-from src.console_prompt import style
+from epubeditor.console_prompt import style
 
 def input(question, default = '', completer = None):
     print(f'[blue]{question}[/]')

@@ -1,9 +1,9 @@
 from lxml import etree
 from rich import print
 
-from src.namespaces import namespaces
-from src.metadata_editor.get_metadata import getMetadataRaw
-from src.prompt_input import input
+from epubeditor.namespaces import namespaces
+from epubeditor.metadata_editor.get_metadata import getMetadataRaw
+from epubeditor.prompt_input import input
 
 def print_help():
     print(

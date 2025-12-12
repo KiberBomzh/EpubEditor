@@ -2,10 +2,10 @@ import os
 from rich import print
 from rich.tree import Tree
 from lxml import etree
-from src.namespaces import namespaces as ns
+from epubeditor.namespaces import namespaces as ns
 
 def get_files_in_spine_order(temp_path):
-    from src.editor.main import getOpf
+    from epubeditor.editor.main import getOpf
     
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)

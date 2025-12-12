@@ -3,9 +3,9 @@ from rich.progress import track
 from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
 
-from src.metadata_editor.get_metadata import getMetadata
-from src.editor.book_renamer import getRoot
-from src.prompt_input import input
+from epubeditor.metadata_editor.get_metadata import getMetadata
+from epubeditor.editor.book_renamer import getRoot
+from epubeditor.prompt_input import input
 
 def sort(book, main_path):
     root = getRoot(book)

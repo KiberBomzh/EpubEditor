@@ -4,18 +4,18 @@ import subprocess
 from pathlib import Path
 from prompt_toolkit.completion import PathCompleter
 
-from src.open_book import search
-from src.open_book.files_operations import main as do_with_file
-from src.open_book.multiple_renamer import main as multiple_renamer
-from src.open_book.completer import OpenCompleter
-from src.open_book.functions import ls, tree
-from src.metadata_editor import main as metadata_editor
-from src.toc.main import main as tocEditor
-from src.editor.html_formatter import main as html_formatter
-from src.open_book.split import main as split
-from src.open_book.merge import main as merge
+from epubeditor.open_book import search
+from epubeditor.open_book.files_operations import main as do_with_file
+from epubeditor.open_book.multiple_renamer import main as multiple_renamer
+from epubeditor.open_book.completer import OpenCompleter
+from epubeditor.open_book.functions import ls, tree
+from epubeditor.metadata_editor import main as metadata_editor
+from epubeditor.toc.main import main as tocEditor
+from epubeditor.editor.html_formatter import main as html_formatter
+from epubeditor.open_book.split import main as split
+from epubeditor.open_book.merge import main as merge
 
-from src.console_prompt import main as prompt
+from epubeditor.console_prompt import main as prompt
 
 subprocess_errors = []
 
@@ -172,14 +172,14 @@ def optionHandl(action, args):
                 print("Option needs second argument.")
 
         case 'meta':
-            from src.editor.main import getOpf
+            from epubeditor.editor.main import getOpf
             
             container = temp_path / 'META-INF/container.xml'
             opf = temp_path / getOpf(container)
             return metadata_editor.main(opf, path = 'epubeditor/open/meta')
 
         case 'toc':
-            from src.editor.main import getOpf, getToc
+            from epubeditor.editor.main import getOpf, getToc
             
             container = temp_path / 'META-INF/container.xml'
             opf = temp_path / getOpf(container)

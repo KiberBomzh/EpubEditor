@@ -1,13 +1,13 @@
 import subprocess
 from rich.progress import track
 
-from src.editor.main import main as editor
-from src.editor.main import chooseOption, repack
-from src.editor import cover
-from src.open_book.main import zip_errors, subprocess_errors
-from src.open_book.main import openBook
-from src.metadata_editor.multiple_editor import main as multipleEditor
-from src.cli import args, are_all_flags_false, inputHandler
+from epubeditor.editor.main import main as editor
+from epubeditor.editor.main import chooseOption, repack
+from epubeditor.editor import cover
+from epubeditor.open_book.main import zip_errors, subprocess_errors
+from epubeditor.open_book.main import openBook
+from epubeditor.metadata_editor.multiple_editor import main as multipleEditor
+from epubeditor.cli import args, are_all_flags_false, inputHandler
 
 def scriptRun(temp_path):
     subprocess.call([args.script, temp_path])

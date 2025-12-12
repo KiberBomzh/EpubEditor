@@ -1,7 +1,7 @@
 from lxml import html, etree
 import copy
-from src.open_book.files_operations import get_rel
-from src.namespaces import namespaces as ns
+from epubeditor.open_book.files_operations import get_rel
+from epubeditor.namespaces import namespaces as ns
 
 
 split_files = []
@@ -123,7 +123,7 @@ def get_id(manifest, file):
 
 def main(temp_path, arg: str):
     # Работа с opf
-    from src.editor.main import getOpf
+    from epubeditor.editor.main import getOpf
     
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)

@@ -1,5 +1,5 @@
 from rich import print
-from src.namespaces import namespaces
+from epubeditor.namespaces import namespaces
 
 def getMetadataRaw(root):
     # Получение метаданных

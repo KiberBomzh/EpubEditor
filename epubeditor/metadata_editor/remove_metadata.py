@@ -1,8 +1,8 @@
 from rich.prompt import Prompt
 from rich import print
 
-from src.metadata_editor.get_metadata import getMetadataRaw, getMetadata
-from src.namespaces import namespaces
+from epubeditor.metadata_editor.get_metadata import getMetadataRaw, getMetadata
+from epubeditor.namespaces import namespaces
 
 def print_help(metaReadList):
     print("Available options:")

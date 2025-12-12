@@ -1,8 +1,8 @@
 from lxml import etree
 from prompt_toolkit.completion import NestedCompleter
 
-from src.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata, create_sort
-from src.console_prompt import main as prompt
+from epubeditor.metadata_editor import get_metadata, set_metadata, add_metadata, remove_metadata, create_sort
+from epubeditor.console_prompt import main as prompt
 
 def optionHandl(action, args):
     root = args[0]

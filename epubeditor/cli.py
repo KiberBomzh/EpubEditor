@@ -72,7 +72,7 @@ def inputHandler(Inputs = args.input):
     return sorted(books)
 
 def main():
-    from src.main import main as start
+    from epubeditor.main import main as start
     start()
 
 if __name__ == "__main__":

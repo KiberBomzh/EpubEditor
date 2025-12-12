@@ -1,19 +1,19 @@
 from lxml import etree, html
 from rich.console import Console
 
-from src.console_prompt import main as prompt
-from src.toc import sort_spine
-from src.toc import sync_toc_and_nav
-from src.toc.completer import TocCompleter
+from epubeditor.console_prompt import main as prompt
+from epubeditor.toc import sort_spine
+from epubeditor.toc import sync_toc_and_nav
+from epubeditor.toc.completer import TocCompleter
 
 
 def optionHandl(action, args):
     root = args[0]
     what_is_it = args[1]
     if what_is_it == 'toc' or what_is_it == 'toc and nav':
-        from src.toc.functions import ls, add, show, to_any_case, put, edit, rm
+        from epubeditor.toc.functions import ls, add, show, to_any_case, put, edit, rm
     elif what_is_it == 'nav':
-        from src.toc.nav_functions import ls, add, show, to_any_case, put, edit, rm
+        from epubeditor.toc.nav_functions import ls, add, show, to_any_case, put, edit, rm
     
     if len(args) > 2:
         sec_arg = args[2].strip()
@@ -56,19 +56,19 @@ def optionHandl(action, args):
 def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
     if what_is_it == 'toc':
         toc = toc_tuple[0].resolve()
-        from src.toc.functions import change_order, get_orders
+        from epubeditor.toc.functions import change_order, get_orders
         toc_tree = etree.parse(toc)
         toc_root = toc_tree.getroot()
     elif what_is_it == 'nav':
         toc = toc_tuple[0].resolve()
-        from src.toc.nav_functions import change_order, get_orders, init_order
+        from epubeditor.toc.nav_functions import change_order, get_orders, init_order
         toc_tree = html.parse(toc)
         toc_root = toc_tree.getroot()
         init_order(toc_root)
     elif what_is_it == 'toc and nav':
         toc = toc_tuple[0].resolve()
         nav = toc_tuple[1].resolve()
-        from src.toc.functions import change_order, get_orders
+        from epubeditor.toc.functions import change_order, get_orders
         toc_tree = etree.parse(toc)
         toc_root = toc_tree.getroot()
         nav_tree = html.parse(nav)

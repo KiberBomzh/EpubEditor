@@ -1,7 +1,7 @@
 from rich import print
 
-from src.metadata_editor.get_metadata import getMetadataRaw, getMetadata
-from src.prompt_input import input
+from epubeditor.metadata_editor.get_metadata import getMetadataRaw, getMetadata
+from epubeditor.prompt_input import input
 
 def print_help(metadataRead):
     metaReadList = list(metadataRead.keys())

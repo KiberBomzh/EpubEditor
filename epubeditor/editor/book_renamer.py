@@ -2,7 +2,7 @@ from zipfile import ZipFile
 from lxml import etree
 from rich.progress import track
 
-from src.metadata_editor.get_metadata import getMetadata
+from epubeditor.metadata_editor.get_metadata import getMetadata
 
 def getRoot(book):
     with ZipFile(book, 'r') as b_read:

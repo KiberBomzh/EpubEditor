@@ -5,12 +5,12 @@ import tempfile
 from pathlib import Path
 from rich.prompt import Prompt
 
-from src.metadata_editor import get_metadata, remove_metadata
-from src.metadata_editor.create_sort import createSort
-from src.metadata_editor.add_metadata import addTitle, addAuthor, addSeries, addSeriesIndex, addLanguage
+from epubeditor.metadata_editor import get_metadata, remove_metadata
+from epubeditor.metadata_editor.create_sort import createSort
+from epubeditor.metadata_editor.add_metadata import addTitle, addAuthor, addSeries, addSeriesIndex, addLanguage
 
 def changeOpf(book, func, args = []):
-    from src.editor.main import getOpf
+    from epubeditor.editor.main import getOpf
     
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)

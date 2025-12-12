@@ -1,13 +1,13 @@
 from lxml import etree, html
 from rich.console import Console
 
-from src.toc import sync_toc_and_nav
-from src.open_book.files_operations import rename
-from src.namespaces import namespaces as ns
-from src.prompt_input import input
+from epubeditor.toc import sync_toc_and_nav
+from epubeditor.open_book.files_operations import rename
+from epubeditor.namespaces import namespaces as ns
+from epubeditor.prompt_input import input
 
 def main(temp_path):
-    from src.editor.main import getOpf, getToc
+    from epubeditor.editor.main import getOpf, getToc
             
     container = temp_path / 'META-INF/container.xml'
     opf = temp_path / getOpf(container)

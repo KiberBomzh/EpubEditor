@@ -5,8 +5,8 @@ import subprocess
 from pathlib import Path
 from prompt_toolkit.completion import NestedCompleter, PathCompleter
 
-from src.console_prompt import main as prompt
-from src.namespaces import namespaces
+from epubeditor.console_prompt import main as prompt
+from epubeditor.namespaces import namespaces
 
 # Возвращает название обложки в книге
 def getCover(book):
