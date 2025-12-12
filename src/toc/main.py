@@ -1,9 +1,11 @@
 from lxml import etree, html
+from rich.console import Console
 
 from src.console_prompt import main as prompt
 from src.toc import sort_spine
 from src.toc import sync_toc_and_nav
 from src.toc.completer import TocCompleter
+
 
 def optionHandl(action, args):
     root = args[0]
@@ -111,17 +113,23 @@ def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
     
     act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root, what_is_it])
     
-    order, src_in_toc_raw = change_order(toc_root)
-    if order > 0:
-        src_in_toc = sort_spine.raw_to_src(src_in_toc_raw, toc.parent, opf.parent)
-        sort_spine.main(opf_root, src_in_toc)
     
-    toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
-    if what_is_it == 'toc and nav':
-        sync_toc_and_nav.main(toc_root, nav_root)
-        nav_tree.write(nav, encoding = 'utf-8', pretty_print = True)
+    # Сортировка spine в соответствии с toc
+    # И синхронизация с nav (если есть и то и то)
+    console = Console()
+    with console.status('[green]Saving...[/]'):
+        order, src_in_toc_raw = change_order(toc_root)
+        if order > 0:
+            src_in_toc = sort_spine.raw_to_src(src_in_toc_raw, toc.parent, opf.parent)
+            sort_spine.main(opf_root, src_in_toc)
+        
+        toc_tree.write(toc, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
+        if what_is_it == 'toc and nav':
+            sync_toc_and_nav.main(toc_root, nav_root)
+            nav_tree.write(nav, encoding = 'utf-8', pretty_print = True)
+        
+        opf_tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     
-    opf_tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     return act
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from pathlib import Path
 from rich.progress import track
+from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
 
 from src.metadata_editor.get_metadata import getMetadata
@@ -75,22 +76,25 @@ def main(books):
     else:
         new_books.append(sort(books[0], main_path))
     
+    
     # Удаление пустых папок
-    removed_any = True
-    while removed_any:
-        removed_any = False
-        empty_folders = []
-        for folder in main_path.rglob('*'):
-            if folder.is_dir() and not any(folder.iterdir()):
-                empty_folders.append(folder)
-        
-        for empty_folder in sorted(empty_folders, key = lambda x: len(x.parts), reverse = True):
-            try:
-                empty_folder.rmdir()
-                removed_any = True
-                print(f"Empty folder removed: {empty_folder}")
-            except OSError as e:
-                print(f"Failed to remove {empty_folder}: {e}")
+    console = Console()
+    with console.status('[green]Searching empty folders...[/]'):
+        removed_any = True
+        while removed_any:
+            removed_any = False
+            empty_folders = []
+            for folder in main_path.rglob('*'):
+                if folder.is_dir() and not any(folder.iterdir()):
+                    empty_folders.append(folder)
+            
+            for empty_folder in sorted(empty_folders, key = lambda x: len(x.parts), reverse = True):
+                try:
+                    empty_folder.rmdir()
+                    removed_any = True
+                    console.log(f"Empty folder removed: {empty_folder}")
+                except OSError as e:
+                    console.log(f"Failed to remove {empty_folder}: {e}")
     
     return new_books
 

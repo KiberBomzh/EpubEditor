@@ -13,7 +13,11 @@ def print_help(metaReadList):
 
 # Функция для удаления хвостов
 def removeRefines(el, metadata, root):
-    Id = '#' + el.get('id')
+    el_id = el.get('id')
+    if el_id is None:
+        return
+    
+    Id = '#' + el_id
     refines = root.xpath(f'//opf:meta[@refines="{Id}"]', namespaces = namespaces)
     if len(refines) > 1:
         for ref in refines:
