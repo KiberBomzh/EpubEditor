@@ -1,22 +1,21 @@
-from scripts import TITLE_to_Title
+from epubeditor.scripts.toc_from_titles import main as toc_from_titles
 
 
 scripts_list = [
-    'TITLE_to_Title',
-    
+    'toc_from_titles'
 ]
 
 def main(temp_path, arg):
-    args = arg.split()
-    action = args[0]
-    if action not in scripts_list:
-        print("There's no such script:", action)
-        return
+    if isinstance(arg, list):
+        args = arg
+        action = args[0]
+    else:
+        args = arg.split()
+        action = args[0]
+        if action not in scripts_list:
+            print("There's no such script:", action)
+            return
     
     match action:
-        case 'TITLE_to_Title':
-            if len(args) > 1:
-                query = args[1]
-            else:
-                query = '//div[@class="title1"]/p'
-            TITLE_to_Title(temp_path, query)
+        case 'toc_from_titles':
+            toc_from_titles(temp_path)

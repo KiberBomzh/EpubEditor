@@ -8,6 +8,8 @@ from epubeditor.open_book.main import zip_errors, subprocess_errors
 from epubeditor.open_book.main import openBook
 from epubeditor.metadata_editor.multiple_editor import main as multipleEditor
 from epubeditor.cli import args, are_all_flags_false, inputHandler
+from epubeditor.open_book.scripts import main as scripts
+from epubeditor.open_book.scripts import scripts_list
 
 def scriptRun(temp_path):
     subprocess.call([args.script, temp_path])
@@ -53,10 +55,17 @@ def argHandler(books):
         zip_errors.clear()
         
         if len(books) == 1:
-            openBook(books[0], scriptRun)
+            if args.script in scripts_list:
+                openBook(books[0], scripts, [args.script])
+            else:
+                openBook(books[0], scriptRun)
         elif len(books) > 1:
-            for book in track(books, description = 'Script'):
-                openBook(book, scriptRun)
+            if args.script in scripts_list:
+                for book in track(books, description = 'Script'):
+                    openBook(book, scripts, [args.script])
+            else:
+                for book in track(books, description = 'Script'):
+                    openBook(book, scriptRun)
         
         if subprocess_errors:
             print('Subprocess Error:')
