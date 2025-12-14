@@ -153,7 +153,7 @@ There's some examples in scripts.
 
 - [x] Table of contents editor
 - [x] Add support for books with nav.xhtm
-- [ ] Fast creating TOC from titles
+- [x] Fast creating TOC from titles
 
 - [x] Books renaming {author - series 01.0, title}
 - [x] Multiple metadata editor
