@@ -178,7 +178,7 @@ def optionHandl(action, args):
             
             container = temp_path / 'META-INF/container.xml'
             opf = temp_path / getOpf(container)
-            return metadata_editor.main(opf, path = 'epubeditor/open/meta')
+            return metadata_editor.main(opf, books = [book], path = 'epubeditor/open/meta')
 
         case 'toc':
             from epubeditor.editor.main import getOpf, getToc
@@ -194,7 +194,7 @@ def optionHandl(action, args):
             else:
                 toc_tuple = (toc,)
             
-            return tocEditor(toc_tuple, opf, what_is_it, path = 'epubeditor/open/toc')
+            return tocEditor(toc_tuple, opf, what_is_it, books = [book], path = 'epubeditor/open/toc')
 
         case 'search':
             if arg:
@@ -346,7 +346,7 @@ def main(book):
                     'help': None,
                 }, global_completer, global_dest_completer, book_completer, book_dest_completer, ['rename', 'rm', 'split'])
                 
-                return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path])
+                return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path], books = [book])
             except zipfile.BadZipFile:
                 print(book)
                 print("Bad zip file! Possible zipbomb!")

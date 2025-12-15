@@ -1,9 +1,30 @@
+from rich.console import Console
+from pathlib import Path
+import os
+import subprocess
+
 from epubeditor.scripts.toc_from_titles import main as toc_from_titles
+from epubeditor.scripts.split_by_titles import main as split_by_titles
+from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doubled_xml_declarations
+
+from epubeditor.scripts import __all__ as scripts_list
+from epubeditor import config
 
 
-scripts_list = [
-    'toc_from_titles'
-]
+if config:
+    if 'scripts' in config:
+        if 'path' in config['scripts']:
+            script_path = config['scripts']['path']
+            if '~/' in script_path:
+                script_path = os.path.expanduser(script_path)
+            
+            for file in Path(script_path).glob('*'):
+                if os.access(file, os.X_OK):
+                    scripts_list.append(file.name)
+            
+        else:
+            script_path = ''
+
 
 def main(temp_path, arg):
     if isinstance(arg, list):
@@ -16,6 +37,20 @@ def main(temp_path, arg):
             print("There's no such script:", action)
             return
     
-    match action:
-        case 'toc_from_titles':
-            toc_from_titles(temp_path)
+    console = Console()
+    
+    with console.status(f'[green]{action}[/]'):
+        match action:
+            case 'toc_from_titles':
+                toc_from_titles(temp_path)
+            case 'split_by_titles':
+                split_by_titles(temp_path)
+            case 'clean_doubled_xml_declarations':
+                clean_doubled_xml_declarations(temp_path)
+            case _:
+                subprocess.run(
+                    f'{script_path}/{action} "{temp_path}"', 
+                    shell = True, 
+                    stdout = subprocess.DEVNULL,
+                    stderr = subprocess.DEVNULL
+                )

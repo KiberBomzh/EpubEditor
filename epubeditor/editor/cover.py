@@ -174,7 +174,7 @@ def main(book):
         '..': None,
         'exit': None
     })
-    return prompt(optionHandl, completer, help_msg, path = 'epubeditor/cover', args = [book])
+    return prompt(optionHandl, completer, help_msg, path = 'epubeditor/cover', args = [book], books = [book])
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")

@@ -53,7 +53,7 @@ def optionHandl(action, args):
         case _:
             print("Unknown option, try again.")
 
-def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
+def main(toc_tuple, opf, what_is_it, books = [], path = 'epubeditor/toc'):
     if what_is_it == 'toc':
         toc = toc_tuple[0].resolve()
         from epubeditor.toc.functions import change_order, get_orders
@@ -111,7 +111,7 @@ def main(toc_tuple, opf, what_is_it, path = 'epubeditor/toc'):
         'help': None,
     }, order_list, iba, ['show', 'edit'], ['put', 'add'])
     
-    act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root, what_is_it])
+    act = prompt(optionHandl, completer, help_msg, path = path, args = [toc_root, what_is_it], books = books)
     
     
     # Сортировка spine в соответствии с toc

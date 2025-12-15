@@ -311,7 +311,7 @@ def edit(root, sec_arg):
         print(f"Wrong num: {sec_arg}, try again.")
 
 def rm(root, sec_arg):
-    orders = second_arg_split(sec_arg)
+    orders = second_arg_split(sec_arg, get_orders(root))
     
     for order in orders:
         elements = root.xpath(f'//ncx:navPoint[@playOrder="{order}"]', namespaces = ns)

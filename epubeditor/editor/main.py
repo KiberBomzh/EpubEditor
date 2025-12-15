@@ -122,7 +122,7 @@ def editOpf(book):
         opf = list(temp_path.rglob('*.opf'))[0]
         opf_relative = opf.relative_to(temp_path)
         
-        act = metadata_editor.main(opf)
+        act = metadata_editor.main(opf, books = [book])
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {opf_relative}', shell = True)
         return act
 
@@ -183,12 +183,12 @@ def editToc(book):
             
             toc_tuple = (toc, nav)
             
-            act = tocEditor(toc_tuple, opf, what_is_it)
+            act = tocEditor(toc_tuple, opf, what_is_it, books = [book])
             subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {nav_relative} {opf_relative}', shell = True)
             return act
         
         toc_tuple = (toc,)
-        act = tocEditor(toc_tuple, opf, what_is_it)
+        act = tocEditor(toc_tuple, opf, what_is_it, books = [book])
         subprocess.run(f'cd {temp_path} && zip -u "{book}" {toc_relative} {opf_relative}', shell = True)
         return act
 

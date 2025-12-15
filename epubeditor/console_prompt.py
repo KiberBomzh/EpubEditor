@@ -5,12 +5,9 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
 from rich.console import Console
 
-from epubeditor.cli import inputHandler
-
 console = Console()
 
 session = PromptSession()
-books = inputHandler()
 
 # Стилизация
 style = Style.from_dict({
@@ -20,25 +17,20 @@ style = Style.from_dict({
 })
 
 
-def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', args = []):
-    if isinstance(compl, list):
-        compl.append('help')
-        compl.append('exit')
-        completer = WordCompleter(compl)
-    else:
-        completer = compl
-    
+def get_name(books, path):
     # Обработка длины названия книги, чтоб оно было справа
     columns, lines = os.get_terminal_size()
     path_len = len(path) + 2
     max_name_len = columns - 10 - path_len
     
-    if len(books) > 1:
-        book_name = f'Books: {len(books)}'
-    elif len(books) == 1:
-        book_name = books[0].stem
-    else:
-        book_name = ''
+    book_name = ''
+    if isinstance(books, list):
+        if len(books) > 1:
+            book_name = f'Books: {len(books)}'
+        elif len(books) == 1:
+            book_name = books[0].stem
+    elif isinstance(books, str):
+        book_name = books
     
     if len(book_name) > max_name_len:
         name_beginning = book_name[:5]
@@ -47,11 +39,24 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
     
     indent = columns - path_len - len(book_name)
     gap = ' ' * indent
-    cursor = '>>> '
     
+    return gap, book_name
+
+def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', args = [], books = []):
+    if isinstance(compl, list):
+        compl.append('help')
+        compl.append('exit')
+        completer = WordCompleter(compl)
+    else:
+        completer = compl
+    
+    if not books:
+        from epubeditor import books
+    cursor = '>>> '
     first_append_in_args = True
     try:
         while True:
+            gap, book_name = get_name(books, path)
             console.print(f'[dim][[/][bold cyan]{path}[/][dim]][/]', gap, f'[bold blue]{book_name}[/]', sep = '')
             command = session.prompt(
                 cursor,
@@ -104,11 +109,17 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
             elif command == exit_or_back:
                 break
             elif args:
-                if commandHandler(command, args) == 'exit':
-                    return 'exit'
+                resp = commandHandler(command, args)
+                if resp == 'exit':
+                    return resp
+                elif isinstance(resp, list):
+                    books = resp
             else:
-                if commandHandler(command) == 'exit':
-                    return 'exit'
+                resp = commandHandler(command)
+                if resp == 'exit':
+                    return resp
+                elif isinstance(resp, list):
+                    books = resp
             
                 
     except (KeyboardInterrupt, EOFError):

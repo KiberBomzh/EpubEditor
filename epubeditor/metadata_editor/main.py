@@ -24,7 +24,7 @@ def optionHandl(action, args):
 
 
 
-def main(opf, path = 'epubeditor/meta'):
+def main(opf, books = [], path = 'epubeditor/meta'):
     tree = etree.parse(opf)
     root = tree.getroot()
     help_msg = ("Available options:\n" +
@@ -60,7 +60,7 @@ def main(opf, path = 'epubeditor/meta'):
         'help': None,
     })
     
-    act = prompt(optionHandl, completer, help_msg, path = path, args = [root])
+    act = prompt(optionHandl, completer, help_msg, path = path, args = [root], books = books)
     tree.write(opf, encoding = 'utf-8', xml_declaration = True, pretty_print = True)
     return act
 

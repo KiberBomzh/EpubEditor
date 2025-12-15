@@ -7,14 +7,17 @@ from epubeditor.editor import cover
 from epubeditor.open_book.main import zip_errors, subprocess_errors
 from epubeditor.open_book.main import openBook
 from epubeditor.metadata_editor.multiple_editor import main as multipleEditor
-from epubeditor.cli import args, are_all_flags_false, inputHandler
+from epubeditor.cli import args, are_all_flags_false
 from epubeditor.open_book.scripts import main as scripts
 from epubeditor.open_book.scripts import scripts_list
+from epubeditor import books
 
 def scriptRun(temp_path):
     subprocess.call([args.script, temp_path])
 
-def argHandler(books):
+def argHandler():
+    global books
+
     if args.repack:
         subprocess_errors.clear()
         repack(books, args.repack)
@@ -78,11 +81,10 @@ def argHandler(books):
                 print(er)
 
 def main():
-    books = inputHandler()
     if are_all_flags_false():
         editor(books)
     else:
-        argHandler(books)
+        argHandler()
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")
