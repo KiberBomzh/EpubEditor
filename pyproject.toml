@@ -18,7 +18,14 @@ dependencies = [
 epubeditor = "epubeditor.cli:main"
 
 [tool.setuptools]
-packages = ["epubeditor"]
+packages = [
+	"epubeditor",
+	"epubeditor.editor",
+	"epubeditor.open_book",
+	"epubeditor.metadata_editor",
+	"epubeditor.toc",
+	"epubeditor.scripts"
+]
 
 [dependency-groups]
 dev = []
