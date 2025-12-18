@@ -16,6 +16,7 @@ from epubeditor.open_book import main as open_book
 from epubeditor.open_book.main import zip_errors, subprocess_errors
 from epubeditor.editor import cover, book_renamer, sort
 from epubeditor.toc.main import main as tocEditor
+from epubeditor.merge_books.main import main as merge
 from epubeditor.namespaces import namespaces as ns
 
 from epubeditor.console_prompt import main as prompt
@@ -315,6 +316,11 @@ def chooseOption(action, args):
                             print(er)
                 else:
                     print('Option needs second argument, try again.')
+            case "merge":
+                if len(books) > 1:
+                    merge(books)
+                else:
+                    print("There's ony one book!")
             case "just":
                 justReadMetadata(books)
             case "list":
@@ -345,6 +351,7 @@ def main(books: list):
         "\t-Rename                       [green]'rename'[/]\n" +
         "\t-Sort, author/series/book     [green]'sort'[/]\n" +
         "\t-Pretty                       [green]'pretty'[/]\n" +
+        "\t-Merge books                  [green]'merge'[/]\n" +
         "\t-Just print metadata          [green]'just'[/]\n" +
         "\t-Print current books          [green]'list'[/]\n" +
         "\t-Repack bad zip               [green]'repack'[/]\n" +
@@ -366,6 +373,7 @@ def main(books: list):
         'rename': None,
         'sort': None,
         'pretty': {'native', 'xmllint'},
+        'merge': None,
         'just': None,
         'list': None,
         'repack': {'zip': None, '7z': None},

@@ -52,6 +52,7 @@ To go back write `..`
 - `just` - just print metadata for book(s)
 - `list` - show all current books
 - `repack` - repack all books with zip console utility, if you want to repack them with 7z use during start flag -R 7z
+- `merge` - merge all books (needs at least two books)
 
 ### Complex commands
 #### `meta`
@@ -115,6 +116,7 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 This flags needs for fast editing (without entering in programm)
 - `-r`, `--rename` - do the same as the command `rename`
 - `-s`, `--sort` - do the same as the command `sort`
+- `-m`, `--merge` - do the same as the command `merge`
 - `-j`, `--just` - do the same as the command `just`
 - `-p`, `--pretty` `[xmllint/native]` - do the same as the command `pretty`
 - `-R`, `--repack` `[zip/7z]` - do the same as the command `repack`
@@ -159,4 +161,4 @@ There's some examples in scripts.
 - [x] Multiple metadata editor
 - [x] Sorting books in folders: author/series/book
 - [x] Changing cover
-- [ ] Split and merge books
+- [x] Split and merge books

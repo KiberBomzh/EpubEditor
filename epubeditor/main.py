@@ -53,6 +53,9 @@ def argHandler():
     if args.sort:
         books = chooseOption('sort', [books])
     
+    if args.merge:
+        chooseOption('merge', [books])
+    
     if args.script:
         subprocess_errors.clear()
         zip_errors.clear()

@@ -3,7 +3,7 @@ import subprocess
 import zipfile
 import tempfile
 from pathlib import Path
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 
 from epubeditor.metadata_editor import get_metadata, remove_metadata
 from epubeditor.metadata_editor.create_sort import createSort
@@ -85,20 +85,13 @@ def getMetaFromUser():
     series = Prompt.ask('[green]Series')
     series_index = Prompt.ask('[green]Series index')
     language = Prompt.ask('[green]Language')
-    choice = Prompt.ask(
-        '[green]Generate sort names?',
-        choices = ['y', 'n'],
-        default = 'n',
-        show_choices = True,
-        show_default = True
-    )
+    generate_sort = Confirm.ask('[green]Generate sort names?')
     
     new_meta['title'] = title if title else None
     new_meta['author'] = author.split(' & ') if author else None
     new_meta['series'] = series if series else None
     new_meta['series_index'] = series_index if series_index else None
     new_meta['language'] = language.split(' ') if language else None
-    generate_sort = False if choice == 'n' else True
     
     return new_meta, generate_sort
 

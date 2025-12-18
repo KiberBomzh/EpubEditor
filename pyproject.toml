@@ -24,6 +24,7 @@ packages = [
 	"epubeditor.open_book",
 	"epubeditor.metadata_editor",
 	"epubeditor.toc",
+	"epubeditor.merge_books",
 	"epubeditor.scripts"
 ]
 
