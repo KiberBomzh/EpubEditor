@@ -15,6 +15,26 @@ from epubeditor.namespaces import namespaces as ns
 console = Console()
 
 
+def get_parent_for_all(path, files):
+    longest_path = path
+    for file in files:
+        if len(file.parts) > len(longest_path.parts):
+            longest_path = file
+    
+    parent_for_all = None
+    for index, part in enumerate(longest_path.parts):
+        for file in files:
+            if part != file.parts[index]:
+                if file.parts[0] == '/':
+                    parent_for_all = Path('/' + '/'.join(file.parts[1:index]))
+                else:
+                    parent_for_all = Path('/'.join(file.parts[:index]))
+                break
+        if parent_for_all is not None:
+            break
+    
+    return parent_for_all
+
 def cp_files(main_temp_path, main_opf, main_toc, book, num):
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -33,7 +53,10 @@ def cp_files(main_temp_path, main_opf, main_toc, book, num):
         toc = (opf.parent / toc_tuple_str[0]).resolve()
         
         
-        exclude_files = [opf, toc, (temp_path / 'mimetype')]
+        exclude_files = [opf, (temp_path / 'mimetype')]
+        if what_is_it != 'nav':
+            exclude_files.append(toc)
+        
         files = []
         for file in temp_path.rglob('*'):
             file_rel = file.relative_to(temp_path)
@@ -44,15 +67,27 @@ def cp_files(main_temp_path, main_opf, main_toc, book, num):
             ):
                 files.append(file)
         
+        
+        if num < 10:
+            num_str = f'00{num}'
+        elif num < 100:
+            num_str = f'0{num}'
+        else:
+            num_str = str(num)
+        
         # Путь для добавления файлов из этой книги в главную
-        num_path = main_temp_path / str(num)
+        num_path = main_temp_path / num_str
         num_path.mkdir()
         
-        cp_opf(main_opf, opf, num, temp_path) 
-        cp_toc(main_toc, toc, what_is_it, num, temp_path)
+        # Получение общего предка для всех файлов
+        parent_for_all = get_parent_for_all(temp_path, files)
+        
+        
+        cp_opf(main_opf, opf, num_str, parent_for_all) 
+        cp_toc(main_toc, toc, what_is_it, num_str, parent_for_all)
         
         for file in files:
-            new_file = (num_path / file.relative_to(temp_path))
+            new_file = (num_path / file.relative_to(parent_for_all))
             new_file.parent.mkdir(exist_ok = True, parents = True)
             file.replace(new_file)
 
@@ -99,6 +134,7 @@ def main(books):
         new_book = get_new_book()
         new_meta, generate_sort = getMetaFromUser()
     except EOFError:
+        print('')
         return
     
     with console.status('[green]Merging...[/]'):

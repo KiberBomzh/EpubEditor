@@ -10,6 +10,10 @@ from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doub
 def put_split_tags(file):
     tree = html.parse(file)
     root = tree.getroot()
+    body = root.find('body')
+    
+    for attr in reversed(body.attrib.keys()):
+        del body.attrib[attr]
     
     h_titles = root.xpath('''
         //h1 |

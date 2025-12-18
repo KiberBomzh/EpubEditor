@@ -1,8 +1,9 @@
-def rm_from_text(text, query):
-    query = query.lower()
-    while query in text:
-        start = text.lower().find(query)
-        end = start + len(query)
+def rm_from_text(text):
+    start_txt = '<!--?'
+    end_txt = '?-->'
+    while start_txt in text and end_txt in text:
+        start = text.find(start_txt)
+        end = text.find(end_txt) + len(end_txt)
         if text[end] == '\n':
             end += 1
         
@@ -14,8 +15,7 @@ def remove_declaration(text):
     xml_decl2 = '<!--?xml version="1.0" encoding="UTF-8"?-->'
     
     if xml_decl1 in text or xml_decl2 in text:
-        text = rm_from_text(text, xml_decl1)
-        text = rm_from_text(text, xml_decl2)
+        text = rm_from_text(text)
     
     return text
 

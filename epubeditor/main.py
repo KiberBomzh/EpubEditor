@@ -42,7 +42,8 @@ def argHandler():
         chooseOption('pretty', [books, args.pretty])
     
     if args.cover:
-        cover.optionHandl('', [books], cover = args.cover)
+        for book in books:
+            cover.optionHandl('', [book], cover = args.cover)
     
     if args.proceed:
         editor(books)

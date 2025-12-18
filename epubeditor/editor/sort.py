@@ -60,6 +60,7 @@ def sort(book, main_path):
     return new_book_path
 
 def main(books):
+    global main_path
     path_completer = PathCompleter(
         expanduser=True,  # Раскрывать ~ в домашнюю директорию
         file_filter=lambda name: '.' != Path(name).stem[0],
