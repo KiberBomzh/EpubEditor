@@ -44,7 +44,7 @@ def create_container(temp_path):
     )
 
 
-def create_opf(temp_path, new_meta, generate_sort):
+def create_opf(temp_path, new_meta):
     opf = temp_path / opf_path
     opf.touch()
     
@@ -89,12 +89,7 @@ def create_opf(temp_path, new_meta, generate_sort):
             series_index.attrib['name'] = 'calibre:series_index'
             series_index.attrib['content'] = new_meta['series_index']
     
-    
-    if generate_sort:
-        from epubeditor.metadata_editor.create_sort import createSort
-        createSort(package)
-    
-    
+        
     # Добавляем manifest
     manifest = etree.SubElement(package, "{%s}manifest" % OPF_NS)
     

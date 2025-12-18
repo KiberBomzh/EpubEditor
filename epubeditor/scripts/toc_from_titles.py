@@ -8,6 +8,7 @@ from epubeditor import config
 
 include_subtitles = False
 all_h = False
+only_h = False
 
 if config:
     if 'scripts' in config:
@@ -18,6 +19,10 @@ if config:
             
             if 'all_h' in flags:
                 all_h = flags['all_h']
+
+            if 'only_h' in flags:
+                only_h = flags['only_h']
+
 
 def get_toc(temp_path):
     from epubeditor.editor.main import getOpf, getToc
@@ -176,23 +181,33 @@ def get_titles(file, toc_parent):
     titles = []
     file_rel = get_rel(file, toc_parent)
     
-    elements = root.xpath('''
-        //h1 |
-        //h2 |
-        //h3 |
-        //h4 |
-        //h5 |
-        //h6 |
-        //*[@class="title1"] |
-        //*[@class="title2"] |
-        //*[@class="title3"] |
-        //*[@class="title4"] |
-        //*[@class="title5"] |
-        //*[@class="title6"] |
-        //*[@class="title"] |
-        //*[@class="subtitle"] |
-        //*[@class="book-title"]
-    ''')
+    if only_h:
+        elements = root.xpath('''
+            //h1 |
+            //h2 |
+            //h3 |
+            //h4 |
+            //h5 |
+            //h6
+        ''')
+    else:
+        elements = root.xpath('''
+            //h1 |
+            //h2 |
+            //h3 |
+            //h4 |
+            //h5 |
+            //h6 |
+            //*[@class="title1"] |
+            //*[@class="title2"] |
+            //*[@class="title3"] |
+            //*[@class="title4"] |
+            //*[@class="title5"] |
+            //*[@class="title6"] |
+            //*[@class="title"] |
+            //*[@class="subtitle"] |
+            //*[@class="book-title"]
+        ''')
     
     counter = 1
     for el in elements:
