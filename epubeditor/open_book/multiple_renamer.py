@@ -2,7 +2,7 @@ from lxml import etree, html
 from rich.console import Console
 
 from epubeditor.toc import sync_toc_and_nav
-from epubeditor.open_book.files_operations import rename
+from epubeditor.open_book.files_operations import rename, get_without_forbidden_chars
 from epubeditor.namespaces import namespaces as ns
 from epubeditor.prompt_input import input
 
@@ -39,6 +39,7 @@ def main(temp_path):
                 path = opf.parent / item.get('href')
                 book_content.append(path)
     name = input('File name', default = 'index_split_')
+    name = get_without_forbidden_chars(name)
     console = Console()
     with console.status('[green]Renaming...'):
         failed_renaming = {}

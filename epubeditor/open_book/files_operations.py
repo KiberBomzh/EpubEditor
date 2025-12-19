@@ -223,12 +223,21 @@ def rename_in_nav(root, relative, old_name, new_name):
         href = a.get('href')
         a.attrib['href'] = href.replace(old_name, new_name)
 
+def get_without_forbidden_chars(text):
+    forbiddenChars = {'<', '>', ':', '"', '/', '|', '?', '*'}
+    for char in text:
+        if char in forbiddenChars:
+            text = text.replace(char, '_')
+    return text
+
 def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):
     was_new_name = True
     if not new_name:
         new_name = input('Name', default = file.stem) + file.suffix
         was_new_name = False
     
+    new_name = get_without_forbidden_chars(new_name)
+
     new_file = file.parent / new_name
     if not new_file.exists():
         file.rename(new_file)

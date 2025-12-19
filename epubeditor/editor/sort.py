@@ -1,10 +1,11 @@
+import zipfile
 from pathlib import Path
+from lxml import etree
 from rich.progress import track
 from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
 
 from epubeditor.metadata_editor.get_metadata import getMetadata
-from epubeditor.editor.book_renamer import getRoot
 from epubeditor.prompt_input import input
 from epubeditor import config
 
@@ -21,7 +22,13 @@ if config:
 
 
 def sort(book, main_path):
-    root = getRoot(book)
+    from epubeditor.editor.main import getOpf
+    with zipfile.ZipFile(book, 'r') as zr:
+        with zr.open('META-INF/container.xml') as container:
+            opf_file = getOpf(container)
+        with zr.open(opf_file, 'r') as opf:
+            root = etree.parse(opf).getroot()
+
     meta = getMetadata(root)
     metaKeys = list(meta.keys())
     

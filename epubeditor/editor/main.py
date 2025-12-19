@@ -195,8 +195,7 @@ def editToc(book):
 
 def open_books(books):
     for index, book in enumerate(books):
-        parent = book.parent.relative_to(Path.cwd())
-        console.print(f'[magenta]{index + 1}[/] [dim]{parent}/[/][blue]{book.name}[/]')
+        console.print(f'[magenta]{index + 1}[/] [dim]{book.parent.name}/[/][blue]{book.name}[/]')
     
     choice = int(Prompt.ask('[green]Choose what book you want to open'))
     while choice > len(books):
@@ -300,7 +299,7 @@ def chooseOption(action, args):
                     if len(books) > 1:
                         for book in track(books, description = "Pretty"):
                             print('--------------------')
-                            print(book.relative_to(Path.cwd()))
+                            console.print(f"[dim]{book.parent.name}/[/][blue]{book.name}[/]")
                             open_book.openBook(book, open_book.toPretty, [book, sec_arg])
                     else:
                         open_book.openBook(books[0], open_book.toPretty, [books[0], sec_arg])

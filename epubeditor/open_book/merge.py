@@ -4,7 +4,7 @@ from epubeditor.open_book.files_operations import get_rel
 from epubeditor.namespaces import namespaces as ns
 
 
-def merge(temp_path, main_file, how_many_files):
+def merge(temp_path, main_file, how_many_files, exclude = []):
     files_in_order = get_files_in_spine_order(temp_path)
     if how_many_files < 0 or how_many_files >= len(files_in_order):
         print("Too many files to merge!")
@@ -24,7 +24,9 @@ def merge(temp_path, main_file, how_many_files):
         elif file.resolve() == main_file.resolve():
             is_main_file_found = True
     
-    
+    for f in exclude:
+        files.remove(f)
+
     main_tree = html.parse(main_file)
     main_root = main_tree.getroot()
     main_body = main_root.find('body')

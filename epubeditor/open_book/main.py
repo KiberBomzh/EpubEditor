@@ -18,6 +18,16 @@ from epubeditor.open_book.scripts import main as scripts
 from epubeditor.open_book.scripts import scripts_list
 
 from epubeditor.console_prompt import main as prompt
+from epubeditor import config
+
+
+autosave = False
+
+if config:
+    if config['open']:
+        if config['open']['autosave']:
+            autosave = config['open']['autosave']
+
 
 subprocess_errors = []
 
@@ -346,7 +356,10 @@ def main(book):
                     'help': None,
                 }, global_completer, global_dest_completer, book_completer, book_dest_completer, ['rename', 'rm', 'split'])
                 
-                return prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path], books = [book])
+                act = prompt(optionHandl, completer, helpmsg, path = 'epubeditor/open', args = [book, temp_path], books = [book])
+                if autosave:
+                    save(temp_path, book)
+                return act
             except zipfile.BadZipFile:
                 print(book)
                 print("Bad zip file! Possible zipbomb!")
