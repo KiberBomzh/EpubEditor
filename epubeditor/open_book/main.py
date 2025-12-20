@@ -24,8 +24,8 @@ from epubeditor import config
 autosave = False
 
 if config:
-    if config['open']:
-        if config['open']['autosave']:
+    if 'config' in config:
+        if 'autosave' in config['open']:
             autosave = config['open']['autosave']
 
 

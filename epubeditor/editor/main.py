@@ -120,7 +120,7 @@ def editOpf(book):
             
             book_r.extract(opf_file, temp_path)
         
-        opf = list(temp_path.rglob('*.opf'))[0]
+        opf = temp_path / opf_file
         opf_relative = opf.relative_to(temp_path)
         
         act = metadata_editor.main(opf, books = [book])

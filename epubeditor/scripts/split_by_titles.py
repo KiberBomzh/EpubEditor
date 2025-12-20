@@ -11,8 +11,8 @@ from epubeditor import config
 clean_body_attributes = True
 
 if config:
-    if config['scripts']:
-        if config['scripts']['split_by_titles']:
+    if 'scripts' in config:
+        if 'split_by_titles' in config['scripts']:
             flags = config['scripts']['split_by_titles']
             if 'clean_body_attributes' in flags:
                 clean_body_attributes = flags['clean_body_attributes']

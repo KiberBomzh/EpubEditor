@@ -97,15 +97,16 @@ def get_meta(book):
                 meta['sort_authors'].append(cr_text)
 
     # приведение всех series_index в один вид (обычно они разные идут в calibre "1.0" в 3.0 версии - "1"
-    s_index = meta['series_index']
-    if len(s_index) == 1:
-        s_index = f"0{s_index}.0"
-    elif '.' not in s_index:
-        s_index += ".0"
-    elif '.' in s_index and len(s_index) == 3:
-        s_index = '0' + s_index
-    
-    meta['series_index'] = s_index
+    if meta['series_index']:
+        s_index = meta['series_index']
+        if len(s_index) == 1:
+            s_index = f"0{s_index}.0"
+        elif '.' not in s_index:
+            s_index += ".0"
+        elif '.' in s_index and len(s_index) == 3:
+            s_index = '0' + s_index
+        
+        meta['series_index'] = s_index
 
     return meta
 
@@ -138,8 +139,11 @@ def unwrap_tag(name, tag, the_var):
         var_name = divider.join(the_var)
     else:
         var_name = the_var
-
-    name = name[:index] + var_name + bind_text + name[end_i + 1:] 
+    
+    if var_name:
+        name = name[:index] + var_name + bind_text + name[end_i + 1:]
+    else:
+        name = name[:index] + name[end_i + 1:]
     return name
 
 
@@ -156,6 +160,10 @@ def rename(book):
     for char in name:
         if char in forbiddenChars:
             name = name.replace(char, '_')
+    
+    if not name:
+        print(book.name, "does not have metadata for renaming!")
+        return book
     
     new_book = book.parent / f'{name}.epub'
     
