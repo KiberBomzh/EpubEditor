@@ -13,7 +13,10 @@ clean_body_attributes = True
 if config:
     if 'scripts' in config:
         if 'split_by_titles' in config['scripts']:
-            flags = config['scripts']['split_by_titles']
+            flags = {}
+            for flag in config['scripts']['split_by_titles']:
+                flags.update(flag)
+            
             if 'clean_body_attributes' in flags:
                 clean_body_attributes = flags['clean_body_attributes']
 

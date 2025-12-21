@@ -13,7 +13,10 @@ only_h = False
 if config:
     if 'scripts' in config:
         if 'toc_from_titles' in config['scripts']:
-            flags = config['scripts']['toc_from_titles']
+            flags = {}
+            for flag in config['scripts']['toc_from_titles']:
+                flags.update(flag)
+            
             if 'include_subtitles' in flags:
                 include_subtitles = flags['include_subtitles']
             

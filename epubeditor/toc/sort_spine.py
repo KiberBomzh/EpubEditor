@@ -1,8 +1,10 @@
 from rich import print
 from epubeditor.namespaces import namespaces
 from epubeditor.open_book.files_operations import get_rel
+from epubeditor.cli import args
 
-debug = False
+
+debug = args.debug
 
 def raw_to_src(src_in_toc_raw, toc_parent, opf_parent):
     src_in_toc = []

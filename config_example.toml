@@ -1,0 +1,39 @@
+replacement_for_forbidden_chars = ""
+
+# Options for configuring open/script
+[scripts]
+# This opt will add your script to scripts list in open/script
+# You will can use your own scripts
+# And as well use them in flag --script without all path
+# Example: it was like this
+# epubeditor my_book.epub --script ~/path/to/my_scripts/my_script.sh
+# With path option you can just write
+# epubeditor my_book.epub --script my_script.sh
+path = "~/my_scripts" # Path to your scripts
+
+split_by_titles = [
+    { clean_body_attributes = false } # default true
+]
+
+toc_from_titles = [
+    { include_subtitles = true } # default false
+    { all_h = true }, # default false
+    { only_h = true } # default false
+]
+
+
+[open]
+autosave = false
+
+
+[sort]
+main_path = "~/folder/another/folder/my_book"
+search_empty_folders = false
+
+rename_template = "{languages(|)/ }{authors&/ - }{series/ <index*(|)/, >}{title}"
+series_index_template = "3|+|2"
+sort_template = [
+    "{authors1}",
+    "{series}",
+    "{index/ - }{title}"
+]

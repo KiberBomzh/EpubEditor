@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from importlib.metadata import version
 
 from rich.traceback import install
 install(show_locals=True)
@@ -27,6 +28,10 @@ metadata_group.add_argument('--generate-sort', action = 'store_true', help = 'Ge
 
 parser.add_argument('--script', type = str)
 parser.add_argument('--no-subdirs', action = 'store_true', help = "Don't read books from subdirs")
+parser.add_argument('--ignore-config', action = 'store_true', help = "Ignore configuration file")
+
+parser.add_argument('--debug', action = 'store_true', help = "Print debug information")
+parser.add_argument('--version', action = 'version', version = f'%(prog)s {version('epubeditor')}', help = "Show version")
 
 args = parser.parse_args()
 
@@ -36,6 +41,8 @@ def are_all_flags_false(parser = parser, args = args, exclude=None):
     
     exclude.append('input')
     exclude.append('no_subdirs')
+    exclude.append('ignore_config')
+    exclude.append('debug')
     
     for action in parser._actions:
         if action.dest not in exclude:

@@ -6,6 +6,7 @@ from epubeditor.toc import sync_toc_and_nav
 from epubeditor.namespaces import namespaces as ns
 from epubeditor.prompt_input import input
 
+
 def get_relative_path(path, parent):
     path_l = str(path).split('/')
     parent_l = str(parent).split('/')
@@ -224,7 +225,18 @@ def rename_in_nav(root, relative, old_name, new_name):
         a.attrib['href'] = href.replace(old_name, new_name)
 
 def get_without_forbidden_chars(text):
+    from epubeditor import config
     forbiddenChars = {'<', '>', ':', '"', '/', '|', '?', '*'}
+
+
+    replacement_for_forbidden_chars = '_'
+    if config:
+        if 'replacement_for_forbidden_chars' in config:
+            replacement_for_forbidden_chars = config['replacement_for_forbidden_chars']
+
+    if replacement_for_forbidden_chars in forbiddenChars:
+        replacement_for_forbidden_chars = '_'
+    
     for char in text:
         if char in forbiddenChars:
             text = text.replace(char, '_')

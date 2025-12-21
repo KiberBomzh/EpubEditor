@@ -1,16 +1,19 @@
-import zipfile
 from pathlib import Path
-from lxml import etree
 from rich.progress import track
 from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
 
-from epubeditor.metadata_editor.get_metadata import getMetadata
+from epubeditor.editor.template_handler import main as get_name
 from epubeditor.prompt_input import input
 from epubeditor import config
 
 main_path = None
 search_empty_folders = True
+sort_template = [
+    '{authors1}',
+    '{series}',
+    '{index/ - }{title}'
+]
 
 if config:
     if 'sort' in config:
@@ -19,52 +22,45 @@ if config:
 
         if 'search_empty_folders' in config['sort']:
             search_empty_folders = config['sort']['search_empty_folders']
+        
+        if 'sort_template' in config['sort']:
+            sort_template = config['sort']['sort_template']
 
 
 def sort(book, main_path):
-    from epubeditor.editor.main import getOpf
-    with zipfile.ZipFile(book, 'r') as zr:
-        with zr.open('META-INF/container.xml') as container:
-            opf_file = getOpf(container)
-        with zr.open(opf_file, 'r') as opf:
-            root = etree.parse(opf).getroot()
-
-    meta = getMetadata(root)
-    metaKeys = list(meta.keys())
+    main_path = Path('/data/data/com.termux/files/home/testBooks')
+    path_parts = get_name(book, sort_template)
+    new_book_path = main_path / ('/'.join(path_parts) + '.epub')
     
-    if 'authors' in metaKeys:
-        author = meta.get('authors')[0]
-    else:
-        author = meta['author']
     
-    if 'series' in metaKeys:
-        new_fold = main_path / author / meta['series'][:-5]
-        book_name = meta['series'][-4:] + ' - ' + meta['title'] + '.epub'
-    else:
-        new_fold = main_path / author
-        book_name = meta['title'] + '.epub'
-    
-    new_book_path = new_fold / book_name
-    new_book = str(new_book_path.relative_to(main_path))
-    forbiddenChars = {'<', '>', ':', '"', '|', '?', '*'}
-    is_forb = False
-    for char in forbiddenChars:
-        if char in new_book:
-            is_forb = True
-            break
-    if is_forb:
-        for char in new_book:
-            if char in forbiddenChars:
-                new_book = new_book.replace(char, '_')
-        new_book_path = main_path / new_book
-    
-    if not new_fold.exists():
-        new_fold.mkdir(parents = True)
+    if not new_book_path.parent.exists():
+        new_book_path.parent.mkdir(parents = True)
     
     if book != new_book_path:
         book.replace(new_book_path)
     
     return new_book_path
+
+
+def rm_empty_folders(main_path):
+    console = Console()
+    with console.status('[green]Searching empty folders...[/]'):
+        removed_any = True
+        while removed_any:
+            removed_any = False
+            empty_folders = []
+            for folder in main_path.rglob('*'):
+                if folder.is_dir() and not any(folder.iterdir()):
+                    empty_folders.append(folder)
+            
+            for empty_folder in sorted(empty_folders, key = lambda x: len(x.parts), reverse = True):
+                try:
+                    empty_folder.rmdir()
+                    removed_any = True
+                    console.log(f"Empty folder removed: {empty_folder}")
+                except OSError as e:
+                    console.log(f"Failed to remove {empty_folder}: {e}")
+
 
 def main(books):
     global main_path
@@ -75,14 +71,16 @@ def main(books):
         get_paths=lambda: ['.'],
     )
     
+    
     if main_path is None:
         # Получение пути к главной папке для сортировки
         main_path = input('Main folder for sort', completer = path_completer)
+    
+    if main_path[:2] == '~/':
+        main_path = Path.home() / main_path[2:]
     else:
-        if main_path[:2] == '~/':
-            main_path = Path.home() / main_path[2:]
-        else:
-            main_path = Path(main_path).resolve()
+        main_path = Path(main_path).resolve()
+    
     
     while not main_path.is_dir():
         main_path = input('Not valid folder, try again: ', completer = path_completer)
@@ -100,24 +98,7 @@ def main(books):
         new_books.append(sort(books[0], main_path))
     
     if search_empty_folders:
-        # Удаление пустых папок
-        console = Console()
-        with console.status('[green]Searching empty folders...[/]'):
-            removed_any = True
-            while removed_any:
-                removed_any = False
-                empty_folders = []
-                for folder in main_path.rglob('*'):
-                    if folder.is_dir() and not any(folder.iterdir()):
-                        empty_folders.append(folder)
-                
-                for empty_folder in sorted(empty_folders, key = lambda x: len(x.parts), reverse = True):
-                    try:
-                        empty_folder.rmdir()
-                        removed_any = True
-                        console.log(f"Empty folder removed: {empty_folder}")
-                    except OSError as e:
-                        console.log(f"Failed to remove {empty_folder}: {e}")
+        rm_empty_folders(main_path)
     
     return new_books
 

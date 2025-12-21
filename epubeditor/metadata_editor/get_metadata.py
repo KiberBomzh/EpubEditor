@@ -1,4 +1,7 @@
+from zipfile import ZipFile
+from lxml import etree
 from rich import print
+
 from epubeditor.namespaces import namespaces
 
 def getMetadataRaw(root):
@@ -161,6 +164,93 @@ def getMetadata(root, Print = False):
                     break
     
     return metadataRead
+
+def get_meta_from_book(book):
+    ns = namespaces
+    with ZipFile(book, 'r') as b_read:
+        for file in b_read.namelist():
+            if file.endswith('.opf'):
+                f_opf = file
+        with b_read.open(f_opf) as opf:
+            root = etree.parse(opf).getroot()
+
+    version = root.get('version')
+    meta = root.find('opf:metadata', namespaces = ns)
+    title = meta.find('dc:title', namespaces = ns)
+    creators = meta.findall('dc:creator', namespaces = ns)
+    languages = meta.findall('dc:language', namespaces = ns)
+
+    if version == '2.0':
+        series = meta.find('opf:meta[@name="calibre:series"]', namespaces = ns)
+        series_index = meta.find('opf:meta[@name="calibre:series_index"]', namespaces = ns)
+        title_sort = meta.find('opf:meta[@name="calibre:title_sort"]', namespaces = ns)
+        
+        creators_sort = []
+        for creator in creators:
+            a_sort = creator.get('{%s}file-as' % ns['opf'])
+            if a_sort is not None:
+                creators_sort.append(a_sort)
+
+    elif version == '3.0':
+        series = meta.find('opf:meta[@property="belongs-to-collection"]', namespaces = ns)
+        series_index = meta.find('opf:meta[@property="group-position"]', namespaces = ns)
+        
+        t_id = title.get('id')
+        if t_id is not None:
+            title_sort = meta.find(f'opf:meta[@property="file-as"][@refines="#{t_id}"]', namespaces = ns)
+        else:
+            title_sort = None
+        
+        creators_sort = []
+        for creator in creators:
+            c_id = creator.get('id')
+            if c_id is not None:
+                creator_sort = meta.find(f'opf:meta[@property="file-as"][@refines="#{c_id}"]', namespaces = ns)
+                if creator_sort is not None:
+                    creators_sort.append(creator_sort)
+
+
+    meta = {}
+    meta['title'] = title.text if title is not None else ''
+    meta['authors'] = []
+    for creator in creators:
+        meta['authors'].append(creator.text)
+    
+    meta['languages'] = []
+    for lang in languages:
+        meta['languages'].append(lang.text)
+    
+    if version == '2.0':
+        meta['series'] = series.get('content') if series is not None else ''
+        meta['index'] = series_index.get('content') if series_index is not None else ''
+        meta['sort_title'] = title_sort.get('content') if title_sort is not None else ''
+        meta['sort_authors'] = creators_sort
+
+    elif version == '3.0':
+        meta['series'] = series.text if series is not None else ''
+        meta['index'] = series_index.text if series_index is not None else ''
+        meta['sort_title'] = title_sort.text if title_sort is not None else ''
+        
+        meta['sort_authors'] = []
+        for creator in creators_sort:
+            cr_text = creator.text
+            if cr_text is not None:
+                meta['sort_authors'].append(cr_text)
+
+    # приведение всех series_index в один вид (обычно они разные идут в calibre "1.0" в 3.0 версии - "1"
+    if meta['index']:
+        s_index = meta['index']
+        if len(s_index) == 1:
+            s_index = f"0{s_index}.0"
+        elif '.' not in s_index:
+            s_index += ".0"
+        elif '.' in s_index and len(s_index) == 3:
+            s_index = '0' + s_index
+        
+        meta['index'] = s_index
+
+    return meta
+
 
 if __name__ == "__main__":
     print("This is just module, try to run cli.py")
