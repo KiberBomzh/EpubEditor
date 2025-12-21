@@ -140,8 +140,10 @@ def to_any_case(root, action, sec_arg):
             to_any_case_do(el, action)
 
 def to_any_case_do(el, action):
-    labelL = el.xpath('./ncx:navLabel/ncx:text', namespaces = ns)
-    label = labelL[0] if labelL else print(labelL)
+    label = el.find('ncx:navLabel/ncx:text', namespaces = ns)
+    if label is None:
+        return
+    
     match action:
         case 'upper':
             label.text = label.text.upper()

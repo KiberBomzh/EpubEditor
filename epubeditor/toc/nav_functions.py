@@ -137,6 +137,8 @@ def to_any_case(root, action, sec_arg):
 
 def to_any_case_do(el, action):
     a = el.find('a')
+    if a is None:
+        return
     
     match action:
         case 'upper':
