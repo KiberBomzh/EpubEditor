@@ -239,7 +239,7 @@ def get_without_forbidden_chars(text):
     
     for char in text:
         if char in forbiddenChars:
-            text = text.replace(char, '_')
+            text = text.replace(char, replacement_for_forbidden_chars)
     return text
 
 def rename(file, temp_path, opf, opf_root, new_name = '', toc_root = None):

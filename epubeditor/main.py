@@ -48,7 +48,7 @@ def argHandler():
     if args.proceed:
         editor(books)
 
-    if args.rename:
+    if args.rename or args.rename is None:
         books = chooseOption('rename', [books])
     
     if args.sort:

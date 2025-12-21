@@ -121,7 +121,13 @@ def unwrap_secondary_tags(name, meta):
         tag = name[start_tag:end_tag]
         end = name[start:].find('>') + start
         name = name[:start] + '{' + tag + name[end_tag + 1:end] + '}' + name[end + 1:]
-        name = unwrap_tag(name, '{' + tag, meta[tag])
+        
+        meta_value = meta[tag]
+        if tag == 'index':
+            meta_value = series_index_templ_handl(meta_value)
+        
+        
+        name = unwrap_tag(name, '{' + tag, meta_value)
         
         counter += 1
     
@@ -129,6 +135,9 @@ def unwrap_secondary_tags(name, meta):
 
 
 def series_index_templ_handl(s_index):
+    if not s_index:
+        return s_index
+    
     from epubeditor import config
     
     template = ''
@@ -147,23 +156,29 @@ def series_index_templ_handl(s_index):
     except ValueError:
         print('Wrong series_index template!')
         return s_index
-    
-    s_nums_start, s_nums_end = s_index.split('.')
+    try:
+        s_nums_start, s_nums_end = s_index.split('.')
+    except ValueError:
+        print(s_index)
+        return s_index
     if s_nums_start.startswith('0'):
         s_nums_start = s_nums_start[1:]
     if s_nums_end == '0':
         s_nums_end = ''
     
     if len(s_nums_start) < nums_in_start:
-        how_many_zeros = len(s_nums_start) - nums_in_start
+        how_many_zeros = nums_in_start - len(s_nums_start)
         s_nums_start = '0' * how_many_zeros + s_nums_start
     
     if len(s_nums_end) < nums_in_end:
-        how_many_zeros = len(s_nums_end) - nums_in_end
+        how_many_zeros = nums_in_end - len(s_nums_end)
         s_nums_end = '0' * how_many_zeros + s_nums_end
     
     
-    s_index = s_nums_start + (divider + s_nums_end) if s_nums_end else ''
+    s_index = s_nums_start
+    if s_nums_end:
+        s_index += divider + s_nums_end
+    
     return s_index
 
 
@@ -171,8 +186,11 @@ def get_name(meta, template):
     name = template
     for key, value in meta.items():
         tag = '{' + key
+        if tag not in name:
+            continue
         
-        if key == 'series_index':
+        
+        if key == 'index':
             value = series_index_templ_handl(value)
         
         name = unwrap_tag(name, tag, value)
