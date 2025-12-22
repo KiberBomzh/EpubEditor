@@ -25,7 +25,7 @@ split_by_titles = [
 
 # Configuration for script 'toc_from_titles'
 toc_from_titles = [
-    { include_subtitles = true } # default false
+    { include_subtitles = true }, # default false
     { all_h = true }, # default false
     { only_h = true } # default false
 ]
