@@ -20,15 +20,15 @@ debug = args.debug
 # то есть, чтоб заключить в () нужно указать (|)
 # можно использовать любые разрешенные символы
 
-# можно привязать одну переменную к другой с помощью '*'
+# можно привязать одну переменную к другой
 # например: нужно указывать номер серии только если есть серия
 # {series/ <index*/, >}
 # дополнительные переменные нужно указывать как конец текущей, то есть после '/'
 # сами переменные заключать в < >, после имени переменной указывать '*'
-# такие переменные поддерживают все тоже самое что и обычные
+# такие переменные поддерживают всё тоже самое что и обычные
 # '|', '/' это всё
 # нельзя только привязать ещё переменных к ним
-# к основным переменным можно доюавлять сколько угодно вложенных
+# к основным переменным можно добавлять сколько угодно вложенных
 
 
 # Значения
@@ -184,19 +184,21 @@ def series_index_templ_handl(s_index):
 
 def get_name(meta, template):
     name = template
-    for key, value in meta.items():
-        tag = '{' + key
-        if tag not in name:
-            continue
-        
-        
-        if key == 'index':
-            value = series_index_templ_handl(value)
-        
-        name = unwrap_tag(name, tag, value)
     
-    if '*' in name:
-        name = unwrap_secondary_tags(name, meta)
+    while '{' in name:
+        for key, value in meta.items():
+            tag = '{' + key
+            if tag not in name:
+                continue
+            
+            
+            if key == 'index':
+                value = series_index_templ_handl(value)
+            
+            name = unwrap_tag(name, tag, value)
+        
+        if '*' in name:
+            name = unwrap_secondary_tags(name, meta)
     
     if debug:
         print("Before check forbidden chars")

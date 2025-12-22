@@ -24,7 +24,7 @@ def rename(book):
     
     new_book = book.parent / f'{name}.epub'
     
-    if book.name != new_book:
+    if book != new_book and not new_book.exists():
         new_book_path = book.rename(new_book)
     else:
         new_book_path = book

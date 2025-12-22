@@ -114,7 +114,7 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 ## Flags
 ### Flags for fast editing
 This flags needs for fast editing (without entering in programm)
-- `-r`, `--rename` - do the same as the command `rename`
+- `-r`, `--rename` or `-r` `your_name_template` - do the same as the command `rename`
 - `-s`, `--sort` - do the same as the command `sort`
 - `-m`, `--merge` - do the same as the command `merge`
 - `-j`, `--just` - do the same as the command `just`
@@ -133,12 +133,18 @@ This flags needs for fast editing (without entering in programm)
 
 ### Other
 - `--no-subdirs` - do **not** include books from subdirectories
+- `--debug` - print debug information
+- `--version` - print version
 - `--script` `path/to/your/script`
 
 Your script must be executable and take one command-line argument.
 This argument is a path to a temp directory in which will be extracted your book.
 You can do with files whatever you want, after that they wiil be ziped in your book.
 There's some examples in scripts.
+
+## Config
+For information about config open file config_example.toml.
+The programm will not create config file on default. You will need to do it yourself
 
 ## Tasks
 - [x] Metadata editor

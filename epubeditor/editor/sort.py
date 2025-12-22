@@ -28,7 +28,6 @@ if config:
 
 
 def sort(book, main_path):
-    main_path = Path('/data/data/com.termux/files/home/testBooks')
     path_parts = get_name(book, sort_template)
     new_book_path = main_path / ('/'.join(path_parts) + '.epub')
     

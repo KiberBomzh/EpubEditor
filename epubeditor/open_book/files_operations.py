@@ -233,9 +233,10 @@ def get_without_forbidden_chars(text):
     if config:
         if 'replacement_for_forbidden_chars' in config:
             replacement_for_forbidden_chars = config['replacement_for_forbidden_chars']
-
-    if replacement_for_forbidden_chars in forbiddenChars:
-        replacement_for_forbidden_chars = '_'
+    
+    for char in replacement_for_forbidden_chars:
+        if char in forbiddenChars:
+            replacement_for_forbidden_chars = replacement_for_forbidden_chars.replace(char, '_')
     
     for char in text:
         if char in forbiddenChars:

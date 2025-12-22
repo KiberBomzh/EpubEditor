@@ -1,6 +1,13 @@
+# This option needs for sort and rename
+# If there's a forbidden char in book's name
+# replacement on default will be '_'
+# ['<', '>', ':', '"', '/', '|', '?', '*']
+# here is forbidden chars, all of them will be replaced
+# if for 'replacement_for_forbidden_chars' you choose one of them
+# it will be replaced to '_'
 replacement_for_forbidden_chars = ""
 
-# Options for configuring open/script
+# Configuration for configuring open/script
 [scripts]
 # This opt will add your script to scripts list in open/script
 # You will can use your own scripts
@@ -11,10 +18,12 @@ replacement_for_forbidden_chars = ""
 # epubeditor my_book.epub --script my_script.sh
 path = "~/my_scripts" # Path to your scripts
 
+# Configuration for script 'split_by_titles'
 split_by_titles = [
     { clean_body_attributes = false } # default true
 ]
 
+# Configuration for script 'toc_from_titles'
 toc_from_titles = [
     { include_subtitles = true } # default false
     { all_h = true }, # default false
@@ -22,18 +31,95 @@ toc_from_titles = [
 ]
 
 
+# Configuration for 'open'
 [open]
-autosave = false
+# save book automatic (after 'exit' or '..')
+autosave = false # default false
 
 
+# Configuration for 'sort' and 'rename'
 [sort]
-main_path = "~/folder/another/folder/my_book"
-search_empty_folders = false
+# Main path for sort, on default it will need to input every time
+main_path = "~/folder/another/folder/my_books"
 
-rename_template = "{languages(|)/ }{authors&/ - }{series/ <index*(|)/, >}{title}"
-series_index_template = "3|+|2"
+# Search and delete empty folders after sort
+# Not very fast opt, so if you don't want to wait print here false
+search_empty_folders = false # default true
+
+# Templates for rename, sort and one for series index format
+
+# There's seven variables you can use
+
+# title
+# authors
+# series
+# index
+# languages
+# sort_title
+# sort_authors
+
+# every variable needs to be in braces '{ }'
+
+# for next vars authors, languages and sort_authors
+# you can use divider such as '&' or 'and'
+# divider just inputs after variable's name for example 'authors&'
+# if you want to use only first var's value use '1' as divider
+# so if you want to use only first author just print 'authors1'
+
+# as well you can put your variable in braces or in something other with char '|'
+# you can use only one char on the left side and only one on the right side
+# example: '(|)' or 'q|p' or something else
+
+# also you can bind some text to your var, all text after '/' and before '}' will be binded to your var
+# binded text will be in name if only var is in name, so for book without series if you bind to series ' - '
+# your text won't be in the name
+# Binded text always must to be in the end of a variable
+
+# and you can bind other variables, put it in '< >' and write '*' after variable's name
+# example: {series/ <series_index*>}
+# As well you can use in binded vars '|' for braces, or bind to them some text
+# you cannot bind an variable to other binded variable, but you can bind as much variables as you want to ordinary variable
+
+# next template for book with such meta: 
+# Title: Some title
+# Author: Some Author
+# Series: Some series
+# Index: 1.5
+# Languages: en, ua
+# name will be "(en and ua) Some Author - Some series (1.5), Some title"
+rename_template = "{languagesand(|)/ }{authors&/ - }{series/ <index*(|)/, >}{title}"
+
+# This is an array
+# Every array's element is folder
+# if there's not such name in book (for example 'series')
+# element will be skiped
+# last element is book's name
+
+# for next template with meta from above path will be
+# Main_path/Some Author/Some series/1.5 - Some title.epub
+
+# if a book will be without series path will be:
+# Main_path/Some Author/Some title.epub
 sort_template = [
     "{authors1}",
     "{series}",
     "{index/ - }{title}"
 ]
+
+# First num is how many nums you want before dot
+# Example: this is your series index '1.5'
+# You write 4
+# Then index will be 0001.5
+# or if it was 10.5 it will be 0010.5
+# After first num is '.' . This is divider
+# If you choose for it ',' index will be 1,5
+# Second num is how many nums you want after dot
+# if 1 for index '1.5', it will be '1.5'
+# but for index '1' (without num aster dot), it will be 1.0
+# if choose 2 the same num will be 1.00, or 1.05 if it was '1.5'
+# if you don't want to add something after dot and you want just first num
+# use 0 for second num
+# with 0 index '1.0' will be '1', and index '1.5' will be '1.5'
+# and '|' is just divider for template
+# so with template "3|.|2" index '1.0' will be '001.00' and index '10.5' will be '010.05'
+series_index_template = "3|.|2"
