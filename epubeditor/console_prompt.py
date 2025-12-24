@@ -52,6 +52,7 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
     
     if not books:
         from epubeditor import books
+    
     cursor = '>>> '
     first_append_in_args = True
     try:
@@ -101,26 +102,29 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
             if path != 'epubeditor':
                 exit_or_back = '..'
             
-            command = command.lower()
-            if command == 'help':
-                console.print(help_message)
-            elif path != 'epubeditor' and command == 'exit':
-                return command
-            elif command == exit_or_back:
-                break
-            elif args:
-                resp = commandHandler(command, args)
-                if resp == 'exit':
-                    return resp
-                elif isinstance(resp, list):
-                    books = resp
-            else:
-                resp = commandHandler(command)
-                if resp == 'exit':
-                    return resp
-                elif isinstance(resp, list):
-                    books = resp
-            
+            try:
+                command = command.lower()
+                if command == 'help':
+                    console.print(help_message)
+                elif path != 'epubeditor' and command == 'exit':
+                    return command
+                elif command == exit_or_back:
+                    break
+                elif args:
+                    resp = commandHandler(command, args)
+                    if resp == 'exit':
+                        return resp
+                    elif isinstance(resp, list):
+                        books = resp
+                else:
+                    resp = commandHandler(command)
+                    if resp == 'exit':
+                        return resp
+                    elif isinstance(resp, list):
+                        books = resp
+            except Exception as err:
+                console.print("[red]Error:[/]")
+                print(err)
                 
     except (KeyboardInterrupt, EOFError):
         sys.exit()

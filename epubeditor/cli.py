@@ -2,9 +2,6 @@ import argparse
 from pathlib import Path
 from importlib.metadata import version
 
-from rich.traceback import install
-install(show_locals=True)
-
 parser = argparse.ArgumentParser(description="Epub editor - cli tool for editing epub books.")
 parser.add_argument('input', nargs = '+', type = str, help = "Input file (book) or directory with books")
 parser.add_argument('-P', '--proceed', action = 'store_true', help = "Continue editing after start with argument")
@@ -34,6 +31,10 @@ parser.add_argument('--debug', action = 'store_true', help = "Print debug inform
 parser.add_argument('--version', action = 'version', version = f'%(prog)s {version('epubeditor')}', help = "Show version")
 
 args = parser.parse_args()
+
+if args.debug:
+    from rich.traceback import install
+    install(show_locals=True)
 
 
 def are_all_flags_false(parser = parser, args = args, exclude=None):
