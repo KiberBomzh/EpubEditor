@@ -25,7 +25,10 @@ def merge(temp_path, main_file, how_many_files, exclude = []):
             is_main_file_found = True
     
     for f in exclude:
-        files.remove(f)
+        try:
+            files.remove(f)
+        except ValueError:
+            continue
 
     main_tree = html.parse(main_file)
     main_root = main_tree.getroot()

@@ -3,6 +3,7 @@ from lxml import html
 from epubeditor.open_book.merge import merge
 from epubeditor.open_book.split import main as split
 from epubeditor.open_book.functions import get_files_in_spine_order
+from epubeditor.prompt_input import input
 
 from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doubled_xml_declarations
 from epubeditor import config
@@ -77,26 +78,55 @@ def is_it_nav(file):
     else:
         return False
 
-def main(temp_path):
+def main(temp_path, console):
     files = get_files_in_spine_order(temp_path)
-    main_file = files.pop(0)
-    if is_it_nav(main_file):
-        main_file = files.pop(0)
     
     
+    console.print("[green]Which files you want to exclude?[/]")
     exclude = []
+    counter = 0
     for file in files:
         if is_it_nav(file):
             exclude.append(file)
             files.remove(file)
-            break
-
+            continue
+        
+        counter += 1
+        console.print(f"[dim white]{counter}[/] [cyan]{file.name}[/]")
+    
+    while True:
+        exclude_files_str = input("Exclude (Enter for skip)")
+        if exclude_files_str.strip():
+            try:
+                nums_str = exclude_files_str.split()
+                for num_str in nums_str:
+                    num = int(num_str)
+                    if num <= 0 or num > counter:
+                        raise ValueError(f"Not valid number: {num}")
+                    
+                    index = num - 1
+                    exclude.append(files[index])
+            except Exception as err:
+                console.print(f'[red]{err} try again.[/]')
+                nav_exclude = exclude[0]
+                exclude.clear()
+                exclude.append(nav_exclude)
+                continue
+        break
+    
+    for file in exclude:
+        if file in files:
+            files.remove(file)
+    
+    main_file = files.pop(0)
     how_many = len(files)
-    merge(temp_path, main_file, how_many, exclude = exclude)
     
-    put_split_tags(main_file)
-    
-    main_path_str = str(main_file.relative_to(temp_path))
-    split(temp_path, main_path_str)
-    
-    clean_doubled_xml_declarations(temp_path)
+    with console.status(f'[green]split_by_titles[/]'):
+        merge(temp_path, main_file, how_many, exclude = exclude)
+        
+        put_split_tags(main_file)
+        
+        main_path_str = str(main_file.relative_to(temp_path))
+        split(temp_path, main_path_str)
+        
+        clean_doubled_xml_declarations(temp_path)

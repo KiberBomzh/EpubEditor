@@ -39,15 +39,17 @@ def main(temp_path, arg):
     
     console = Console()
     
-    with console.status(f'[green]{action}[/]'):
-        match action:
-            case 'toc_from_titles':
+    match action:
+        case 'toc_from_titles':
+            with console.status(f'[green]{action}[/]'):
                 toc_from_titles(temp_path)
-            case 'split_by_titles':
-                split_by_titles(temp_path)
-            case 'clean_doubled_xml_declarations':
+        case 'split_by_titles':
+            split_by_titles(temp_path, console)
+        case 'clean_doubled_xml_declarations':
+            with console.status(f'[green]{action}[/]'):
                 clean_doubled_xml_declarations(temp_path)
-            case _:
+        case _:
+            with console.status(f'[green]{action}[/]'):
                 subprocess.run(
                     f'{script_path}/{action} "{temp_path}"', 
                     shell = True, 
