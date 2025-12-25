@@ -1,7 +1,7 @@
 # This option needs for sort and rename
 # If there's a forbidden char in book's name
 # replacement on default will be '_'
-# ['<', '>', ':', '"', '/', '|', '?', '*']
+# ['<', '>', ':', '"', '/', '|', '?', '*', '`']
 # here is forbidden chars, all of them will be replaced
 # if for 'replacement_for_forbidden_chars' you choose one of them
 # it will be replaced to '_'

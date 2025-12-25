@@ -9,8 +9,8 @@ parser.add_argument('-P', '--proceed', action = 'store_true', help = "Continue e
 parser.add_argument('-s', '--sort', action = 'store_true', help = "Sort files in folder structure, author/series/book")
 parser.add_argument('-m', '--merge', action = 'store_true', help = "Merge books")
 parser.add_argument('-j', '--just', action = 'store_true', help = "Just print metadata")
+parser.add_argument('-p', '--pretty', action = 'store_true', help = "Fix files, make them readable (Works through xmllint)")
 
-parser.add_argument('-p', '--pretty', choices = ['native', 'xmllint'], default = '', help = "Fix files, make them readable (Works through xmllint)")
 parser.add_argument('-R', '--repack', choices = ['zip', '7z'], default = '', type = str, help = "Repack epub file, can help with problem 'bad zip'")
 parser.add_argument('-r', '--rename', type = str, default = '', nargs = '?', help = "Rename file(s)")
 parser.add_argument('-c', '--cover', type = str, help = "Change cover")

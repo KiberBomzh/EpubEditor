@@ -226,7 +226,7 @@ def rename_in_nav(root, relative, old_name, new_name):
 
 def get_without_forbidden_chars(text):
     from epubeditor import config
-    forbiddenChars = {'<', '>', ':', '"', '/', '|', '?', '*'}
+    forbiddenChars = {'<', '>', ':', '"', '/', '|', '?', '*', '`'}
 
 
     replacement_for_forbidden_chars = '_'

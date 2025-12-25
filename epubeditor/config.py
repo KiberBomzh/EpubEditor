@@ -5,7 +5,7 @@ from os import getenv
 from epubeditor.cli import args
 
 
-HOME = getenv('HOME') + '/.config'
+HOME = getenv('HOME', str(Path.home())) + '/.config'
 config_home = getenv('XDG_CONFIG_HOME', HOME)
 
 config_path = 'epubeditor/config.toml'

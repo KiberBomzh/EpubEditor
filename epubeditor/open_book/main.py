@@ -2,6 +2,8 @@ import tempfile
 import zipfile
 import subprocess
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
 from prompt_toolkit.completion import PathCompleter
 
 from epubeditor.open_book import search
@@ -11,7 +13,6 @@ from epubeditor.open_book.completer import OpenCompleter
 from epubeditor.open_book.functions import ls, tree
 from epubeditor.metadata_editor import main as metadata_editor
 from epubeditor.toc.main import main as tocEditor
-from epubeditor.editor.html_formatter import main as html_formatter
 from epubeditor.open_book.split import main as split
 from epubeditor.open_book.merge import main as merge
 from epubeditor.open_book.scripts import main as scripts
@@ -31,29 +32,24 @@ if config:
 
 subprocess_errors = []
 
+def start_xmllint(file):
+    result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
+    return result
+
 def toPretty(temp_path, args):
     book = args[0]
-    formatter = args[1]
     file_formats = ['.xhtml', '.html', '.htm', '.xml', '.opf', '.ncx']
-    html_formats = file_formats[:3]
-    for file in temp_path.rglob('*'):
-        if file.is_file() and file.suffix.lower() in file_formats:
-            if formatter == 'xmllint':
-                result = subprocess.run(["xmllint", file, "--format", "-o", file], capture_output = True, text = True)
-            
-                if result.stderr:
-                    subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
-                
-                print(file.relative_to(temp_path))
-            
-            elif formatter == 'native':
-                if file.suffix.lower() in html_formats:
-                    html_formatter(file, line_indent = True, xml_declaration = True)
-                    print(file.relative_to(temp_path))
-            
-            else:
-                print('Unknown formatter, try again.')
-                return
+    with ThreadPoolExecutor(max_workers = 10) as executor:
+        works = []
+        for file in temp_path.rglob('*'):
+            if file.is_file() and file.suffix.lower() in file_formats:
+                works.append(executor.submit(start_xmllint, file))
+        for work in works:
+            result = work.result()
+            if result.stderr:
+                subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
+    print(f"{book.parent.name}/{book.name}")
+
 
 # Переменная с ошибками открытия zip
 zip_errors = []
@@ -225,10 +221,7 @@ def optionHandl(action, args):
         
         case 'pretty':
             subprocess_errors.clear()
-            if arg:
-                toPretty(temp_path, [book, arg])
-            else:
-                print("Option needs second argument.")
+            toPretty(temp_path, [book, arg])
             
             if subprocess_errors:
                 print('Subprocess Error:')
@@ -342,7 +335,7 @@ def main(book):
                     'nvim': book_completer,
                     'bat': book_completer,
                     'chafa': book_completer,
-                    'pretty': {'native', 'xmllint'},
+                    'pretty': None,
                     'tree': book_dest_completer,
                     'ls': book_dest_completer,
                     'just_ls': None,

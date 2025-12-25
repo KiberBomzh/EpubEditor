@@ -2,8 +2,10 @@ import zipfile
 import sys
 from pathlib import Path
 import subprocess
-from lxml import etree
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
+
+from lxml import etree
 from rich.progress import track
 from rich.prompt import Confirm, Prompt
 from rich.console import Console
@@ -34,32 +36,35 @@ def justReadMetadata(books):
         if books[-1] != book:
             print('\n', end='')
 
+def repack_book(book, with_what):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        if with_what == 'zip':
+            result = subprocess.run(f'cd "{temp_path}" && unzip -q "{book}" ; zip -q "{book}" ./*', shell = True, capture_output = True, text = True)
+        elif with_what == '7z':
+            result = subprocess.run(f'cd "{temp_path}" && 7z x "{book}" -y -bso0 -bsp0 ; 7z a "{book}" ./* -y -bso0 -bsp0', shell = True, capture_output = True, text = True)
+    
+    return result, f'Reapcked: {book.parent.name}/{book.name}'
+
 def repack(books, with_what = 'zip'):
     if len(books) > 1:
-        for book in track(books, description = 'Repack'):
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_path = Path(temp_dir)
-                if with_what == 'zip':
-                    result = subprocess.run(f'cd "{temp_path}" && unzip -q "{book}" ; zip -q "{book}" ./*', shell = True, capture_output = True, text = True)
-                elif with_what == '7z':
-                    result = subprocess.run(f'cd "{temp_path}" && 7z x "{book}" -y -bso0 -bsp0 ; 7z a "{book}" ./* -y -bso0 -bsp0', shell = True, capture_output = True, text = True)
+        with ThreadPoolExecutor(max_workers = 5) as executor:
+            works = []
+            for book in books:
+                works.append(executor.submit(repack_book, book, with_what))
             
-            if result.stderr:
-                subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
-            else:
-                print(f'Reapcked: {book}')
+            for work in track(works, description = 'Repack'):
+                result, current_book = work.result()
+                if result.stderr:
+                    subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
+                else:
+                    print(current_book)
     elif len(books) == 1:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            if with_what == 'zip':
-                result = subprocess.run(f'cd "{temp_path}" && unzip -q "{books[0]}" ; zip -q "{books[0]}" ./*', shell = True, capture_output = True, text = True)
-            elif with_what == '7z':
-                result = subprocess.run(f'cd "{temp_path}" && 7z x "{books[0]}" -y -bso0 -bsp0 ; 7z a "{books[0]}" ./* -y -bso0 -bsp0', shell = True, capture_output = True, text = True)
-        
+        result, book_msg = repack_book(books[0], with_what)
         if result.stderr:
             subprocess_errors.append(f"--------------------\n{books[0]}\n{result.stderr}")
         else:
-            print(f'Reapcked: {books[0]}')
+            console.print(book_msg)
 
 def if_element(elements, error_msg, raise_error = True):
     if elements:
@@ -293,28 +298,30 @@ def chooseOption(action, args):
                 args[0] = sort.main(books)
                 return args[0]
             case "pretty":
-                if sec_arg:
-                    zip_errors.clear()
-                    subprocess_errors.clear()
-                    if len(books) > 1:
-                        for book in track(books, description = "Pretty"):
-                            print('--------------------')
-                            console.print(f"[dim]{book.parent.name}/[/][blue]{book.name}[/]")
-                            open_book.openBook(book, open_book.toPretty, [book, sec_arg])
-                    else:
-                        open_book.openBook(books[0], open_book.toPretty, [books[0], sec_arg])
-                    
-                    if subprocess_errors:
-                        print('Subprocess Error:')
-                        for error in subprocess_errors:
-                            print(error)
-                    
-                    if zip_errors:
-                        print('Bad zip file!')
-                        for er in zip_errors:
-                            print(er)
+                zip_errors.clear()
+                subprocess_errors.clear()
+                if len(books) > 1:
+                    with ThreadPoolExecutor(max_workers = 3) as executor:
+                        works = []
+                        for book in books:
+                            works.append(executor.submit(open_book.openBook, book, open_book.toPretty, [book]))
+                        
+                        for work in track(works, description = "Pretty"):
+                            work.result()
+                        
                 else:
-                    print('Option needs second argument, try again.')
+                    with console.status("[green]Pretty...[/]"):
+                        open_book.openBook(books[0], open_book.toPretty, [books[0]])
+                
+                if subprocess_errors:
+                    print('Subprocess Error:')
+                    for error in subprocess_errors:
+                        print(error)
+                
+                if zip_errors:
+                    print('Bad zip file!')
+                    for er in zip_errors:
+                        print(er)
             case "merge":
                 if len(books) > 1:
                     merge(books)
@@ -359,8 +366,7 @@ def main(books: list):
     if len(books) > 1:
         compl_books = {}
         for book in books:
-            book_str = book.parent.name + '/' + book.stem
-            compl_books[book_str] = None
+            compl_books[book.stem] = None
     else:
         compl_books = None
     
@@ -371,7 +377,7 @@ def main(books: list):
         'cover': compl_books,
         'rename': None,
         'sort': None,
-        'pretty': {'native', 'xmllint'},
+        'pretty': None,
         'merge': None,
         'just': None,
         'list': None,

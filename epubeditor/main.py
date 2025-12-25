@@ -39,7 +39,7 @@ def argHandler():
         chooseOption('just', [books])
     
     if args.pretty:
-        chooseOption('pretty', [books, args.pretty])
+        chooseOption('pretty', [books])
     
     if args.cover:
         for book in books:

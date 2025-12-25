@@ -121,7 +121,7 @@ def main(temp_path, console):
     main_file = files.pop(0)
     how_many = len(files)
     
-    with console.status(f'[green]split_by_titles[/]'):
+    with console.status('[green]split_by_titles[/]'):
         merge(temp_path, main_file, how_many, exclude = exclude)
         
         put_split_tags(main_file)
