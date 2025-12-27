@@ -28,7 +28,7 @@ class OpenCompleter(Completer):
                 yield completion
             return
         
-        elif first_word in ['pretty', 'script']:
+        elif first_word in ['script']:
             if text.endswith(' '):
                 if len(words) >= 2:
                     return

@@ -213,8 +213,7 @@ console = Console()
 def get_choosen_book(books, sec_arg):
     choosen_book = None
     for book in books:
-        book_str = book.parent.name + '/' + book.stem
-        if book_str == sec_arg:
+        if book.stem == sec_arg:
             choosen_book = book
             break
     
