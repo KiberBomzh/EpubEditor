@@ -6,20 +6,7 @@ from epubeditor.open_book.functions import get_files_in_spine_order
 from epubeditor.prompt_input import input
 
 from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doubled_xml_declarations
-from epubeditor import config
-
-
-clean_body_attributes = True
-
-if config:
-    if 'scripts' in config:
-        if 'split_by_titles' in config['scripts']:
-            flags = {}
-            for flag in config['scripts']['split_by_titles']:
-                flags.update(flag)
-            
-            if 'clean_body_attributes' in flags:
-                clean_body_attributes = flags['clean_body_attributes']
+from epubeditor.config import clean_body_attributes
 
 
 def put_split_tags(file):

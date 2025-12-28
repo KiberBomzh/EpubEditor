@@ -3,28 +3,7 @@ from epubeditor.open_book.functions import get_files_in_spine_order
 from epubeditor.open_book.files_operations import get_rel
 from epubeditor.namespaces import namespaces as ns
 
-from epubeditor import config
-
-
-include_subtitles = False
-all_h = False
-only_h = False
-
-if config:
-    if 'scripts' in config:
-        if 'toc_from_titles' in config['scripts']:
-            flags = {}
-            for flag in config['scripts']['toc_from_titles']:
-                flags.update(flag)
-            
-            if 'include_subtitles' in flags:
-                include_subtitles = flags['include_subtitles']
-            
-            if 'all_h' in flags:
-                all_h = flags['all_h']
-
-            if 'only_h' in flags:
-                only_h = flags['only_h']
+from epubeditor.config import include_subtitles, all_h, only_h
 
 
 def get_toc(temp_path):

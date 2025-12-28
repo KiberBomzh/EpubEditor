@@ -8,22 +8,13 @@ from epubeditor.scripts.split_by_titles import main as split_by_titles
 from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doubled_xml_declarations
 
 from epubeditor.scripts import __all__ as scripts_list
-from epubeditor import config
+from epubeditor.config import script_path
 
 
-if config:
-    if 'scripts' in config:
-        if 'path' in config['scripts']:
-            script_path = config['scripts']['path']
-            if '~/' in script_path:
-                script_path = os.path.expanduser(script_path)
-            
-            for file in Path(script_path).glob('*'):
-                if os.access(file, os.X_OK):
-                    scripts_list.append(file.name)
-            
-        else:
-            script_path = ''
+if script_path:
+    for file in Path(script_path).glob('*'):
+        if os.access(file, os.X_OK):
+            scripts_list.append(file.name)
 
 
 def main(temp_path, arg):

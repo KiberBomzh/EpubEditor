@@ -4,6 +4,7 @@ from importlib.metadata import version
 
 parser = argparse.ArgumentParser(description="Epub editor - cli tool for editing epub books.")
 parser.add_argument('input', nargs = '+', type = str, help = "Input file (book) or directory with books")
+parser.add_argument('-V', '--version', action = 'version', version = f'%(prog)s {version('epubeditor')}', help = "Show version")
 parser.add_argument('-P', '--proceed', action = 'store_true', help = "Continue editing after start with argument")
 
 parser.add_argument('-s', '--sort', action = 'store_true', help = "Sort files in folder structure, author/series/book")
@@ -26,9 +27,8 @@ metadata_group.add_argument('--generate-sort', action = 'store_true', help = 'Ge
 parser.add_argument('--script', type = str)
 parser.add_argument('--no-subdirs', action = 'store_true', help = "Don't read books from subdirs")
 parser.add_argument('--ignore-config', action = 'store_true', help = "Ignore configuration file")
-
 parser.add_argument('--debug', action = 'store_true', help = "Print debug information")
-parser.add_argument('--version', action = 'version', version = f'%(prog)s {version('epubeditor')}', help = "Show version")
+
 
 args = parser.parse_args()
 

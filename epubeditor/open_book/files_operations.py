@@ -225,14 +225,9 @@ def rename_in_nav(root, relative, old_name, new_name):
         a.attrib['href'] = href.replace(old_name, new_name)
 
 def get_without_forbidden_chars(text):
-    from epubeditor import config
+    from epubeditor.config import replacement_for_forbidden_chars
     forbiddenChars = {'<', '>', ':', '"', '/', '|', '?', '*', '`'}
-
-
-    replacement_for_forbidden_chars = '_'
-    if config:
-        if 'replacement_for_forbidden_chars' in config:
-            replacement_for_forbidden_chars = config['replacement_for_forbidden_chars']
+    
     
     for char in replacement_for_forbidden_chars:
         if char in forbiddenChars:

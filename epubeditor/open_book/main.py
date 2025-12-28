@@ -19,15 +19,7 @@ from epubeditor.open_book.scripts import main as scripts
 from epubeditor.open_book.scripts import scripts_list
 
 from epubeditor.console_prompt import main as prompt
-from epubeditor import config
-
-
-autosave = False
-
-if config:
-    if 'config' in config:
-        if 'autosave' in config['open']:
-            autosave = config['open']['autosave']
+from epubeditor.config import autosave
 
 
 subprocess_errors = []
@@ -269,7 +261,7 @@ def main(book):
         "\t-Save as                     [green]'save_as'[/] [cyan]'path/to/book_as.epub'[/]\n" +
         "\t-Extract file                [green]'extract'[/] [cyan]'path/to/file'[/]\n" +
         "\t-Merge files                 [green]'merge'[/] [cyan]'path/to/main_file'[/] [dark_orange]how many files merge (number)[/]\n" +
-        "\t-Split files                 [green]'split'[/] [cyan]'path/to/file'[/] : [cyan]'path/to/file'[/], you'll need to put tag [green]<split_file_here/>[/] in file before\n" +
+        "\t-Split files                 [green]'split'[/] [cyan]'path/to/file'[/] : [cyan]'path/to/file'[/]\n" +
         "\t-Metadata editor             [green]'meta'[/]\n" +
         "\t-Table of contents editor    [green]'toc'[/]\n" +
         "\t-Search in files             [green]'search'[/] [magenta]'query'[/]\n" +

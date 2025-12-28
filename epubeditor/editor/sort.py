@@ -5,26 +5,7 @@ from prompt_toolkit.completion import PathCompleter
 
 from epubeditor.editor.template_handler import main as get_name
 from epubeditor.prompt_input import input
-from epubeditor import config
-
-main_path = None
-search_empty_folders = True
-sort_template = [
-    '{authors1}',
-    '{series}',
-    '{index/ - }{title}'
-]
-
-if config:
-    if 'sort' in config:
-        if 'main_path' in config['sort']:
-            main_path = config['sort']['main_path']
-
-        if 'search_empty_folders' in config['sort']:
-            search_empty_folders = config['sort']['search_empty_folders']
-        
-        if 'sort_template' in config['sort']:
-            sort_template = config['sort']['sort_template']
+from epubeditor.config import main_path, search_empty_folders, sort_template
 
 
 def sort(book, main_path):

@@ -2,15 +2,8 @@ from rich.progress import track
 
 from epubeditor.editor.template_handler import main as get_name
 from epubeditor.cli import args
-from epubeditor import config
+from epubeditor.config import name_template
 
-
-name_template = '{authors&/ - }{series/ <index*(|)/, >}{title}'
-
-if config:
-    if 'sort' in config:
-        if 'rename_template' in config['sort']:
-            name_template = config['sort']['rename_template']
 
 if args.rename:
     name_template = args.rename

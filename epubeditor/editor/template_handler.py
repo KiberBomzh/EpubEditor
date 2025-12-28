@@ -138,16 +138,11 @@ def series_index_templ_handl(s_index):
     if not s_index:
         return s_index
     
-    from epubeditor import config
     
-    template = ''
-    if config:
-        if 'sort' in config:
-            if 'series_index_template' in config['sort']:
-                template = config['sort']['series_index_template']
-    
+    from epubeditor.config import index_template as template
     if not template:
         return s_index
+    
     
     try:
         nums_in_start, divider, nums_in_end = template.split('|')

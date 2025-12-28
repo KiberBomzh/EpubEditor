@@ -117,7 +117,7 @@ def main(toc_tuple, opf, what_is_it, books = [], path = 'epubeditor/toc'):
     # Сортировка spine в соответствии с toc
     # И синхронизация с nav (если есть и то и то)
     console = Console()
-    with console.status('[green]Saving...[/]'):
+    with console.status('[green]Saving TOC...[/]'):
         order, src_in_toc_raw = change_order(toc_root)
         if order > 0:
             src_in_toc = sort_spine.raw_to_src(src_in_toc_raw, toc.parent, opf.parent)
