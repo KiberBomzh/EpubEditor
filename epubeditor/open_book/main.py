@@ -40,7 +40,7 @@ def toPretty(temp_path, args):
             result = work.result()
             if result.stderr:
                 subprocess_errors.append(f"--------------------\n{book}\n{file.relative_to(temp_path)}\n{result.stderr}")
-    print(f"{book.parent.name}/{book.name}")
+    # print(f"{book.parent.name}/{book.name}")
 
 
 # Переменная с ошибками открытия zip

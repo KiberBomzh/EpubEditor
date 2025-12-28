@@ -7,6 +7,9 @@
 # it will be replaced to '_'
 replacement_for_forbidden_chars = ""
 
+# Don't include books from subdirectories
+no_subdirs = true # default false
+
 # Configuration for configuring open/script
 [scripts]
 # This opt will add your script to scripts list in open/script
@@ -42,9 +45,9 @@ autosave = false # default false
 # Main path for sort, on default it will need to input every time
 main_path = "~/folder/another/folder/my_books"
 
-# Search and delete empty folders after sort
-# Not very fast opt, so if you don't want to wait print here false
-search_empty_folders = false # default true
+# Dont search and delete empty folders after sort
+# Not very fast opt, so if you don't want to wait print here true
+keep_empty_folders = true # default false
 
 # Templates for rename, sort and one for series index format
 

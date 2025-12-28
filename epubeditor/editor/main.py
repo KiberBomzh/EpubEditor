@@ -57,14 +57,14 @@ def repack(books, with_what = 'zip'):
                 result, current_book = work.result()
                 if result.stderr:
                     subprocess_errors.append(f"--------------------\n{book}\n{result.stderr}")
-                else:
-                    print(current_book)
+                # else:
+                #     print(current_book)
     elif len(books) == 1:
         result, book_msg = repack_book(books[0], with_what)
         if result.stderr:
             subprocess_errors.append(f"--------------------\n{books[0]}\n{result.stderr}")
-        else:
-            console.print(book_msg)
+        # else:
+        #     console.print(book_msg)
 
 def if_element(elements, error_msg, raise_error = True):
     if elements:
@@ -213,12 +213,12 @@ console = Console()
 def get_choosen_book(books, sec_arg):
     choosen_book = None
     for book in books:
-        if book.stem == sec_arg:
+        if book.stem.strip() == sec_arg.strip():
             choosen_book = book
             break
     
     if choosen_book is None:
-        print(f"There's no such book: {sec_arg}!")
+        print(f"There's no such book: '{sec_arg}'!")
         return None
     return choosen_book
 

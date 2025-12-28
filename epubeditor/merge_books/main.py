@@ -133,7 +133,7 @@ def main(books):
         books = get_order(books)
         new_book = get_new_book()
         new_meta, generate_sort = getMetaFromUser()
-    except EOFError:
+    except (EOFError, KeyboardInterrupt):
         print('')
         return
     

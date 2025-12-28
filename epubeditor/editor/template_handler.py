@@ -209,6 +209,8 @@ def get_name(meta, template):
 
 def main(book, template):
     meta = get_meta_from_book(book)
+    if debug:
+        print(template)
     
     if isinstance(template, str):
         template = [template]

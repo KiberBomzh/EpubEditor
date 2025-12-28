@@ -1,12 +1,8 @@
 from rich.progress import track
 
 from epubeditor.editor.template_handler import main as get_name
-from epubeditor.cli import args
 from epubeditor.config import name_template
 
-
-if args.rename:
-    name_template = args.rename
 
 def rename(book):
     name = get_name(book, name_template)

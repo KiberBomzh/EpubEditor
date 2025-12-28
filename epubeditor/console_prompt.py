@@ -5,8 +5,10 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.styles import Style
 from rich.console import Console
 
-console = Console()
+from epubeditor.cli import args
 
+debug = args.debug
+console = Console()
 session = PromptSession()
 
 # Стилизация
@@ -64,11 +66,15 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
                 completer=completer,
                 style=style
             ).strip()
+            if debug:
+                print("Command in beggining:", command)
             
-            # Очистка двух строк
-            print('\033[F\033[K', end='')
-            print('\033[F\033[K', end='')
-            console.print(f'[bold #008701]{cursor}[/]{command}')
+            
+            if not debug:
+                # Очистка двух строк
+                print('\033[F\033[K', end='')
+                print('\033[F\033[K', end='')
+                console.print(f'[bold #008701]{cursor}[/]{command}')
             
             if not first_append_in_args:
                 args.pop()
@@ -81,15 +87,21 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
                 args.append(command[index + 1:])
                 last_arg = args[-1]
                 l_words = last_arg.split()
-                new_last_arg = ''
+                new_words = []
                 for word in l_words:
+                    if debug:
+                        print("\nWord:")
+                        print(word)
+                    
                     if word[:2] == '~/':
                         word = os.path.expanduser(word)
                     
-                    if word != l_words[-1]:
-                        new_last_arg += word + ' '
-                    else:
-                        new_last_arg += word
+                    new_words.append(word)
+                
+                new_last_arg = ' '.join(new_words)
+                if debug:
+                    print("\nnew_last_arg")
+                    print(new_last_arg)
                 
                 if new_last_arg:
                     args[-1] = new_last_arg
@@ -97,10 +109,19 @@ def main(commandHandler, compl, help_message: str, path: str = 'epubeditor', arg
                 first_append_in_args = False
                 
                 command = command[:index]
+                if debug:
+                    print("\nNew command")
+                    print(command)
             
             exit_or_back = 'exit'
             if path != 'epubeditor':
                 exit_or_back = '..'
+            
+            if debug:
+                print("\nArgs:")
+                for arg in args:
+                    print(arg)
+                print("Command in the end:", command)
             
             try:
                 command = command.lower()

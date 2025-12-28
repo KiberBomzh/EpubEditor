@@ -5,11 +5,14 @@ from prompt_toolkit.completion import PathCompleter
 
 from epubeditor.editor.template_handler import main as get_name
 from epubeditor.prompt_input import input
-from epubeditor.config import main_path, search_empty_folders, sort_template
+from epubeditor.config import main_path, keep_empty_folders, sort_template
 
 
 def sort(book, main_path):
     path_parts = get_name(book, sort_template)
+    if not isinstance(path_parts, list):
+        path_parts = [path_parts]
+    
     new_book_path = main_path / ('/'.join(path_parts) + '.epub')
     
     
@@ -77,7 +80,7 @@ def main(books):
     else:
         new_books.append(sort(books[0], main_path))
     
-    if search_empty_folders:
+    if not keep_empty_folders:
         rm_empty_folders(main_path)
     
     return new_books
