@@ -10,6 +10,9 @@ replacement_for_forbidden_chars = ""
 # Don't include books from subdirectories
 no_subdirs = true # default false
 
+# Path for start without --input
+default_path = "~/Books/some/folder"
+
 # Configuration for configuring open/script
 [scripts]
 # This opt will add your script to scripts list in open/script

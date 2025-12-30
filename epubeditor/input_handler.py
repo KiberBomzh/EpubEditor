@@ -1,14 +1,21 @@
 from pathlib import Path
 
 from epubeditor.cli import args
-from epubeditor.config import no_subdirs
+from epubeditor.config import no_subdirs, default_path
 
 
-def inputHandler(Inputs = args.input):
-    books = []
+def inputHandler():
+    if args.input:
+        Inputs = args.input
+    elif default_path is not None:
+        Inputs = [default_path]
+    else:
+        Inputs = ['.']
     
-    if len(Inputs) == 0:
-        Inputs.append('.')
+    if args.debug:
+        print(Inputs)
+    
+    books = []
     for Input in Inputs:
         input_path = Path(Input).resolve()
         
