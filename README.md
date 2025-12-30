@@ -29,13 +29,20 @@ uv tool install git+https://github.com/KiberBomzh/EpubEditor
 - 7z
 
 ## How to use
-Open book or books or directory with books (include all subdirectory)
+Just print:
 ```
-epubeditor <path>
+epubeditor
 ```
-You, as well, can choose several books, or book and directory
+By default the programm search books in current dirrctory and subdirectories
+If you want to open the programm with one particular book use flag `-i`
+
+Open a book or books or directory with books (include all subdirectory)
 ```
-epubeditor <book1> <dir> <book2>
+epubeditor -i <path>
+```
+You, as well, can choose several books, or a book and a directory
+```
+epubeditor -i <book1> -i <dir> -i <book2>
 ```
 When the programm is running you can input commands. 
 
@@ -48,7 +55,7 @@ To go back write `..`
 ### Simple commands
 - `rename` - rename input (author1 & author2 - series 01.0, title)
 - `sort` - sort input in directory, needs main directory. Example main/author/series/01.0 - title
-- `pretty` `[xmllint/native]` - make xml and html files in a book looks pretty, `native` option is unstable and only for html(xhtml, htm)
+- `pretty` - make xml and html files in a book looks pretty
 - `just` - just print metadata for book(s)
 - `list` - show all current books
 - `repack` - repack all books with zip console utility, if you want to repack them with 7z use during start flag -R 7z
@@ -111,31 +118,46 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 - `ls` - print all files in a book
 - `just_ls` - print all files without formatting
 
-## Flags
-### Flags for fast editing
-This flags needs for fast editing (without entering in programm)
-- `-r`, `--rename` or `-r` `your_name_template` - do the same as the command `rename`
-- `-s`, `--sort` - do the same as the command `sort`
-- `-m`, `--merge` - do the same as the command `merge`
-- `-j`, `--just` - do the same as the command `just`
-- `-p`, `--pretty` `[xmllint/native]` - do the same as the command `pretty`
-- `-R`, `--repack` `[zip/7z]` - do the same as the command `repack`
-- `-c`, `--cover` `path/to/new/cover.jpg` - set new cover for a book (only if there's already cover)
+## Flags and commands
+### Commands
+- `sort` - do the same as the command `sort`
+    - `p`, `--main-path` - choose main path for sort
+    - `-t`, `--template` - template for sort, you can use this many time: `-t "{authors}" -t "{series}" -t "{index/_}{title}"`
+    - `--keep-empty-folders` - do not remove empty folders
 
-### Flags for editing metadata
-- `--title` "Title"
-- `--author` "First Author Name" "Second Author Name"
-- `--series` "Series"
-- `--series-index` "1.5"
-- `--language` "lan-one" "lan-two"
-- `--generate-sort` - generate sort names for a title and an author(s)
-- `--generate-sort` - generate sort names for a title and an author(s)
+- `rename` - do the same as the command `rename`
+    - `-t`, `--template` - template for renaming
+
+- `repack` - do the same as the command `repack`
+    - `-a`, `--archiver` [zip/7z] - archiver, by default zip
+
+- `script` `path/to/your/script or script_name`
+    - `--clean-body-attributes` - flag for `split_by_titles`
+    - `--include-subtitles` - flag for `toc_from_titles`
+    - `--only-h` - flag for `toc_from_titles`
+    - `--all-h` - flag for `toc_from_titles`
+
+- `meta`
+    
+    *needs at least one argument*
+    - `--title` "Title"
+    - `--author` "First Author Name" "Second Author Name"
+    - `--series` "Series"
+    - `--series-index` "1.5"
+    - `--language` "lan-one" "lan-two"
+    - `--generate-sort` - generate sort names for a title and an author(s)
+    - `-j`, `--just` - do the same as the command `just`
+
+- `cover` `path/to/new/cover.jpg` - set new cover for a book (only if there's already cover)
+- `pretty` - do the same as the command `pretty`
+- `merge` - do the same as the command `merge`
 
 ### Other
+- `-h`, `--help` - print help
+- `-V`, `--version` - print version
 - `--no-subdirs` - do **not** include books from subdirectories
+- `--ignore-config` - ignore config file
 - `--debug` - print debug information
-- `--version` - print version
-- `--script` `path/to/your/script`
 
 Your script must be executable and take one command-line argument.
 This argument is a path to a temp directory in which will be extracted your book.
