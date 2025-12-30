@@ -57,7 +57,7 @@ To go back write `..`
 - `sort` - sort input in directory, needs main directory. Example main/author/series/01.0 - title
 - `pretty` - make xml and html files in a book looks pretty
 - `just` - just print metadata for book(s)
-- `list` - show all current books
+- `ls` - show all current books
 - `repack` - repack all books with zip console utility
 - `merge` - merge all books (needs at least two books)
 

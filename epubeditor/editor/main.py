@@ -23,8 +23,12 @@ from epubeditor.namespaces import namespaces as ns
 
 from epubeditor.console_prompt import main as prompt
 
+
+console = Console()
+
 def justReadMetadata(books):
     for book in books:
+        console.print(f'[dim white]{book.parent.name}/[/][blue]{book.name}[/]')
         with zipfile.ZipFile(book, 'r') as book_r:
             for file in book_r.namelist():
                 if file.endswith('.opf'):
@@ -203,12 +207,10 @@ def open_books(books):
         console.print(f'[magenta]{index + 1}[/] [dim]{book.parent.name}/[/][blue]{book.name}[/]')
     
     choice = int(Prompt.ask('[green]Choose what book you want to open'))
-    while choice > len(books):
-        choice = int(Prompt.ask('[green]Number is too big, try again'))
+    while choice > len(books) or choice <= 0:
+        choice = int(Prompt.ask('[green]Not valid number, try again'))
     
     return open_book.main(books[choice - 1])
-
-console = Console()
 
 def get_choosen_book(books, sec_arg):
     choosen_book = None
@@ -328,7 +330,7 @@ def chooseOption(action, args):
                     print("There's ony one book!")
             case "just":
                 justReadMetadata(books)
-            case "list":
+            case "ls":
                 for book in books:
                     console.print(f"[dim]{book.parent.name}/[/][blue]{book.name}[/]")
             case "repack":
@@ -358,7 +360,7 @@ def main(books: list):
         "\t-Pretty                       [green]'pretty'[/]\n" +
         "\t-Merge books                  [green]'merge'[/]\n" +
         "\t-Just print metadata          [green]'just'[/]\n" +
-        "\t-Print current books          [green]'list'[/]\n" +
+        "\t-Print current books          [green]'ls'[/]\n" +
         "\t-Repack bad zip               [green]'repack'[/]\n" +
         "\t-Exit")
     
@@ -379,7 +381,7 @@ def main(books: list):
         'pretty': None,
         'merge': None,
         'just': None,
-        'list': None,
+        'ls': None,
         'repack': {'zip': None, '7z': None},
         'help': None,
         'exit': None
