@@ -53,12 +53,12 @@ Write `exit` to exit programm
 To go back write `..`
 
 ### Simple commands
-- `rename` - rename input (author1 & author2 - series 01.0, title)
+- `rename` - rename books
 - `sort` - sort input in directory, needs main directory. Example main/author/series/01.0 - title
 - `pretty` - make xml and html files in a book looks pretty
 - `just` - just print metadata for book(s)
 - `list` - show all current books
-- `repack` - repack all books with zip console utility, if you want to repack them with 7z use during start flag -R 7z
+- `repack` - repack all books with zip console utility
 - `merge` - merge all books (needs at least two books)
 
 ### Complex commands
@@ -117,6 +117,7 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 - `tree` - print a book tree
 - `ls` - print all files in a book
 - `just_ls` - print all files without formatting
+- `script` `script_name` - start script
 
 ## Flags and commands
 ### Commands
@@ -136,6 +137,11 @@ Open book (extract all files in temporary folder) for editing. Here you can:
     - `--include-subtitles` - flag for `toc_from_titles`
     - `--only-h` - flag for `toc_from_titles`
     - `--all-h` - flag for `toc_from_titles`
+*Your script must be executable and take one command-line argument.
+This argument is a path to a temp directory in which will be extracted your book.
+You can do with files whatever you want, after that they wiil be ziped in your book.
+There's some examples in scripts.*
+
 
 - `meta`
     
@@ -158,11 +164,6 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 - `--no-subdirs` - do **not** include books from subdirectories
 - `--ignore-config` - ignore config file
 - `--debug` - print debug information
-
-Your script must be executable and take one command-line argument.
-This argument is a path to a temp directory in which will be extracted your book.
-You can do with files whatever you want, after that they wiil be ziped in your book.
-There's some examples in scripts.
 
 ## Config
 For information about config open file config_example.toml.
