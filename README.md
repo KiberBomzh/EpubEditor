@@ -110,7 +110,7 @@ Open book (extract all files in temporary folder) for editing. Here you can:
 - `rename path/to/file1 : path/to/file2` - rename a file
 - `search query` or `search query &replace_to new_value` for search with replacing
 
-    *Search works with lxml and it is searching only in p tags or if there's not p in div*
+>*Search works with lxml and it is searching only in p tags or if there's not p in div*
 
 - open a file in a text editor such as `micro`, `nano`, `vim`, `nvim` or in `bat`. Print `'your editor' 'path/to/file.xhtml`
 - `pretty` `[xmllint/native]` - the same as the pretty in simple commands
@@ -137,7 +137,8 @@ Open book (extract all files in temporary folder) for editing. Here you can:
     - `--include-subtitles` - flag for `toc_from_titles`
     - `--only-h` - flag for `toc_from_titles`
     - `--all-h` - flag for `toc_from_titles`
-*Your script must be executable and take one command-line argument.
+
+>*Your script must be executable and take one command-line argument.
 This argument is a path to a temp directory in which will be extracted your book.
 You can do with files whatever you want, after that they wiil be ziped in your book.
 There's some examples in scripts.*
