@@ -113,7 +113,7 @@ def getMetadata(root, Print = False):
                 if author_sort:
                     authors_sort.append(author_sort)
             metadataRead['authors_sort'] = authors_sort
-            if Print:
+            if Print and authors_sort:
                 print('[blue]Authors, sort:[/blue]')
                 for author in authors_sort:
                     print(f'\t{author}')
