@@ -30,9 +30,9 @@ def justReadMetadata(books):
     for book in books:
         console.print(f'[dim white]{book.parent.name}/[/][blue]{book.name}[/]')
         with zipfile.ZipFile(book, 'r') as book_r:
-            for file in book_r.namelist():
-                if file.endswith('.opf'):
-                    opf_file = file
+            with book_r.open('META-INF/container.xml') as container:
+                opf_file = getOpf(container)
+            
             with book_r.open(opf_file) as opf:
                 tree = etree.parse(opf)
                 getMetadata(tree.getroot(), Print = True)
