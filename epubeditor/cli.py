@@ -15,7 +15,7 @@ subparsers = parser.add_subparsers(dest = 'command', help = "Commands")
 sort_parser = subparsers.add_parser('sort', help = "Sort books in folders structure")
 sort_parser.add_argument('-p', '--main-path', type = str, help = "Main path for sort")
 sort_parser.add_argument('-t', '--template', action = 'append', type = str, default = [], help = "Template for sort")
-sort_parser.add_argument('--keep-empty-folders', action = 'store_true', help = "Do NOT remove epty folders in main path")
+sort_parser.add_argument('--keep-empty-folders', action = 'store_true', help = "Do NOT remove empty folders in main path")
 
 
 rename_parser = subparsers.add_parser('rename', help = "Rename file(s)")
