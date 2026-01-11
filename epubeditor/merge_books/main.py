@@ -170,7 +170,7 @@ def main(books):
             gen_sort_names(opf, generate_sort)
             
             # Запись всех файлов из temp_path в new_book
-            with zipfile.ZipFile(new_book, 'w') as book_w:
+            with zipfile.ZipFile(new_book, 'w', compression = zipfile.ZIP_DEFLATED) as book_w:
                 for file in temp_path.rglob('*'):
                     if file.is_file():
                         arcname = file.relative_to(temp_path).as_posix()

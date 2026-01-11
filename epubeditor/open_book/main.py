@@ -90,7 +90,7 @@ def save(temp_path, book):
     # Запись книги из временной папки (сохранение изменений)
     temp_book = book.with_suffix('.temp.zip')
     try:
-        with zipfile.ZipFile(temp_book, 'w') as book_write:
+        with zipfile.ZipFile(temp_book, 'w', compression = zipfile.ZIP_DEFLATED) as book_write:
             for file in temp_path.rglob('*'):
                 if file.is_file():
                     arcname = file.relative_to(temp_path).as_posix()
@@ -117,7 +117,7 @@ def save_as(temp_path, out_path, book):
         print(f'Invalid path: {out_path}, try again:')
         return
 
-    with zipfile.ZipFile(book_as, 'w') as book_write:
+    with zipfile.ZipFile(book_as, 'w', compression = zipfile.ZIP_DEFLATED) as book_write:
         for file in temp_path.rglob('*'):
             if file.is_file():
                 arcname = file.relative_to(temp_path).as_posix()
