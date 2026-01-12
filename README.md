@@ -125,6 +125,7 @@ Open book (extract all files in temporary folder) for editing. Here you can:
     - `p`, `--main-path` - choose main path for sort
     - `-t`, `--template` - template for sort, you can use this many time: `-t "{authors}" -t "{series}" -t "{index/_}{title}"`
     - `--keep-empty-folders` - do not remove empty folders
+    - `--replace` - if there is book with target replace it
 
 - `rename` - do the same as the command `rename`
     - `-t`, `--template` - template for renaming

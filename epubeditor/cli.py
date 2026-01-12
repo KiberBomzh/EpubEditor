@@ -16,6 +16,7 @@ sort_parser = subparsers.add_parser('sort', help = "Sort books in folders struct
 sort_parser.add_argument('-p', '--main-path', type = str, help = "Main path for sort")
 sort_parser.add_argument('-t', '--template', action = 'append', type = str, default = [], help = "Template for sort")
 sort_parser.add_argument('--keep-empty-folders', action = 'store_true', help = "Do NOT remove empty folders in main path")
+sort_parser.add_argument('--replace', action = 'store_true', help = "Do NOT check if there is books with target name, just replace them")
 
 
 rename_parser = subparsers.add_parser('rename', help = "Rename file(s)")

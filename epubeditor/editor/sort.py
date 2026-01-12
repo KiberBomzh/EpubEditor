@@ -6,7 +6,7 @@ from prompt_toolkit.completion import PathCompleter
 
 from epubeditor.editor.template_handler import main as get_name
 from epubeditor.prompt_input import input
-from epubeditor.config import main_path, keep_empty_folders, sort_template
+from epubeditor.config import main_path, keep_empty_folders, sort_template, replace
 
 
 def sort(book, main_path):
@@ -20,10 +20,11 @@ def sort(book, main_path):
     if not new_book_path.parent.exists():
         new_book_path.parent.mkdir(parents = True)
     
-    if book != new_book_path and not new_book_path.exists():
-        return Path(shutil.move(book, new_book_path))
-    else:
-        return book
+    if book != new_book_path:
+        if not new_book_path.exists() or replace:
+            return Path(shutil.move(book, new_book_path))
+    
+    return book
 
 
 def rm_empty_folders(main_path):

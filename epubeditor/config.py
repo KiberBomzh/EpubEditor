@@ -8,6 +8,12 @@ from rich import print
 from epubeditor.cli import args
 
 
+# Переменные не входящие в конфиг
+
+# sort
+replace = False
+
+
 # Глобальный переменные
 replacement_for_forbidden_chars = '_'
 no_subdirs = False
@@ -176,6 +182,9 @@ match args.command:
         
         if args.keep_empty_folders:
             keep_empty_folders = args.keep_empty_folders
+        
+        if args.replace:
+            replace = args.replace
         
         if args.template:
             sort_template = args.template
