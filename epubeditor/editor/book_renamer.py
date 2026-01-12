@@ -1,3 +1,5 @@
+from pathlib import Path
+import shutil
 from rich.progress import track
 
 from epubeditor.editor.template_handler import main as get_name
@@ -14,7 +16,7 @@ def rename(book):
     new_book = book.parent / f'{name}.epub'
     
     if book != new_book and not new_book.exists():
-        new_book_path = book.rename(new_book)
+        new_book_path = Path(shutil.move(book, new_book))
     else:
         new_book_path = book
     return new_book_path

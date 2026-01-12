@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 from rich.progress import track
 from rich.console import Console
 from prompt_toolkit.completion import PathCompleter
@@ -20,7 +21,7 @@ def sort(book, main_path):
         new_book_path.parent.mkdir(parents = True)
     
     if book != new_book_path and not new_book_path.exists():
-        return book.rename(new_book_path)
+        return Path(shutil.move(book, new_book_path))
     else:
         return book
 
