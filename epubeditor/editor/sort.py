@@ -19,10 +19,10 @@ def sort(book, main_path):
     if not new_book_path.parent.exists():
         new_book_path.parent.mkdir(parents = True)
     
-    if book != new_book_path:
-        book.replace(new_book_path)
-    
-    return new_book_path
+    if book != new_book_path and not new_book_path.exists():
+        return book.rename(new_book_path)
+    else:
+        return book
 
 
 def rm_empty_folders(main_path):
