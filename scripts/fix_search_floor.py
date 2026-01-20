@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# This is an example script for the flag "--script"
+# This is an example script for the "script" command
 
 from sys import argv
 from pathlib import Path
