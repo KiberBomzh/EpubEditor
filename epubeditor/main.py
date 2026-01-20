@@ -47,7 +47,7 @@ def cmd_script():
     zip_errors.clear()
     
     def scriptRun(temp_path):
-        subprocess.call([args.script, temp_path])
+        subprocess.call([args.script_name, temp_path])
     
     
     if len(books) == 1:
