@@ -149,7 +149,7 @@ def getMetadata(root, Print = False):
                         authors_sort.append(f.text)
                         break
             metadataRead['authors_sort'] = authors_sort
-            if Print:
+            if Print and authors_sort:
                 print('[blue]Authors, sort:[/blue]')
                 for author in authors_sort:
                     print(f'\t{author}')
