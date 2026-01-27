@@ -207,7 +207,7 @@ def optionHandl(action, args):
         
         case 'micro' | 'nano' | 'vim' | 'nvim' | 'bat' | 'chafa':
             if arg:
-                subprocess.run([action, file])
+                subprocess.call(f'cd "{temp_path}" && {action} "{file}"', shell = True)
             else:
                 print("Option needs second argument.")
         
