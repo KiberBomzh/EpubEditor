@@ -6,6 +6,7 @@ import subprocess
 from epubeditor.scripts.toc_from_titles import main as toc_from_titles
 from epubeditor.scripts.split_by_titles import main as split_by_titles
 from epubeditor.scripts.clean_doubled_xml_declarations import main as clean_doubled_xml_declarations
+from epubeditor.scripts.generate_order_for_toc import main as generate_order_for_toc
 
 from epubeditor.scripts import __all__ as scripts_list
 from epubeditor.config import script_path
@@ -39,6 +40,9 @@ def main(temp_path, arg):
         case 'clean_doubled_xml_declarations':
             with console.status(f'[green]{action}[/]'):
                 clean_doubled_xml_declarations(temp_path)
+        case 'generate_order_for_toc':
+            with console.status(f'[green]{action}[/]'):
+                generate_order_for_toc(temp_path)
         case _:
             with console.status(f'[green]{action}[/]'):
                 subprocess.run(
